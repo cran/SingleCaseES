@@ -72,6 +72,9 @@ calc_ES <- function(A_data, B_data,
   
   if (missing(A_data) | missing(B_data)) {
     if (missing(outcome) | missing(condition)) stop("You must provide the data using the arguments 'A_data' and 'B_data' or 'condition' and 'outcome'.")
+    if (length(outcome) != length(condition)) stop("The outcome vector must be the same length as the condition vector.")
+    
+    if (length(condition) == 0) return(data.frame())
     
     conditions <- as.character(unique(condition))
     if (length(conditions) != 2) stop("The 'condition' variable must have exactly two unique values.")
@@ -157,7 +160,7 @@ calc_ES <- function(A_data, B_data,
 #'   \code{condition} corresponds to the baseline phase. If \code{NULL} (the
 #'   default), the first observed value of \code{condition} within the series
 #'   will be used.
-#'   @param ES character string or character vector specifying which effect size
+#' @param ES character string or character vector specifying which effect size
 #'   index or indices to calculate. Available effect sizes are \code{"LRRd"},
 #'   \code{"LRRi"}, \code{"LOR"}, \code{"SMD"}, \code{"NAP"}, \code{"IRD"},
 #'   \code{"PND"}, \code{"PEM"}, \code{"PAND"}, \code{"Tau"}, and
@@ -257,9 +260,10 @@ batch_calc_ES <- function(dat,
   outcome <- tryCatch(tidyselect::vars_pull(names(dat), !! rlang::enquo(outcome)), 
                       error = function(e) stop("Outcome variable is not in the dataset."))
   
-  if(tryCatch(!is.null(session_number), error = function(e) TRUE)){
+  if (tryCatch(!is.null(session_number), error = function(e) TRUE)) {
   session_number <- tryCatch(tidyselect::vars_pull(names(dat), !! rlang::enquo(session_number)), 
-                             error = function(e) stop("Session number variable is not in the dataset."))}
+                             error = function(e) stop("Session number variable is not in the dataset."))
+  }
   
   improvement <- tryCatch(tidyselect::vars_pull(c(names(dat), "increase", "decrease"), !! rlang::enquo(improvement)), 
                           error = function(e) stop("Improvement must be a variable name or a string specifying 'increase' or 'decrease'."))

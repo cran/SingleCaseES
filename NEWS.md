@@ -1,3 +1,9 @@
+# SingleCaseES 0.4.1
+
+* Fixed bug in SCD_effect_sizes() shiny app that caused an error in batch calculator when LRRi, LRRd, or LOR were not selected.
+* calc_ES() now returns a zero-length data frame if condition and outcome arguments are both length-zero vectors. 
+* calc_ES() errors if condition and outcome arguments are not the same length.
+
 # SingleCaseES 0.4.0
 
 * Added calc_ES() function for calculating multiple effect size estimates on a single data series.
