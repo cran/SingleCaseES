@@ -37,6 +37,12 @@ outcome_rev <- c(B, A)
 NAP(condition = phase_rev, outcome = outcome_rev, baseline_phase = "A")
 
 ## ------------------------------------------------------------------------
+NAP(condition = phase2, outcome = outcome_dat, 
+    baseline_phase = "A", intervention_phase = "C")
+NAP(condition = phase2, outcome = outcome_dat, 
+    baseline_phase = "B", intervention_phase = "C")
+
+## ------------------------------------------------------------------------
 NAP(A_data = A, B_data = B, improvement = "decrease")
 
 ## ------------------------------------------------------------------------

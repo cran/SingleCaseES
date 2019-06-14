@@ -101,7 +101,7 @@ code > span.ot { color: #007020; }
 </div>
 <div id="standard-errors" class="section level3">
 <h3><span class="header-section-number">2.1.3</span> Standard errors</h3>
-<p>The SingleCaseES package provides several different methods for estimating the standard error of NAP. The default method is calculated based on the exactly unbiased variance estimator described by <span class="citation">Sen (1967; cf. Mee, 1990)</span>, which assumes that the observations are mutually independent and are identically distributed within each phase. Let</p>
+<p>The SingleCaseES package provides several different methods for estimating the standard error of NAP. The default method is calculated based on the exactly unbiased variance estimator described by <span class="citation">Sen (1967; cf. Mee, 1990)</span>, which assumes that the observations are mutually independent and are identically distributed within each phase. Let</p>
 <p><span class="math display">\[
 Q_1 = \frac{1}{m n^2} \sum_{i=1}^m \left(\sum_{j=1}^n q_{ij}\right)^2, \qquad
 Q_2 = \frac{1}{m^2 n} \sum_{j=1}^n \left(\sum_{i=1}^m q_{ij}\right)^2, \qquad \text{and} \qquad
@@ -119,7 +119,7 @@ SE_{\text{Hanley}} = \sqrt{\frac{1}{mn}\left(\text{NAP}(1 - \text{NAP}) + (n - 1
 <p>A final method for estimating a standard error is to work under the null hypothesis that there is no effect—i.e., that the data points from each phase are sampled from the same distribution. Under the null hypothesis, the sampling variance of <span class="math inline">\(\text{NAP}\)</span> depends only on the number of observations in each phase:</p>
 <p><span class="math display">\[
 SE_{\text{null}} = \sqrt{\frac{m + n + 1}{12 m n}}
-\]</span> <span class="citation">(cf. Grissom &amp; Kim, 2001, p. 141)</span>. If null hypothesis is not true—that is, if the observations in phase B are drawn from a different distribution than the observations in phase A—then this standard error will tend to be too large.</p>
+\]</span> <span class="citation">(cf. Grissom &amp; Kim, 2001, p. 141)</span>. If null hypothesis is not true—that is, if the observations in phase B are drawn from a different distribution than the observations in phase A—then this standard error will tend to be too large.</p>
 </div>
 <div id="confidence-interval" class="section level3">
 <h3><span class="header-section-number">2.1.4</span> Confidence interval</h3>
@@ -274,7 +274,7 @@ m - \tilde{i} &amp; \tilde{j} \\ \hline
 <p><span class="math display">\[
 d_A = \left(1 - \frac{3}{4m - 5}\right) \frac{\bar{y}_B - \bar{y}_A}{s_A}.
 \]</span></p>
-<p>The term in parentheses is a small-sample bias correction term <span class="citation">(cf. Hedges, 1981; Pustejovsky, 2018a)</span>. The standard error of this estimate is calculated as</p>
+<p>The term in parentheses is a small-sample bias correction term <span class="citation">(cf. Hedges, 1981; Pustejovsky, 2018a)</span>. The standard error of this estimate is calculated as</p>
 <p><span class="math display">\[
 SE_{d_A} = \left(1 - \frac{3}{4m - 5}\right)\sqrt{\frac{1}{m} + \frac{s_B^2}{n s_A^2} + \frac{d_A^2}{2(m - 1)}}.
 \]</span></p>
@@ -383,7 +383,7 @@ SE_{LOR} = \sqrt{\frac{s^2_A}{n_A \tilde{y}_A^2 (1 - \tilde{y}_A)^2} + \frac{s^2
 <h1>References</h1>
 <div id="refs" class="references">
 <div id="ref-Acion2006probabilistic">
-<p>Acion, L., Peterson, J. J., Temple, S., &amp; Arndt, S. (2006). Probabilistic index: An intuitive non-parametric approach to measuring the size of treatment effects. <em>Statistics in Medicine</em>, <em>25</em>(4), 591–602. <a href="https://doi.org/10.1002/sim.2256" class="uri">https://doi.org/10.1002/sim.2256</a></p>
+<p>Acion, L., Peterson, J. J., Temple, S., &amp; Arndt, S. (2006). Probabilistic index: An intuitive non-parametric approach to measuring the size of treatment effects. <em>Statistics in Medicine</em>, <em>25</em>(4), 591–602. <a href="https://doi.org/10.1002/sim.2256">https://doi.org/10.1002/sim.2256</a></p>
 </div>
 <div id="ref-allison1994make">
 <p>Allison, D. B., &amp; Gorman, B. S. (1994). “Make things as simple as possible, but no simpler.” A rejoinder to scruggs and mastropieri. <em>Behaviour Research and Therapy</em>, <em>32</em>(8), 885–890.</p>
@@ -395,10 +395,10 @@ SE_{LOR} = \sqrt{\frac{s^2_A}{n_A \tilde{y}_A^2 (1 - \tilde{y}_A)^2} + \frac{s^2
 <p>Gingerich, W. J. (1984). Meta-analysis of applied time-series data. <em>The Journal of Applied Behavioral Science</em>, <em>20</em>(1), 71–79.</p>
 </div>
 <div id="ref-Grissom2001review">
-<p>Grissom, R. J., &amp; Kim, J. J. (2001). Review of assumptions and problems in the appropriate conceptualization of effect size. <em>Psychological Methods</em>, <em>6</em>(2), 135–146. <a href="https://doi.org/10.1037/1082-989X.6.2.135" class="uri">https://doi.org/10.1037/1082-989X.6.2.135</a></p>
+<p>Grissom, R. J., &amp; Kim, J. J. (2001). Review of assumptions and problems in the appropriate conceptualization of effect size. <em>Psychological Methods</em>, <em>6</em>(2), 135–146. <a href="https://doi.org/10.1037/1082-989X.6.2.135">https://doi.org/10.1037/1082-989X.6.2.135</a></p>
 </div>
 <div id="ref-Hanley1982meaning">
-<p>Hanley, J. A., &amp; McNeil, B. J. (1982). The meaning and use of the area under a receiver operating characteristic (ROC) curve. <em>Radiology</em>, <em>143</em>, 29–36. <a href="https://doi.org/10.1148/radiology.143.1.7063747" class="uri">https://doi.org/10.1148/radiology.143.1.7063747</a></p>
+<p>Hanley, J. A., &amp; McNeil, B. J. (1982). The meaning and use of the area under a receiver operating characteristic (ROC) curve. <em>Radiology</em>, <em>143</em>, 29–36. <a href="https://doi.org/10.1148/radiology.143.1.7063747">https://doi.org/10.1148/radiology.143.1.7063747</a></p>
 </div>
 <div id="ref-hedges1981distribution">
 <p>Hedges, L. V. (1981). Distribution theory for glass’s estimator of effect size and related estimators. <em>Journal of Educational Statistics</em>, <em>6</em>(2), 107–128.</p>
@@ -440,13 +440,13 @@ SE_{LOR} = \sqrt{\frac{s^2_A}{n_A \tilde{y}_A^2 (1 - \tilde{y}_A)^2} + \frac{s^2
 <p>Sen, P. K. (1967). A note on asymptotically distribution-free confidence bounds for p <span class="math inline">\(\{\)</span>x&lt; y<span class="math inline">\(\}\)</span>, based on two independent samples. <em>Sankhyā: The Indian Journal of Statistics, Series A</em>, 95–102.</p>
 </div>
 <div id="ref-Swan2018gradual">
-<p>Swan, D. M., &amp; Pustejovsky, J. E. (2018). A Gradual Effects Model for Single-Case Designs. <em>Multivariate Behavioral Research</em>. <a href="https://doi.org/10.1080/00273171.2018.1466681" class="uri">https://doi.org/10.1080/00273171.2018.1466681</a></p>
+<p>Swan, D. M., &amp; Pustejovsky, J. E. (2018). A Gradual Effects Model for Single-Case Designs. <em>Multivariate Behavioral Research</em>. <a href="https://doi.org/10.1080/00273171.2018.1466681">https://doi.org/10.1080/00273171.2018.1466681</a></p>
 </div>
 <div id="ref-tarlow2017improved">
 <p>Tarlow, K. R. (2017). An improved rank correlation effect size statistic for single-case designs: Baseline corrected tau. <em>Behavior Modification</em>, <em>41</em>(4), 427–467.</p>
 </div>
 <div id="ref-Vargha2000critique">
-<p>Vargha, A., &amp; Delaney, H. D. (2000). A critique and improvement of the &quot;CL&quot; common language effect size statistics of McGraw and Wong. <em>Journal of Educational and Behavioral Statistics</em>, <em>25</em>(2), 101–132. <a href="https://doi.org/10.2307/1165329" class="uri">https://doi.org/10.2307/1165329</a></p>
+<p>Vargha, A., &amp; Delaney, H. D. (2000). A critique and improvement of the &quot;CL&quot; common language effect size statistics of McGraw and Wong. <em>Journal of Educational and Behavioral Statistics</em>, <em>25</em>(2), 101–132. <a href="https://doi.org/10.2307/1165329">https://doi.org/10.2307/1165329</a></p>
 </div>
 </div>
 </div>

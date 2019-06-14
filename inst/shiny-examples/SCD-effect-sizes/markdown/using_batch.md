@@ -29,7 +29,7 @@ tabs) used by the data file, and specify whether or not the data includes
 quotations (it probably will not). The dataset will be loaded and automatically
 populated to the data screen.
 
-Once you have uploaded a dataset, select the "Calculate" tab. In the left-hand
+Once you have uploaded a dataset, select the "Variables" tab. In the left-hand
 panel, specify the column names from your dataset corresponding to each of the
 following variables:
 
@@ -52,6 +52,11 @@ following variables:
   The calculator assumes that all baseline phases across every series have the
   same value.
 
+- __Treatment Phase Value__ : A selection box containing all unique values in
+  the __Phase Indicator__ column, excluding the __Baseline Phase Value__. Select
+  the value corresponding to the treatment (intervention) phase. The calculator
+  assumes that all intervention phases across every series have the same value.
+
 - __Within-Case Session Number__: A column that allows the calculator to
   sequentially order each case. For each case, number the first observation 1, the
   second 2, up through the final observation.
@@ -68,9 +73,10 @@ following variables:
   specifies "increase" or "decrease" for each series, and select that variable
   name in the drop box that appears when you select "by series".
   
-After specifying these details about your data, select one or more effect sizes
-to calculate on each data series. If you select certain parametric effect sizes,
-several additional options will appear.
+After specifying these details about your data, select the "Estimate" tab. In
+the left-hand panel, select one or more effect sizes to calculate on each data
+series. If you select certain parametric effect sizes, several additional
+options will appear.
 
 - __Standardize by__: If you select the standardized mean difference (SMD), an
   option will appear allowing you select whether to calculate it using the
@@ -120,5 +126,6 @@ several additional options will appear.
   separate column, with a single line per data series.
   
 After you have selected one or more effect sizes, the "Calculate" button will
-appear. Click "Calculate" to view example output. Click the "Download results"
-button to download the effect size estimates as a .csv file.
+appear. Click "Calculate" to view example output. 
+
+Click the "Download results" button to download the effect size estimates as a .csv file.

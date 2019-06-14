@@ -17,8 +17,12 @@
 <title>Basic effect sizes calculations using SingleCaseES</title>
 
 <script>$(document).ready(function(){
-    $('[data-toggle="tooltip"]').tooltip();
-    $('[data-toggle="popover"]').popover();
+    if (typeof $('[data-toggle="tooltip"]').tooltip === 'function') {
+        $('[data-toggle="tooltip"]').tooltip();
+    }
+    if ($('[data-toggle="popover"]').popover === 'function') {
+        $('[data-toggle="popover"]').popover();
+    }
 });
 </script>
 
@@ -27,7 +31,7 @@
 <style type="text/css">
 a.sourceLine { display: inline-block; line-height: 1.25; }
 a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; position: absolute; }
+a.sourceLine:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 div.sourceCode { margin: 1em 0; }
@@ -40,13 +44,11 @@ code.sourceCode { white-space: pre-wrap; }
 a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
 pre.numberSource a.sourceLine
-  { position: relative; }
-pre.numberSource a.sourceLine:empty
-  { position: absolute; }
+  { position: relative; left: -4em; }
 pre.numberSource a.sourceLine::before
-  { content: attr(data-line-number);
-    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all;
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -132,7 +134,7 @@ code > span.ot { color: #007020; }
 </ul></li>
 <li><a href="#calc_es"><span class="toc-section-number">2</span> calc_ES()</a><ul>
 <li><a href="#further-arguments"><span class="toc-section-number">2.1</span> Further arguments</a></li>
-<li><a href="#long-vs.wide-format"><span class="toc-section-number">2.2</span> Long vs. wide format</a></li>
+<li><a href="#long-vs.-wide-format"><span class="toc-section-number">2.2</span> Long vs. wide format</a></li>
 </ul></li>
 <li><a href="#batch_calc_es"><span class="toc-section-number">3</span> batch_calc_ES()</a><ul>
 <li><a href="#data-organization"><span class="toc-section-number">3.1</span> Data organization</a></li>
@@ -154,7 +156,7 @@ code > span.ot { color: #007020; }
 </ul>
 <p>In this vignette, we introduce the package’s primary functions for carrying out effect size calculations. We demonstrate how to use the functions for calculating individual effect sizes from single data series, how to use the <code>calc_ES()</code> function for calculating multiple effect sizes from a single data series, and how to use <code>batch_calc_ES()</code> for calculating one or multiple effect sizes from multiple data series. We also highlight some further options available for the parametric effect size functions.</p>
 <p>To start, be sure to load the package:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(SingleCaseES)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(SingleCaseES)</a></code></pre></div>
 <div id="individual-effect-size-functions" class="section level1">
 <h1><span class="header-section-number">1</span> Individual effect size functions</h1>
 <p>The <code>SingleCaseES</code> package includes functions for calculating the major non-overlap measures that have been proposed for use with single-case designs, as well as several parametric effect size measures. The following non-overlap measures are available (function names are listed in parentheses):</p>
@@ -174,136 +176,147 @@ code > span.ot { color: #007020; }
 <li>Log odds ratio (<code>LOR</code>)</li>
 </ul>
 <p>All of the functions for calculating individual effect sizes follow the same basic syntax. For demonstration purposes, let’s take a look at the syntax for <code>NAP()</code>, which calculates the non-overlap of all pairs <span class="citation">(Parker &amp; Vannest, 2009)</span>:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">args</span>(NAP)</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co">#&gt; function (A_data, B_data, condition, outcome, baseline_phase = unique(condition)[1], </span></a>
-<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co">#&gt;     improvement = &quot;increase&quot;, SE = &quot;unbiased&quot;, confidence = 0.95) </span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#&gt; NULL</span></a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">args</span>(NAP)</a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="co">#&gt; function (A_data, B_data, condition, outcome, baseline_phase = unique(condition)[1], </span></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="co">#&gt;     improvement = &quot;increase&quot;, SE = &quot;unbiased&quot;, confidence = 0.95) </span></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="co">#&gt; NULL</span></a></code></pre></div>
 <p>All of the effect sizes functions in <code>SingleCaseES</code> can take the data from a single SCD series in one of two formats. We will first demonstrate each of these methods, then explain the further arguments to the function.</p>
 <div id="using-the-a_data-b_data-inputs" class="section level2">
 <h2><span class="header-section-number">1.1</span> Using the <code>A_data</code>, <code>B_data</code> inputs</h2>
 <p>The first input format involves providing separate vectors for the data from each phase. Here is some hypothetical data from the A phase and B phase of a single-case data series:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">A &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">20</span>, <span class="dv">20</span>, <span class="dv">26</span>, <span class="dv">25</span>, <span class="dv">22</span>, <span class="dv">23</span>)</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">B &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">28</span>, <span class="dv">25</span>, <span class="dv">24</span>, <span class="dv">27</span>, <span class="dv">30</span>, <span class="dv">30</span>, <span class="dv">29</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1">A &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">20</span>, <span class="dv">20</span>, <span class="dv">26</span>, <span class="dv">25</span>, <span class="dv">22</span>, <span class="dv">23</span>)</a>
+<a class="sourceLine" id="cb3-2" title="2">B &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">28</span>, <span class="dv">25</span>, <span class="dv">24</span>, <span class="dv">27</span>, <span class="dv">30</span>, <span class="dv">30</span>, <span class="dv">29</span>)</a></code></pre></div>
 <p>We can feed these data into the <code>NAP</code> function as follows:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw">NAP</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="co">#&gt;    ES       Est         SE  CI_lower  CI_upper</span></a>
-<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="co">#&gt; 1 NAP 0.9166667 0.06900656 0.5973406 0.9860176</span></a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">NAP</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="co">#&gt;    ES       Est         SE  CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="co">#&gt; 1 NAP 0.9166667 0.06900656 0.5973406 0.9860176</span></a></code></pre></div>
 </div>
 <div id="using-the-condition-outcome-inputs" class="section level2">
 <h2><span class="header-section-number">1.2</span> Using the <code>condition</code>, <code>outcome</code> inputs</h2>
 <p>The second input format involves providing a single vector containing <em>all</em> of the outcome data from the series, along with a vector that describes the phase of each observation in the data. Here we re-format the hypothetical data above to follow this structure:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">phase &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;A&quot;</span>, <span class="dv">6</span>), <span class="kw">rep</span>(<span class="st">&quot;B&quot;</span>, <span class="dv">7</span>))</a>
-<a class="sourceLine" id="cb5-2" data-line-number="2">phase</a>
-<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="co">#&gt;  [1] &quot;A&quot; &quot;A&quot; &quot;A&quot; &quot;A&quot; &quot;A&quot; &quot;A&quot; &quot;B&quot; &quot;B&quot; &quot;B&quot; &quot;B&quot; &quot;B&quot; &quot;B&quot; &quot;B&quot;</span></a>
-<a class="sourceLine" id="cb5-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb5-5" data-line-number="5">outcome_dat &lt;-<span class="st"> </span><span class="kw">c</span>(A, B)</a>
-<a class="sourceLine" id="cb5-6" data-line-number="6">outcome_dat </a>
-<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="co">#&gt;  [1] 20 20 26 25 22 23 28 25 24 27 30 30 29</span></a>
-<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="kw">NAP</span>(<span class="dt">condition =</span> phase, <span class="dt">outcome =</span> outcome_dat)</a>
-<a class="sourceLine" id="cb5-9" data-line-number="9"><span class="co">#&gt;    ES       Est         SE  CI_lower  CI_upper</span></a>
-<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="co">#&gt; 1 NAP 0.9166667 0.06900656 0.5973406 0.9860176</span></a></code></pre></div>
-<p>Note that if the vector provided to <code>condition</code> has more than two values, the effect size function will throw an error:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">phase2 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;A&quot;</span>, <span class="dv">5</span>), <span class="kw">rep</span>(<span class="st">&quot;B&quot;</span>, <span class="dv">5</span>), <span class="kw">rep</span>(<span class="st">&quot;C&quot;</span>,<span class="dv">3</span>))</a>
-<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="kw">NAP</span>(<span class="dt">condition =</span> phase2, <span class="dt">outcome =</span> outcome_dat)</a>
-<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="co">#&gt; Error in calc_ES(A_data = A_data, B_data = B_data, condition = condition, : The 'condition' variable must have exactly two unique values.</span></a></code></pre></div>
-<p>By default, <code>NAP()</code> and all of the other effect size functions treat the first value of <code>condition</code> as the the baseline phase. However, in some single-case data series, the initial observation might not be in the baseline phase. For example, an SCD with four cases might use a cross-over treatment reversal design, where two of the cases follow an ABAB design and the other two cases follow a BABA design. To handle this situation, we will need to specify the baseline phase using the <code>baseline_phase</code> argument:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">phase_rev &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;B&quot;</span>, <span class="dv">7</span>), <span class="kw">rep</span>(<span class="st">&quot;A&quot;</span>, <span class="dv">6</span>))</a>
-<a class="sourceLine" id="cb7-2" data-line-number="2">outcome_rev &lt;-<span class="st"> </span><span class="kw">c</span>(B, A)</a>
-<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="kw">NAP</span>(<span class="dt">condition =</span> phase_rev, <span class="dt">outcome =</span> outcome_rev, <span class="dt">baseline_phase =</span> <span class="st">&quot;A&quot;</span>)</a>
-<a class="sourceLine" id="cb7-4" data-line-number="4"><span class="co">#&gt;    ES       Est         SE  CI_lower  CI_upper</span></a>
-<a class="sourceLine" id="cb7-5" data-line-number="5"><span class="co">#&gt; 1 NAP 0.9166667 0.06900656 0.5973406 0.9860176</span></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">phase &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;A&quot;</span>, <span class="dv">6</span>), <span class="kw">rep</span>(<span class="st">&quot;B&quot;</span>, <span class="dv">7</span>))</a>
+<a class="sourceLine" id="cb5-2" title="2">phase</a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="co">#&gt;  [1] &quot;A&quot; &quot;A&quot; &quot;A&quot; &quot;A&quot; &quot;A&quot; &quot;A&quot; &quot;B&quot; &quot;B&quot; &quot;B&quot; &quot;B&quot; &quot;B&quot; &quot;B&quot; &quot;B&quot;</span></a>
+<a class="sourceLine" id="cb5-4" title="4"></a>
+<a class="sourceLine" id="cb5-5" title="5">outcome_dat &lt;-<span class="st"> </span><span class="kw">c</span>(A, B)</a>
+<a class="sourceLine" id="cb5-6" title="6">outcome_dat </a>
+<a class="sourceLine" id="cb5-7" title="7"><span class="co">#&gt;  [1] 20 20 26 25 22 23 28 25 24 27 30 30 29</span></a>
+<a class="sourceLine" id="cb5-8" title="8"><span class="kw">NAP</span>(<span class="dt">condition =</span> phase, <span class="dt">outcome =</span> outcome_dat)</a>
+<a class="sourceLine" id="cb5-9" title="9"><span class="co">#&gt;    ES       Est         SE  CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb5-10" title="10"><span class="co">#&gt; 1 NAP 0.9166667 0.06900656 0.5973406 0.9860176</span></a></code></pre></div>
+<p>If the vector provided to <code>condition</code> has more than two values, the effect size function will assume that the first value of <code>condition</code> is the baseline phase and the second unique value of <code>condition</code> is the intervention phase:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">phase2 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;A&quot;</span>, <span class="dv">5</span>), <span class="kw">rep</span>(<span class="st">&quot;B&quot;</span>, <span class="dv">5</span>), <span class="kw">rep</span>(<span class="st">&quot;C&quot;</span>,<span class="dv">3</span>))</a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="kw">NAP</span>(<span class="dt">condition =</span> phase2, <span class="dt">outcome =</span> outcome_dat)</a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="co">#&gt; Warning in calc_ES(A_data = A_data, B_data = B_data, condition =</span></a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="co">#&gt; condition, : The &#39;condition&#39; variable has more than two unique values.</span></a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="co">#&gt; Treating &#39;B&#39; as the intervention phase.</span></a>
+<a class="sourceLine" id="cb6-6" title="6"><span class="co">#&gt;    ES  Est    SE  CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb6-7" title="7"><span class="co">#&gt; 1 NAP 0.78 0.155 0.4115567 0.9423658</span></a></code></pre></div>
+<p>In some single-case data series, the initial observation might not be in the baseline phase. For example, an SCD with four cases might use a cross-over treatment reversal design, where two of the cases follow an ABAB design and the other two cases follow a BABA design. To handle this situation, we will need to specify the baseline phase using the <code>baseline_phase</code> argument:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1">phase_rev &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;B&quot;</span>, <span class="dv">7</span>), <span class="kw">rep</span>(<span class="st">&quot;A&quot;</span>, <span class="dv">6</span>))</a>
+<a class="sourceLine" id="cb7-2" title="2">outcome_rev &lt;-<span class="st"> </span><span class="kw">c</span>(B, A)</a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="kw">NAP</span>(<span class="dt">condition =</span> phase_rev, <span class="dt">outcome =</span> outcome_rev, <span class="dt">baseline_phase =</span> <span class="st">&quot;A&quot;</span>)</a>
+<a class="sourceLine" id="cb7-4" title="4"><span class="co">#&gt;    ES       Est         SE  CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb7-5" title="5"><span class="co">#&gt; 1 NAP 0.9166667 0.06900656 0.5973406 0.9860176</span></a></code></pre></div>
+<p>In data series that include more than two unique phases, it is also possible to specify which one should be used as the intervention phase using the <code>intervention_phase</code> argument:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">NAP</span>(<span class="dt">condition =</span> phase2, <span class="dt">outcome =</span> outcome_dat, </a>
+<a class="sourceLine" id="cb8-2" title="2">    <span class="dt">baseline_phase =</span> <span class="st">&quot;A&quot;</span>, <span class="dt">intervention_phase =</span> <span class="st">&quot;C&quot;</span>)</a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="co">#&gt; Error in NAP(condition = phase2, outcome = outcome_dat, baseline_phase = &quot;A&quot;, : unused argument (intervention_phase = &quot;C&quot;)</span></a>
+<a class="sourceLine" id="cb8-4" title="4"><span class="kw">NAP</span>(<span class="dt">condition =</span> phase2, <span class="dt">outcome =</span> outcome_dat, </a>
+<a class="sourceLine" id="cb8-5" title="5">    <span class="dt">baseline_phase =</span> <span class="st">&quot;B&quot;</span>, <span class="dt">intervention_phase =</span> <span class="st">&quot;C&quot;</span>)</a>
+<a class="sourceLine" id="cb8-6" title="6"><span class="co">#&gt; Error in NAP(condition = phase2, outcome = outcome_dat, baseline_phase = &quot;B&quot;, : unused argument (intervention_phase = &quot;C&quot;)</span></a></code></pre></div>
 </div>
 <div id="direction-of-improvement" class="section level2">
 <h2><span class="header-section-number">1.3</span> Direction of improvement</h2>
 <p>All of the effect size functions in <code>SingleCaseES</code> are defined based on some assumption about the direction of therapeutic improvement in the outcome (e.g., improvement would correspond to <em>increases</em> in on-task behavior but <em>decreases</em> in aggressive behavior). For all of the effect size functions, it is important to specify the direction of therapeutic improvement for the data series by providing a value for the <code>improvement</code> argument:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">NAP</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>)</a>
-<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="co">#&gt;    ES        Est         SE   CI_lower  CI_upper</span></a>
-<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="co">#&gt; 1 NAP 0.08333333 0.06900656 0.01398242 0.4026594</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">NAP</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>)</a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="co">#&gt;    ES        Est         SE   CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="co">#&gt; 1 NAP 0.08333333 0.06900656 0.01398242 0.4026594</span></a></code></pre></div>
 <p>Note that <code>NAP()</code> and most of the effect size functions default to assuming that increases in the outcome correspond to improvements.</p>
 </div>
 <div id="further-options-for-nap" class="section level2">
 <h2><span class="header-section-number">1.4</span> Further options for <code>NAP()</code></h2>
 <p>The <code>NAP</code> function provides several possible methods for calculating the standard error. By default, the exactly unbiased standard errors are used. However, the function can also produce standard errors using the Hanley-McNeil estimator, the variance under the null hypothesis of no effect, or no standard errors at all:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw">NAP</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">SE =</span> <span class="st">&quot;unbiased&quot;</span>)</a>
-<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="co">#&gt;    ES       Est         SE  CI_lower  CI_upper</span></a>
-<a class="sourceLine" id="cb9-3" data-line-number="3"><span class="co">#&gt; 1 NAP 0.9166667 0.06900656 0.5973406 0.9860176</span></a>
-<a class="sourceLine" id="cb9-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb9-5" data-line-number="5"><span class="kw">NAP</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">SE =</span> <span class="st">&quot;Hanley&quot;</span>)</a>
-<a class="sourceLine" id="cb9-6" data-line-number="6"><span class="co">#&gt;    ES       Est         SE  CI_lower  CI_upper</span></a>
-<a class="sourceLine" id="cb9-7" data-line-number="7"><span class="co">#&gt; 1 NAP 0.9166667 0.07739185 0.5973406 0.9860176</span></a>
-<a class="sourceLine" id="cb9-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb9-9" data-line-number="9"><span class="kw">NAP</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">SE =</span> <span class="st">&quot;null&quot;</span>)</a>
-<a class="sourceLine" id="cb9-10" data-line-number="10"><span class="co">#&gt;    ES       Est        SE  CI_lower  CI_upper</span></a>
-<a class="sourceLine" id="cb9-11" data-line-number="11"><span class="co">#&gt; 1 NAP 0.9166667 0.1666667 0.5973406 0.9860176</span></a>
-<a class="sourceLine" id="cb9-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb9-13" data-line-number="13"><span class="kw">NAP</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">SE =</span> <span class="st">&quot;none&quot;</span>)</a>
-<a class="sourceLine" id="cb9-14" data-line-number="14"><span class="co">#&gt;    ES       Est  CI_lower  CI_upper</span></a>
-<a class="sourceLine" id="cb9-15" data-line-number="15"><span class="co">#&gt; 1 NAP 0.9166667 0.5973406 0.9860176</span></a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">NAP</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">SE =</span> <span class="st">&quot;unbiased&quot;</span>)</a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="co">#&gt;    ES       Est         SE  CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb10-3" title="3"><span class="co">#&gt; 1 NAP 0.9166667 0.06900656 0.5973406 0.9860176</span></a>
+<a class="sourceLine" id="cb10-4" title="4"></a>
+<a class="sourceLine" id="cb10-5" title="5"><span class="kw">NAP</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">SE =</span> <span class="st">&quot;Hanley&quot;</span>)</a>
+<a class="sourceLine" id="cb10-6" title="6"><span class="co">#&gt;    ES       Est         SE  CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb10-7" title="7"><span class="co">#&gt; 1 NAP 0.9166667 0.07739185 0.5973406 0.9860176</span></a>
+<a class="sourceLine" id="cb10-8" title="8"></a>
+<a class="sourceLine" id="cb10-9" title="9"><span class="kw">NAP</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">SE =</span> <span class="st">&quot;null&quot;</span>)</a>
+<a class="sourceLine" id="cb10-10" title="10"><span class="co">#&gt;    ES       Est        SE  CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb10-11" title="11"><span class="co">#&gt; 1 NAP 0.9166667 0.1666667 0.5973406 0.9860176</span></a>
+<a class="sourceLine" id="cb10-12" title="12"></a>
+<a class="sourceLine" id="cb10-13" title="13"><span class="kw">NAP</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">SE =</span> <span class="st">&quot;none&quot;</span>)</a>
+<a class="sourceLine" id="cb10-14" title="14"><span class="co">#&gt;    ES       Est  CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb10-15" title="15"><span class="co">#&gt; 1 NAP 0.9166667 0.5973406 0.9860176</span></a></code></pre></div>
 <p>The function also produces a confidence interval for NAP. By default, a 95% CI is calculated. To calculate an interval at some other level of coverage, set the <code>confidence</code> argument to a value between 0 and 1:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw">NAP</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</a>
-<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="co">#&gt;    ES       Est         SE  CI_lower  CI_upper</span></a>
-<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="co">#&gt; 1 NAP 0.9166667 0.06900656 0.5973406 0.9860176</span></a>
-<a class="sourceLine" id="cb10-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb10-5" data-line-number="5"><span class="kw">NAP</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">confidence =</span> <span class="fl">.99</span>)</a>
-<a class="sourceLine" id="cb10-6" data-line-number="6"><span class="co">#&gt;    ES       Est         SE  CI_lower  CI_upper</span></a>
-<a class="sourceLine" id="cb10-7" data-line-number="7"><span class="co">#&gt; 1 NAP 0.9166667 0.06900656 0.4875014 0.9907377</span></a>
-<a class="sourceLine" id="cb10-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb10-9" data-line-number="9"><span class="kw">NAP</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">confidence =</span> <span class="fl">.90</span>)</a>
-<a class="sourceLine" id="cb10-10" data-line-number="10"><span class="co">#&gt;    ES       Est         SE  CI_lower  CI_upper</span></a>
-<a class="sourceLine" id="cb10-11" data-line-number="11"><span class="co">#&gt; 1 NAP 0.9166667 0.06900656 0.6591091 0.9822249</span></a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1"><span class="kw">NAP</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</a>
+<a class="sourceLine" id="cb11-2" title="2"><span class="co">#&gt;    ES       Est         SE  CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb11-3" title="3"><span class="co">#&gt; 1 NAP 0.9166667 0.06900656 0.5973406 0.9860176</span></a>
+<a class="sourceLine" id="cb11-4" title="4"></a>
+<a class="sourceLine" id="cb11-5" title="5"><span class="kw">NAP</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">confidence =</span> <span class="fl">.99</span>)</a>
+<a class="sourceLine" id="cb11-6" title="6"><span class="co">#&gt;    ES       Est         SE  CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb11-7" title="7"><span class="co">#&gt; 1 NAP 0.9166667 0.06900656 0.4875014 0.9907377</span></a>
+<a class="sourceLine" id="cb11-8" title="8"></a>
+<a class="sourceLine" id="cb11-9" title="9"><span class="kw">NAP</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">confidence =</span> <span class="fl">.90</span>)</a>
+<a class="sourceLine" id="cb11-10" title="10"><span class="co">#&gt;    ES       Est         SE  CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb11-11" title="11"><span class="co">#&gt; 1 NAP 0.9166667 0.06900656 0.6591091 0.9822249</span></a></code></pre></div>
 <p>Set <code>confidence = NULL</code> to omit the confidence interval calculations all together:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw">NAP</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">confidence =</span> <span class="ot">NULL</span>)    </a>
-<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="co">#&gt;    ES       Est         SE</span></a>
-<a class="sourceLine" id="cb11-3" data-line-number="3"><span class="co">#&gt; 1 NAP 0.9166667 0.06900656</span></a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">NAP</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">confidence =</span> <span class="ot">NULL</span>)    </a>
+<a class="sourceLine" id="cb12-2" title="2"><span class="co">#&gt;    ES       Est         SE</span></a>
+<a class="sourceLine" id="cb12-3" title="3"><span class="co">#&gt; 1 NAP 0.9166667 0.06900656</span></a></code></pre></div>
 </div>
 <div id="other-non-overlap-indices" class="section level2">
 <h2><span class="header-section-number">1.5</span> Other non-overlap indices</h2>
 <p>The <code>SingleCaseES</code> package includes functions for calculating several other non-overlap indices in addition to NAP. All of the functions accept data in either the A, B format or the condition, outcome format with optional baseline specification, and all of the functions include an argument to specify the direction of improvement. Like the function for NAP, the function for Tau (<code>Tau</code>) can produce unbiased standard errors, Hanley-McNeil standard errors, standard errors under the null hypothesis of no effect, or no standard errors at all. Only <code>NAP</code> and <code>Tau</code> return standard errors and confidence intervals. The remaining non-overlap measures return only a point estimate:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="kw">Tau</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</a>
-<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="co">#&gt;    ES       Est        SE  CI_lower  CI_upper</span></a>
-<a class="sourceLine" id="cb12-3" data-line-number="3"><span class="co">#&gt; 1 Tau 0.8333333 0.1380131 0.1946812 0.9720352</span></a>
-<a class="sourceLine" id="cb12-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb12-5" data-line-number="5"><span class="kw">PND</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</a>
-<a class="sourceLine" id="cb12-6" data-line-number="6"><span class="co">#&gt;    ES       Est</span></a>
-<a class="sourceLine" id="cb12-7" data-line-number="7"><span class="co">#&gt; 1 PND 0.7142857</span></a>
-<a class="sourceLine" id="cb12-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb12-9" data-line-number="9"><span class="kw">PEM</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</a>
-<a class="sourceLine" id="cb12-10" data-line-number="10"><span class="co">#&gt;    ES Est</span></a>
-<a class="sourceLine" id="cb12-11" data-line-number="11"><span class="co">#&gt; 1 PEM   1</span></a>
-<a class="sourceLine" id="cb12-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb12-13" data-line-number="13"><span class="kw">PAND</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</a>
-<a class="sourceLine" id="cb12-14" data-line-number="14"><span class="co">#&gt;     ES       Est</span></a>
-<a class="sourceLine" id="cb12-15" data-line-number="15"><span class="co">#&gt; 1 PAND 0.8461538</span></a>
-<a class="sourceLine" id="cb12-16" data-line-number="16"></a>
-<a class="sourceLine" id="cb12-17" data-line-number="17"><span class="kw">IRD</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</a>
-<a class="sourceLine" id="cb12-18" data-line-number="18"><span class="co">#&gt;    ES       Est</span></a>
-<a class="sourceLine" id="cb12-19" data-line-number="19"><span class="co">#&gt; 1 IRD 0.6904762</span></a>
-<a class="sourceLine" id="cb12-20" data-line-number="20"></a>
-<a class="sourceLine" id="cb12-21" data-line-number="21"><span class="kw">Tau_U</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</a>
-<a class="sourceLine" id="cb12-22" data-line-number="22"><span class="co">#&gt;      ES       Est</span></a>
-<a class="sourceLine" id="cb12-23" data-line-number="23"><span class="co">#&gt; 1 Tau-U 0.7380952</span></a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">Tau</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</a>
+<a class="sourceLine" id="cb13-2" title="2"><span class="co">#&gt;    ES       Est        SE  CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb13-3" title="3"><span class="co">#&gt; 1 Tau 0.8333333 0.1380131 0.1946812 0.9720352</span></a>
+<a class="sourceLine" id="cb13-4" title="4"></a>
+<a class="sourceLine" id="cb13-5" title="5"><span class="kw">PND</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</a>
+<a class="sourceLine" id="cb13-6" title="6"><span class="co">#&gt;    ES       Est</span></a>
+<a class="sourceLine" id="cb13-7" title="7"><span class="co">#&gt; 1 PND 0.7142857</span></a>
+<a class="sourceLine" id="cb13-8" title="8"></a>
+<a class="sourceLine" id="cb13-9" title="9"><span class="kw">PEM</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</a>
+<a class="sourceLine" id="cb13-10" title="10"><span class="co">#&gt;    ES Est</span></a>
+<a class="sourceLine" id="cb13-11" title="11"><span class="co">#&gt; 1 PEM   1</span></a>
+<a class="sourceLine" id="cb13-12" title="12"></a>
+<a class="sourceLine" id="cb13-13" title="13"><span class="kw">PAND</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</a>
+<a class="sourceLine" id="cb13-14" title="14"><span class="co">#&gt;     ES       Est</span></a>
+<a class="sourceLine" id="cb13-15" title="15"><span class="co">#&gt; 1 PAND 0.8461538</span></a>
+<a class="sourceLine" id="cb13-16" title="16"></a>
+<a class="sourceLine" id="cb13-17" title="17"><span class="kw">IRD</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</a>
+<a class="sourceLine" id="cb13-18" title="18"><span class="co">#&gt;    ES       Est</span></a>
+<a class="sourceLine" id="cb13-19" title="19"><span class="co">#&gt; 1 IRD 0.6904762</span></a>
+<a class="sourceLine" id="cb13-20" title="20"></a>
+<a class="sourceLine" id="cb13-21" title="21"><span class="kw">Tau_U</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</a>
+<a class="sourceLine" id="cb13-22" title="22"><span class="co">#&gt;      ES       Est</span></a>
+<a class="sourceLine" id="cb13-23" title="23"><span class="co">#&gt; 1 Tau-U 0.7380952</span></a></code></pre></div>
 </div>
 <div id="further-options-for-smd" class="section level2">
 <h2><span class="header-section-number">1.6</span> Further options for <code>SMD()</code></h2>
 <p>The standardized mean difference parameter is defined as the difference between the mean level of the outcome in phase B and the mean level of the outcome in phase A, scaled by the within-case standard deviation of the outcome in phase A. As with all functions discussed so far, the <code>SMD()</code> function accepts data in either the A_data, B_data format or the condition, outcome format with optional baseline phase specification.</p>
 <p>The direction of improvement can be specified with the <code>improvement</code> argument, with “increase” being the default. Changing the direction of the improvement does not change the magnitude of the effect size, but does change its sign:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">A &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">20</span>, <span class="dv">20</span>, <span class="dv">26</span>, <span class="dv">25</span>, <span class="dv">22</span>, <span class="dv">23</span>)</a>
-<a class="sourceLine" id="cb13-2" data-line-number="2">B &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">28</span>, <span class="dv">25</span>, <span class="dv">24</span>, <span class="dv">27</span>, <span class="dv">30</span>, <span class="dv">30</span>, <span class="dv">29</span>)</a>
-<a class="sourceLine" id="cb13-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb13-4" data-line-number="4"><span class="kw">SMD</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">improvement =</span> <span class="st">&quot;increase&quot;</span>)</a>
-<a class="sourceLine" id="cb13-5" data-line-number="5"><span class="co">#&gt;    ES      Est        SE  CI_lower CI_upper</span></a>
-<a class="sourceLine" id="cb13-6" data-line-number="6"><span class="co">#&gt; 1 SMD 1.703734 0.6370139 0.4552097 2.952258</span></a>
-<a class="sourceLine" id="cb13-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb13-8" data-line-number="8"><span class="kw">SMD</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>)</a>
-<a class="sourceLine" id="cb13-9" data-line-number="9"><span class="co">#&gt;    ES       Est        SE  CI_lower   CI_upper</span></a>
-<a class="sourceLine" id="cb13-10" data-line-number="10"><span class="co">#&gt; 1 SMD -1.703734 0.6370139 -2.952258 -0.4552097</span></a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1">A &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">20</span>, <span class="dv">20</span>, <span class="dv">26</span>, <span class="dv">25</span>, <span class="dv">22</span>, <span class="dv">23</span>)</a>
+<a class="sourceLine" id="cb14-2" title="2">B &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">28</span>, <span class="dv">25</span>, <span class="dv">24</span>, <span class="dv">27</span>, <span class="dv">30</span>, <span class="dv">30</span>, <span class="dv">29</span>)</a>
+<a class="sourceLine" id="cb14-3" title="3"></a>
+<a class="sourceLine" id="cb14-4" title="4"><span class="kw">SMD</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">improvement =</span> <span class="st">&quot;increase&quot;</span>)</a>
+<a class="sourceLine" id="cb14-5" title="5"><span class="co">#&gt;    ES      Est        SE  CI_lower CI_upper</span></a>
+<a class="sourceLine" id="cb14-6" title="6"><span class="co">#&gt; 1 SMD 1.649932 0.6340935 0.4071314 2.892732</span></a>
+<a class="sourceLine" id="cb14-7" title="7"></a>
+<a class="sourceLine" id="cb14-8" title="8"><span class="kw">SMD</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>)</a>
+<a class="sourceLine" id="cb14-9" title="9"><span class="co">#&gt;    ES       Est        SE  CI_lower   CI_upper</span></a>
+<a class="sourceLine" id="cb14-10" title="10"><span class="co">#&gt; 1 SMD -1.649932 0.6340935 -2.892732 -0.4071314</span></a></code></pre></div>
 <p>The <code>std_dev</code> argument controls whether the effect size estimate is based on the standard deviation of the baseline phase alone (the default, <code>std_dev = &quot;baseline&quot;</code>), or based on the standard deviation after pooling across both phases (<code>std_dev = &quot;pool&quot;</code>):</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw">SMD</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">std_dev =</span> <span class="st">&quot;baseline&quot;</span>)</a>
-<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="co">#&gt;    ES      Est        SE  CI_lower CI_upper</span></a>
-<a class="sourceLine" id="cb14-3" data-line-number="3"><span class="co">#&gt; 1 SMD 1.703734 0.6370139 0.4552097 2.952258</span></a>
-<a class="sourceLine" id="cb14-4" data-line-number="4"><span class="kw">SMD</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">std_dev =</span> <span class="st">&quot;pool&quot;</span>)</a>
-<a class="sourceLine" id="cb14-5" data-line-number="5"><span class="co">#&gt;    ES      Est        SE  CI_lower CI_upper</span></a>
-<a class="sourceLine" id="cb14-6" data-line-number="6"><span class="co">#&gt; 1 SMD 1.876247 0.6374216 0.6269241 3.125571</span></a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">SMD</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">std_dev =</span> <span class="st">&quot;baseline&quot;</span>)</a>
+<a class="sourceLine" id="cb15-2" title="2"><span class="co">#&gt;    ES      Est        SE  CI_lower CI_upper</span></a>
+<a class="sourceLine" id="cb15-3" title="3"><span class="co">#&gt; 1 SMD 1.649932 0.6340935 0.4071314 2.892732</span></a>
+<a class="sourceLine" id="cb15-4" title="4"><span class="kw">SMD</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">std_dev =</span> <span class="st">&quot;pool&quot;</span>)</a>
+<a class="sourceLine" id="cb15-5" title="5"><span class="co">#&gt;    ES      Est        SE  CI_lower CI_upper</span></a>
+<a class="sourceLine" id="cb15-6" title="6"><span class="co">#&gt; 1 SMD 1.876247 0.6374216 0.6269241 3.125571</span></a></code></pre></div>
 <p>By default the <code>SMD()</code> function uses the Hedges’ g bias correction for small sample sizes. The bias correction can be turned off by specifying the argument <code>bias_correct = FALSE</code>. The width of the confidence intervals is controlled via the <code>confidence</code> argument, and no confidence intervals will be produced if the argument is set to <code>confidence = NULL</code>.</p>
 </div>
 <div id="log-response-ratios" class="section level2">
@@ -315,46 +328,46 @@ code > span.ot { color: #007020; }
 <li>LRR-decreasing (<code>LRRd()</code>) is defined so that negative values correspond to therapeutic improvements.</li>
 </ul>
 <p>If you are estimating an effect size for a single series, pick the version of LRR that corresponds to the therapeutic improvement expected for your dependent variable. Similarly, if you are estimating effect sizes for a set of SCD series with the same therapeutic direction, pick the version that corresponds to your intervention’s expected change.</p>
-<p>If you are estimating effect sizes for interventions where the direction of improvement depends upon the series or study, the choice between LRRi and LRRd is slightly more involved. For example, imagine we have ten studies to meta-analyze. For eight studies, the outcome are initiations of peer interaction, so therapeutic improvements correspond to increases in behavior. For the other two studies, the outcomes were episodes of verbal aggression towards peers, so the therapeutic direction was a decrease. In this context it would be sensible to pick the <code>LRRi()</code> function, because most of the outcomes are positively-valenced. For the final two studies, we would specify <code>improvement = &quot;decrease&quot;</code>, which would ensure that the sign and magnitude of the outcomes were consistent with the direction of therapeutic improvement ( i.e. a larger log-ratio represents a larger change in the desired direction). Conversely, if most of the outcomes had a negative valence and only a few had a positive valence, then we would use <code>LRRd()</code> and we would specify <code>improvement = &quot;increase&quot;</code> for the few series that had positive-valence outcomes.</p>
+<p>If you are estimating effect sizes for interventions where the direction of improvement depends upon the series or study, the choice between LRRi and LRRd is slightly more involved. For example, imagine we have ten studies to meta-analyze. For eight studies, the outcome are initiations of peer interaction, so therapeutic improvements correspond to increases in behavior. For the other two studies, the outcomes were episodes of verbal aggression towards peers, so the therapeutic direction was a decrease. In this context it would be sensible to pick the <code>LRRi()</code> function, because most of the outcomes are positively-valenced. For the final two studies, we would specify <code>improvement = &quot;decrease&quot;</code>, which would ensure that the sign and magnitude of the outcomes were consistent with the direction of therapeutic improvement (i.e. a larger log-ratio represents a larger change in the desired direction). Conversely, if most of the outcomes had a negative valence and only a few had a positive valence, then we would use <code>LRRd()</code> and we would specify <code>improvement = &quot;increase&quot;</code> for the few series that had positive-valence outcomes.</p>
 <div id="setting-the-scale-of-the-outcome" class="section level3">
 <h3><span class="header-section-number">1.7.1</span> Setting the scale of the outcome</h3>
 <p>LRR differs from other effect size indices for single-case designs in that calculating it requires some further information about how the outcome variable was measured. One important piece of information to know is the scale of the outcome measurements. For outcomes that are measured by frequency counting, the scale might be expressed as a raw count (<code>scale = &quot;count&quot;</code>) or as a standardized rate per minute (<code>scale = &quot;rate&quot;</code>). For outcomes that are measures of state behavior, where the main dimension of interest is the proportion of time that the behavior occurs, the scale might be expressed as a percentage (ranging from 0 to 100%; <code>scale = &quot;percentage&quot;</code>) or as a proportion (ranging from 0 to 1; <code>scale = &quot;proportion&quot;</code>). For outcomes that don’t fit into any of these categories, set <code>scale = &quot;other&quot;</code>.</p>
 <p>The scale of the outcome variable has two important implications for how log response ratios are estimated. First, outcomes measured as percentages or proportions need to be coded so that the direction of therapeutic improvement is consistent with the direction of the effect size. Consequently, changing the improvement direction will alter the <em>magnitude</em>, in addition to the sign, of the effect size <span class="citation">(see Pustejovsky, 2018, pp. 16–18 for further details)</span>. Here is an example:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">A &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">20</span>, <span class="dv">20</span>, <span class="dv">26</span>, <span class="dv">25</span>, <span class="dv">22</span>, <span class="dv">23</span>)</a>
-<a class="sourceLine" id="cb15-2" data-line-number="2">B &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">28</span>, <span class="dv">25</span>, <span class="dv">24</span>, <span class="dv">27</span>, <span class="dv">30</span>, <span class="dv">30</span>, <span class="dv">29</span>)</a>
-<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="kw">LRRi</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">scale =</span> <span class="st">&quot;percentage&quot;</span>)</a>
-<a class="sourceLine" id="cb15-4" data-line-number="4"><span class="co">#&gt;     ES       Est         SE   CI_lower  CI_upper</span></a>
-<a class="sourceLine" id="cb15-5" data-line-number="5"><span class="co">#&gt; 1 LRRi 0.1953962 0.05557723 0.08646679 0.3043255</span></a>
-<a class="sourceLine" id="cb15-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb15-7" data-line-number="7"><span class="kw">LRRi</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>, <span class="dt">scale =</span> <span class="st">&quot;percentage&quot;</span>)</a>
-<a class="sourceLine" id="cb15-8" data-line-number="8"><span class="co">#&gt;     ES         Est         SE   CI_lower    CI_upper</span></a>
-<a class="sourceLine" id="cb15-9" data-line-number="9"><span class="co">#&gt; 1 LRRi -0.06553504 0.01810144 -0.1010132 -0.03005687</span></a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1">A &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">20</span>, <span class="dv">20</span>, <span class="dv">26</span>, <span class="dv">25</span>, <span class="dv">22</span>, <span class="dv">23</span>)</a>
+<a class="sourceLine" id="cb16-2" title="2">B &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">28</span>, <span class="dv">25</span>, <span class="dv">24</span>, <span class="dv">27</span>, <span class="dv">30</span>, <span class="dv">30</span>, <span class="dv">29</span>)</a>
+<a class="sourceLine" id="cb16-3" title="3"><span class="kw">LRRi</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">scale =</span> <span class="st">&quot;percentage&quot;</span>)</a>
+<a class="sourceLine" id="cb16-4" title="4"><span class="co">#&gt;     ES       Est         SE   CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb16-5" title="5"><span class="co">#&gt; 1 LRRi 0.1953962 0.05557723 0.08646679 0.3043255</span></a>
+<a class="sourceLine" id="cb16-6" title="6"></a>
+<a class="sourceLine" id="cb16-7" title="7"><span class="kw">LRRi</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>, <span class="dt">scale =</span> <span class="st">&quot;percentage&quot;</span>)</a>
+<a class="sourceLine" id="cb16-8" title="8"><span class="co">#&gt;     ES         Est         SE   CI_lower    CI_upper</span></a>
+<a class="sourceLine" id="cb16-9" title="9"><span class="co">#&gt; 1 LRRi -0.06553504 0.01810144 -0.1010132 -0.03005687</span></a></code></pre></div>
 <p>Note that if the outcome is a count (the default for both LRR functions) or rate, changing the improvement direction merely changes the sign of the effect size:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">A &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">20</span>, <span class="dv">20</span>, <span class="dv">26</span>, <span class="dv">25</span>, <span class="dv">22</span>, <span class="dv">23</span>)</a>
-<a class="sourceLine" id="cb16-2" data-line-number="2">B &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">28</span>, <span class="dv">25</span>, <span class="dv">24</span>, <span class="dv">27</span>, <span class="dv">30</span>, <span class="dv">30</span>, <span class="dv">29</span>)</a>
-<a class="sourceLine" id="cb16-3" data-line-number="3"><span class="kw">LRRi</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">scale =</span> <span class="st">&quot;count&quot;</span>)</a>
-<a class="sourceLine" id="cb16-4" data-line-number="4"><span class="co">#&gt;     ES       Est         SE   CI_lower  CI_upper</span></a>
-<a class="sourceLine" id="cb16-5" data-line-number="5"><span class="co">#&gt; 1 LRRi 0.1953962 0.05557723 0.08646679 0.3043255</span></a>
-<a class="sourceLine" id="cb16-6" data-line-number="6"><span class="kw">LRRi</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">scale =</span> <span class="st">&quot;count&quot;</span>, <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>)</a>
-<a class="sourceLine" id="cb16-7" data-line-number="7"><span class="co">#&gt;     ES        Est         SE   CI_lower    CI_upper</span></a>
-<a class="sourceLine" id="cb16-8" data-line-number="8"><span class="co">#&gt; 1 LRRi -0.1953962 0.05557723 -0.3043255 -0.08646679</span></a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1">A &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">20</span>, <span class="dv">20</span>, <span class="dv">26</span>, <span class="dv">25</span>, <span class="dv">22</span>, <span class="dv">23</span>)</a>
+<a class="sourceLine" id="cb17-2" title="2">B &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">28</span>, <span class="dv">25</span>, <span class="dv">24</span>, <span class="dv">27</span>, <span class="dv">30</span>, <span class="dv">30</span>, <span class="dv">29</span>)</a>
+<a class="sourceLine" id="cb17-3" title="3"><span class="kw">LRRi</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">scale =</span> <span class="st">&quot;count&quot;</span>)</a>
+<a class="sourceLine" id="cb17-4" title="4"><span class="co">#&gt;     ES       Est         SE   CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb17-5" title="5"><span class="co">#&gt; 1 LRRi 0.1953962 0.05557723 0.08646679 0.3043255</span></a>
+<a class="sourceLine" id="cb17-6" title="6"><span class="kw">LRRi</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">scale =</span> <span class="st">&quot;count&quot;</span>, <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>)</a>
+<a class="sourceLine" id="cb17-7" title="7"><span class="co">#&gt;     ES        Est         SE   CI_lower    CI_upper</span></a>
+<a class="sourceLine" id="cb17-8" title="8"><span class="co">#&gt; 1 LRRi -0.1953962 0.05557723 -0.3043255 -0.08646679</span></a></code></pre></div>
 <p>The scale of the outcome has one further important implication. To account for the possibility of a sample mean of zero, the <code>LRRd()</code> and <code>LRRi()</code> functions use a truncated sample mean, where the truncation level is determined by the scale of the outcome and some further details of how the outcomes were measured. For rates, the truncated mean requires specifying the length of the observation session in minutes:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">A &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb17-2" data-line-number="2">B &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">28</span>, <span class="dv">25</span>, <span class="dv">24</span>, <span class="dv">27</span>, <span class="dv">30</span>, <span class="dv">30</span>, <span class="dv">29</span>)</a>
-<a class="sourceLine" id="cb17-3" data-line-number="3"><span class="kw">LRRd</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">scale =</span> <span class="st">&quot;rate&quot;</span>)</a>
-<a class="sourceLine" id="cb17-4" data-line-number="4"><span class="co">#&gt;     ES Est  SE CI_lower CI_upper</span></a>
-<a class="sourceLine" id="cb17-5" data-line-number="5"><span class="co">#&gt; 1 LRRd NaN NaN      NaN      NaN</span></a>
-<a class="sourceLine" id="cb17-6" data-line-number="6"><span class="kw">LRRd</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">scale =</span> <span class="st">&quot;rate&quot;</span>, <span class="dt">observation_length =</span> <span class="dv">30</span>)</a>
-<a class="sourceLine" id="cb17-7" data-line-number="7"><span class="co">#&gt;     ES      Est         SE CI_lower CI_upper</span></a>
-<a class="sourceLine" id="cb17-8" data-line-number="8"><span class="co">#&gt; 1 LRRd 8.797947 0.03249549 8.734257 8.861637</span></a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1">A &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb18-2" title="2">B &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">28</span>, <span class="dv">25</span>, <span class="dv">24</span>, <span class="dv">27</span>, <span class="dv">30</span>, <span class="dv">30</span>, <span class="dv">29</span>)</a>
+<a class="sourceLine" id="cb18-3" title="3"><span class="kw">LRRd</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">scale =</span> <span class="st">&quot;rate&quot;</span>)</a>
+<a class="sourceLine" id="cb18-4" title="4"><span class="co">#&gt;     ES Est  SE CI_lower CI_upper</span></a>
+<a class="sourceLine" id="cb18-5" title="5"><span class="co">#&gt; 1 LRRd NaN NaN      NaN      NaN</span></a>
+<a class="sourceLine" id="cb18-6" title="6"><span class="kw">LRRd</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">scale =</span> <span class="st">&quot;rate&quot;</span>, <span class="dt">observation_length =</span> <span class="dv">30</span>)</a>
+<a class="sourceLine" id="cb18-7" title="7"><span class="co">#&gt;     ES      Est         SE CI_lower CI_upper</span></a>
+<a class="sourceLine" id="cb18-8" title="8"><span class="co">#&gt; 1 LRRd 8.797947 0.03249549 8.734257 8.861637</span></a></code></pre></div>
 <p>If no additional information is provided and there is a sample mean of 0, the function returns a value of <code>NaN</code>.</p>
 <p>For outcomes specified as percentages or proportions, the argument <code>intervals</code> must be supplied. For interval recording methods such as partial interval recording or momentary time sampling, provide the number of intervals. For continuous recording, set <code>intervals</code> equal to 60 times the length of the observation session in minutes:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw">LRRd</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">scale =</span> <span class="st">&quot;percentage&quot;</span>)</a>
-<a class="sourceLine" id="cb18-2" data-line-number="2"><span class="co">#&gt;     ES Est  SE CI_lower CI_upper</span></a>
-<a class="sourceLine" id="cb18-3" data-line-number="3"><span class="co">#&gt; 1 LRRd NaN NaN      NaN      NaN</span></a>
-<a class="sourceLine" id="cb18-4" data-line-number="4"><span class="kw">LRRd</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">scale =</span> <span class="st">&quot;percentage&quot;</span>, <span class="dt">intervals =</span> <span class="dv">180</span>)</a>
-<a class="sourceLine" id="cb18-5" data-line-number="5"><span class="co">#&gt;     ES      Est         SE CI_lower CI_upper</span></a>
-<a class="sourceLine" id="cb18-6" data-line-number="6"><span class="co">#&gt; 1 LRRd 5.984536 0.03249549 5.920846 6.048226</span></a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1"><span class="kw">LRRd</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">scale =</span> <span class="st">&quot;percentage&quot;</span>)</a>
+<a class="sourceLine" id="cb19-2" title="2"><span class="co">#&gt;     ES Est  SE CI_lower CI_upper</span></a>
+<a class="sourceLine" id="cb19-3" title="3"><span class="co">#&gt; 1 LRRd NaN NaN      NaN      NaN</span></a>
+<a class="sourceLine" id="cb19-4" title="4"><span class="kw">LRRd</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">scale =</span> <span class="st">&quot;percentage&quot;</span>, <span class="dt">intervals =</span> <span class="dv">180</span>)</a>
+<a class="sourceLine" id="cb19-5" title="5"><span class="co">#&gt;     ES      Est         SE CI_lower CI_upper</span></a>
+<a class="sourceLine" id="cb19-6" title="6"><span class="co">#&gt; 1 LRRd 5.984536 0.03249549 5.920846 6.048226</span></a></code></pre></div>
 <p>You can also specify your own value for the constant used to truncate the sample mean by supplying a value for <code>D_const</code>. If a vector, the mean will be used.</p>
 </div>
 <div id="additional-arguments" class="section level3">
@@ -366,44 +379,44 @@ code > span.ot { color: #007020; }
 <h2><span class="header-section-number">1.8</span> Log-odds ratios</h2>
 <p>The odds ratio parameter is the ratio of the odds that the outcome occurs during phase B to the odds that the outcome occurs during phase A. The log-odds ratio (LOR) is the natural logarithm of the odds ratio. This effect size is appropriate for outcomes measured on a percentage or proportion scale. The <code>LOR()</code> function works almost identically to the <code>LRRi()</code> and <code>LRRd()</code> functions, but there are a few exceptions.</p>
 <p>The <code>LOR()</code> function accepts only outcomes that are on proportion or percentage scales:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1">A_pct &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">20</span>, <span class="dv">20</span>, <span class="dv">25</span>, <span class="dv">25</span>, <span class="dv">20</span>, <span class="dv">25</span>)</a>
-<a class="sourceLine" id="cb19-2" data-line-number="2">B_pct &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">30</span>, <span class="dv">25</span>, <span class="dv">25</span>, <span class="dv">25</span>, <span class="dv">35</span>, <span class="dv">30</span>, <span class="dv">25</span>)</a>
-<a class="sourceLine" id="cb19-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb19-4" data-line-number="4"><span class="kw">LOR</span>(<span class="dt">A_data =</span> A_pct, <span class="dt">B_data =</span> B_pct, <span class="dt">scale =</span> <span class="st">&quot;percentage&quot;</span>)</a>
-<a class="sourceLine" id="cb19-5" data-line-number="5"><span class="co">#&gt;    ES       Est         SE   CI_lower  CI_upper</span></a>
-<a class="sourceLine" id="cb19-6" data-line-number="6"><span class="co">#&gt; 1 LOR 0.2852854 0.09790282 0.09339935 0.4771713</span></a>
-<a class="sourceLine" id="cb19-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb19-8" data-line-number="8"><span class="kw">LOR</span>(<span class="dt">A_data =</span> A_pct<span class="op">/</span><span class="dv">100</span>, <span class="dt">B_data =</span> B_pct<span class="op">/</span><span class="dv">100</span>, <span class="dt">scale =</span> <span class="st">&quot;proportion&quot;</span>)</a>
-<a class="sourceLine" id="cb19-9" data-line-number="9"><span class="co">#&gt;    ES       Est         SE   CI_lower  CI_upper</span></a>
-<a class="sourceLine" id="cb19-10" data-line-number="10"><span class="co">#&gt; 1 LOR 0.2852854 0.09790282 0.09339935 0.4771713</span></a>
-<a class="sourceLine" id="cb19-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb19-12" data-line-number="12"><span class="kw">LOR</span>(<span class="dt">A_data =</span> A_pct, <span class="dt">B_data =</span> B_pct, <span class="dt">scale =</span> <span class="st">&quot;count&quot;</span>)</a>
-<a class="sourceLine" id="cb19-13" data-line-number="13"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
-<a class="sourceLine" id="cb19-14" data-line-number="14"><span class="co">#&gt; return NAs for other outcome scales.</span></a>
-<a class="sourceLine" id="cb19-15" data-line-number="15"><span class="co">#&gt;    ES Est SE CI_lower CI_upper</span></a>
-<a class="sourceLine" id="cb19-16" data-line-number="16"><span class="co">#&gt; 1 LOR  NA NA       NA       NA</span></a>
-<a class="sourceLine" id="cb19-17" data-line-number="17"></a>
-<a class="sourceLine" id="cb19-18" data-line-number="18"><span class="kw">LOR</span>(<span class="dt">A_data =</span> A_pct, <span class="dt">B_data =</span> B_pct, <span class="dt">scale =</span> <span class="st">&quot;proportion&quot;</span>)</a>
-<a class="sourceLine" id="cb19-19" data-line-number="19"><span class="co">#&gt; Error in calc_LOR(A_data = c(20, 20, 25, 25, 20, 25), B_data = c(30, 25, : Proportions must be between 0 and 1!</span></a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1">A_pct &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">20</span>, <span class="dv">20</span>, <span class="dv">25</span>, <span class="dv">25</span>, <span class="dv">20</span>, <span class="dv">25</span>)</a>
+<a class="sourceLine" id="cb20-2" title="2">B_pct &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">30</span>, <span class="dv">25</span>, <span class="dv">25</span>, <span class="dv">25</span>, <span class="dv">35</span>, <span class="dv">30</span>, <span class="dv">25</span>)</a>
+<a class="sourceLine" id="cb20-3" title="3"></a>
+<a class="sourceLine" id="cb20-4" title="4"><span class="kw">LOR</span>(<span class="dt">A_data =</span> A_pct, <span class="dt">B_data =</span> B_pct, <span class="dt">scale =</span> <span class="st">&quot;percentage&quot;</span>)</a>
+<a class="sourceLine" id="cb20-5" title="5"><span class="co">#&gt;    ES       Est         SE   CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb20-6" title="6"><span class="co">#&gt; 1 LOR 0.2852854 0.09790282 0.09339935 0.4771713</span></a>
+<a class="sourceLine" id="cb20-7" title="7"></a>
+<a class="sourceLine" id="cb20-8" title="8"><span class="kw">LOR</span>(<span class="dt">A_data =</span> A_pct<span class="op">/</span><span class="dv">100</span>, <span class="dt">B_data =</span> B_pct<span class="op">/</span><span class="dv">100</span>, <span class="dt">scale =</span> <span class="st">&quot;proportion&quot;</span>)</a>
+<a class="sourceLine" id="cb20-9" title="9"><span class="co">#&gt;    ES       Est         SE   CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb20-10" title="10"><span class="co">#&gt; 1 LOR 0.2852854 0.09790282 0.09339935 0.4771713</span></a>
+<a class="sourceLine" id="cb20-11" title="11"></a>
+<a class="sourceLine" id="cb20-12" title="12"><span class="kw">LOR</span>(<span class="dt">A_data =</span> A_pct, <span class="dt">B_data =</span> B_pct, <span class="dt">scale =</span> <span class="st">&quot;count&quot;</span>)</a>
+<a class="sourceLine" id="cb20-13" title="13"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
+<a class="sourceLine" id="cb20-14" title="14"><span class="co">#&gt; return NAs for other outcome scales.</span></a>
+<a class="sourceLine" id="cb20-15" title="15"><span class="co">#&gt;    ES Est SE CI_lower CI_upper</span></a>
+<a class="sourceLine" id="cb20-16" title="16"><span class="co">#&gt; 1 LOR  NA NA       NA       NA</span></a>
+<a class="sourceLine" id="cb20-17" title="17"></a>
+<a class="sourceLine" id="cb20-18" title="18"><span class="kw">LOR</span>(<span class="dt">A_data =</span> A_pct, <span class="dt">B_data =</span> B_pct, <span class="dt">scale =</span> <span class="st">&quot;proportion&quot;</span>)</a>
+<a class="sourceLine" id="cb20-19" title="19"><span class="co">#&gt; Error in calc_LOR(A_data = c(20, 20, 25, 25, 20, 25), B_data = c(30, 25, : Proportions must be between 0 and 1!</span></a></code></pre></div>
 <p>As with the LRR functions, <code>LOR()</code> includes an argument to specify the direction of therapeutic improvement, with the default assumption being that a therapeutic improvement is an increase in the behavior. In contrast to LRRi and LRRd, changing the direction of therapeutic improvement only reverses the sign of the LOR, but does not change its absolute magnitude:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1"><span class="kw">LOR</span>(<span class="dt">A_data =</span> A_pct, <span class="dt">B_data =</span> B_pct,</a>
-<a class="sourceLine" id="cb20-2" data-line-number="2">    <span class="dt">scale =</span> <span class="st">&quot;percentage&quot;</span>, <span class="dt">improvement =</span> <span class="st">&quot;increase&quot;</span>)</a>
-<a class="sourceLine" id="cb20-3" data-line-number="3"><span class="co">#&gt;    ES       Est         SE   CI_lower  CI_upper</span></a>
-<a class="sourceLine" id="cb20-4" data-line-number="4"><span class="co">#&gt; 1 LOR 0.2852854 0.09790282 0.09339935 0.4771713</span></a>
-<a class="sourceLine" id="cb20-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb20-6" data-line-number="6"><span class="kw">LOR</span>(<span class="dt">A_data =</span> A_pct, <span class="dt">B_data =</span> B_pct,</a>
-<a class="sourceLine" id="cb20-7" data-line-number="7">    <span class="dt">scale =</span> <span class="st">&quot;percentage&quot;</span>, <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>)</a>
-<a class="sourceLine" id="cb20-8" data-line-number="8"><span class="co">#&gt;    ES        Est         SE   CI_lower    CI_upper</span></a>
-<a class="sourceLine" id="cb20-9" data-line-number="9"><span class="co">#&gt; 1 LOR -0.2852854 0.09790282 -0.4771713 -0.09339935</span></a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1"><span class="kw">LOR</span>(<span class="dt">A_data =</span> A_pct, <span class="dt">B_data =</span> B_pct,</a>
+<a class="sourceLine" id="cb21-2" title="2">    <span class="dt">scale =</span> <span class="st">&quot;percentage&quot;</span>, <span class="dt">improvement =</span> <span class="st">&quot;increase&quot;</span>)</a>
+<a class="sourceLine" id="cb21-3" title="3"><span class="co">#&gt;    ES       Est         SE   CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb21-4" title="4"><span class="co">#&gt; 1 LOR 0.2852854 0.09790282 0.09339935 0.4771713</span></a>
+<a class="sourceLine" id="cb21-5" title="5"></a>
+<a class="sourceLine" id="cb21-6" title="6"><span class="kw">LOR</span>(<span class="dt">A_data =</span> A_pct, <span class="dt">B_data =</span> B_pct,</a>
+<a class="sourceLine" id="cb21-7" title="7">    <span class="dt">scale =</span> <span class="st">&quot;percentage&quot;</span>, <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>)</a>
+<a class="sourceLine" id="cb21-8" title="8"><span class="co">#&gt;    ES        Est         SE   CI_lower    CI_upper</span></a>
+<a class="sourceLine" id="cb21-9" title="9"><span class="co">#&gt; 1 LOR -0.2852854 0.09790282 -0.4771713 -0.09339935</span></a></code></pre></div>
 <p>Similar to the LRR functions, <code>LOR()</code> will be calculated using truncated sample means for cases where phase means are close to the extremes of the scale. To use truncated means, the number of intervals per observation session must be specified using the <code>intervals</code> argument:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="kw">LOR</span>(<span class="dt">A_data =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>), <span class="dt">B_data =</span> B_pct,</a>
-<a class="sourceLine" id="cb21-2" data-line-number="2">   <span class="dt">scale =</span> <span class="st">&quot;percentage&quot;</span>)</a>
-<a class="sourceLine" id="cb21-3" data-line-number="3"><span class="co">#&gt;    ES Est  SE CI_lower CI_upper</span></a>
-<a class="sourceLine" id="cb21-4" data-line-number="4"><span class="co">#&gt; 1 LOR NaN NaN      NaN      NaN</span></a>
-<a class="sourceLine" id="cb21-5" data-line-number="5"><span class="kw">LOR</span>(<span class="dt">A_data =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>), <span class="dt">B_data =</span> B_pct,</a>
-<a class="sourceLine" id="cb21-6" data-line-number="6">    <span class="dt">scale =</span> <span class="st">&quot;percentage&quot;</span>, <span class="dt">intervals =</span> <span class="dv">20</span>)</a>
-<a class="sourceLine" id="cb21-7" data-line-number="7"><span class="co">#&gt;    ES      Est         SE CI_lower CI_upper</span></a>
-<a class="sourceLine" id="cb21-8" data-line-number="8"><span class="co">#&gt; 1 LOR 3.828777 0.07398661 3.683766 3.973788</span></a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1"><span class="kw">LOR</span>(<span class="dt">A_data =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>), <span class="dt">B_data =</span> B_pct,</a>
+<a class="sourceLine" id="cb22-2" title="2">   <span class="dt">scale =</span> <span class="st">&quot;percentage&quot;</span>)</a>
+<a class="sourceLine" id="cb22-3" title="3"><span class="co">#&gt;    ES Est  SE CI_lower CI_upper</span></a>
+<a class="sourceLine" id="cb22-4" title="4"><span class="co">#&gt; 1 LOR NaN NaN      NaN      NaN</span></a>
+<a class="sourceLine" id="cb22-5" title="5"><span class="kw">LOR</span>(<span class="dt">A_data =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>), <span class="dt">B_data =</span> B_pct,</a>
+<a class="sourceLine" id="cb22-6" title="6">    <span class="dt">scale =</span> <span class="st">&quot;percentage&quot;</span>, <span class="dt">intervals =</span> <span class="dv">20</span>)</a>
+<a class="sourceLine" id="cb22-7" title="7"><span class="co">#&gt;    ES      Est         SE CI_lower CI_upper</span></a>
+<a class="sourceLine" id="cb22-8" title="8"><span class="co">#&gt; 1 LOR 3.828777 0.07398661 3.683766 3.973788</span></a></code></pre></div>
 <p>For data measured using continuous recording, set the number of intervals equal to 60 times the length of the observation session in minutes.</p>
 <p>Like the LRR functions, it is possible to specify your own truncation constant using the <code>D_const</code> argument. By default the <code>LOR()</code> function uses a bias correction for small sample sizes, but this can be turned off by specifying the argument <code>bias_correct = FALSE</code>. The width of the confidence intervals is controlled via the <code>confidence</code> argument; set the argument to <code>confidence = NULL</code> to omit the confidence interval calculations.</p>
 </div>
@@ -411,102 +424,102 @@ code > span.ot { color: #007020; }
 <div id="calc_es" class="section level1">
 <h1><span class="header-section-number">2</span> calc_ES()</h1>
 <p>The <code>calc_ES()</code> function will calculate multiple effect sizes estimates for a single SCD series. As with the individual effect size functions, <code>calc_ES()</code> accepts data in either the <code>A_data</code>, <code>B_data</code> format or the <code>condition</code>, <code>outcome</code> format. To calculate multiple effect size estimates, provide a list of effect sizes to the <code>ES</code> argument. Here we use the <code>A_data</code>, <code>B_data</code> format:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">A &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">20</span>, <span class="dv">20</span>, <span class="dv">26</span>, <span class="dv">25</span>, <span class="dv">22</span>, <span class="dv">23</span>)</a>
-<a class="sourceLine" id="cb22-2" data-line-number="2">B &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">28</span>, <span class="dv">25</span>, <span class="dv">24</span>, <span class="dv">27</span>, <span class="dv">30</span>, <span class="dv">30</span>, <span class="dv">29</span>)</a>
-<a class="sourceLine" id="cb22-3" data-line-number="3"><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;NAP&quot;</span>,<span class="st">&quot;PND&quot;</span>,<span class="st">&quot;Tau-U&quot;</span>))</a>
-<a class="sourceLine" id="cb22-4" data-line-number="4"><span class="co">#&gt;      ES       Est         SE  CI_lower  CI_upper</span></a>
-<a class="sourceLine" id="cb22-5" data-line-number="5"><span class="co">#&gt; 1   NAP 0.9166667 0.06900656 0.5973406 0.9860176</span></a>
-<a class="sourceLine" id="cb22-6" data-line-number="6"><span class="co">#&gt; 2   PND 0.7142857         NA        NA        NA</span></a>
-<a class="sourceLine" id="cb22-7" data-line-number="7"><span class="co">#&gt; 3 Tau-U 0.7380952         NA        NA        NA</span></a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" title="1">A &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">20</span>, <span class="dv">20</span>, <span class="dv">26</span>, <span class="dv">25</span>, <span class="dv">22</span>, <span class="dv">23</span>)</a>
+<a class="sourceLine" id="cb23-2" title="2">B &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">28</span>, <span class="dv">25</span>, <span class="dv">24</span>, <span class="dv">27</span>, <span class="dv">30</span>, <span class="dv">30</span>, <span class="dv">29</span>)</a>
+<a class="sourceLine" id="cb23-3" title="3"><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;NAP&quot;</span>,<span class="st">&quot;PND&quot;</span>,<span class="st">&quot;Tau-U&quot;</span>))</a>
+<a class="sourceLine" id="cb23-4" title="4"><span class="co">#&gt;      ES       Est         SE  CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb23-5" title="5"><span class="co">#&gt; 1   NAP 0.9166667 0.06900656 0.5973406 0.9860176</span></a>
+<a class="sourceLine" id="cb23-6" title="6"><span class="co">#&gt; 2   PND 0.7142857         NA        NA        NA</span></a>
+<a class="sourceLine" id="cb23-7" title="7"><span class="co">#&gt; 3 Tau-U 0.7380952         NA        NA        NA</span></a></code></pre></div>
 <p>Here is the same calculation in the <code>condition</code>, <code>outcome</code> format:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">phase &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;A&quot;</span>, <span class="kw">length</span>(A)), <span class="kw">rep</span>(<span class="st">&quot;B&quot;</span>, <span class="kw">length</span>(B)))</a>
-<a class="sourceLine" id="cb23-2" data-line-number="2">outcome &lt;-<span class="st"> </span><span class="kw">c</span>(A, B)</a>
-<a class="sourceLine" id="cb23-3" data-line-number="3"><span class="kw">calc_ES</span>(<span class="dt">condition =</span> phase, <span class="dt">outcome =</span> outcome, <span class="dt">baseline_phase =</span> <span class="st">&quot;A&quot;</span>, </a>
-<a class="sourceLine" id="cb23-4" data-line-number="4">        <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;NAP&quot;</span>,<span class="st">&quot;PND&quot;</span>,<span class="st">&quot;Tau-U&quot;</span>))</a>
-<a class="sourceLine" id="cb23-5" data-line-number="5"><span class="co">#&gt;      ES       Est         SE  CI_lower  CI_upper</span></a>
-<a class="sourceLine" id="cb23-6" data-line-number="6"><span class="co">#&gt; 1   NAP 0.9166667 0.06900656 0.5973406 0.9860176</span></a>
-<a class="sourceLine" id="cb23-7" data-line-number="7"><span class="co">#&gt; 2   PND 0.7142857         NA        NA        NA</span></a>
-<a class="sourceLine" id="cb23-8" data-line-number="8"><span class="co">#&gt; 3 Tau-U 0.7380952         NA        NA        NA</span></a></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1">phase &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;A&quot;</span>, <span class="kw">length</span>(A)), <span class="kw">rep</span>(<span class="st">&quot;B&quot;</span>, <span class="kw">length</span>(B)))</a>
+<a class="sourceLine" id="cb24-2" title="2">outcome &lt;-<span class="st"> </span><span class="kw">c</span>(A, B)</a>
+<a class="sourceLine" id="cb24-3" title="3"><span class="kw">calc_ES</span>(<span class="dt">condition =</span> phase, <span class="dt">outcome =</span> outcome, <span class="dt">baseline_phase =</span> <span class="st">&quot;A&quot;</span>, </a>
+<a class="sourceLine" id="cb24-4" title="4">        <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;NAP&quot;</span>,<span class="st">&quot;PND&quot;</span>,<span class="st">&quot;Tau-U&quot;</span>))</a>
+<a class="sourceLine" id="cb24-5" title="5"><span class="co">#&gt;      ES       Est         SE  CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb24-6" title="6"><span class="co">#&gt; 1   NAP 0.9166667 0.06900656 0.5973406 0.9860176</span></a>
+<a class="sourceLine" id="cb24-7" title="7"><span class="co">#&gt; 2   PND 0.7142857         NA        NA        NA</span></a>
+<a class="sourceLine" id="cb24-8" title="8"><span class="co">#&gt; 3 Tau-U 0.7380952         NA        NA        NA</span></a></code></pre></div>
 <p>The <code>ES</code> argument can include any of the following metrics: <code>&quot;LRRd&quot;</code>, <code>&quot;LRRi&quot;</code>, <code>&quot;LOR&quot;</code>, <code>&quot;SMD&quot;</code>, <code>&quot;NAP&quot;</code>, <code>&quot;PND&quot;</code>, <code>&quot;PEM&quot;</code>, <code>&quot;PAND&quot;</code>, <code>&quot;IRD&quot;</code>, <code>&quot;Tau&quot;</code>, or <code>&quot;Tau-U&quot;</code>.</p>
 <p>Setting <code>ES = &quot;all&quot;</code> will return all available effect sizes:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="st">&quot;all&quot;</span>)</a>
-<a class="sourceLine" id="cb24-2" data-line-number="2"><span class="co">#&gt;       ES        Est         SE    CI_lower    CI_upper</span></a>
-<a class="sourceLine" id="cb24-3" data-line-number="3"><span class="co">#&gt; 1   LRRd -0.1953962 0.05557723 -0.30432554 -0.08646679</span></a>
-<a class="sourceLine" id="cb24-4" data-line-number="4"><span class="co">#&gt; 2   LRRi  0.1953962 0.05557723  0.08646679  0.30432554</span></a>
-<a class="sourceLine" id="cb24-5" data-line-number="5"><span class="co">#&gt; 3    LOR  0.2609312 0.07356710  0.11674235  0.40512007</span></a>
-<a class="sourceLine" id="cb24-6" data-line-number="6"><span class="co">#&gt; 4    SMD  1.7037340 0.63701390  0.45520971  2.95225831</span></a>
-<a class="sourceLine" id="cb24-7" data-line-number="7"><span class="co">#&gt; 5    NAP  0.9166667 0.06900656  0.59734061  0.98601758</span></a>
-<a class="sourceLine" id="cb24-8" data-line-number="8"><span class="co">#&gt; 6    IRD  0.6904762         NA          NA          NA</span></a>
-<a class="sourceLine" id="cb24-9" data-line-number="9"><span class="co">#&gt; 7   PAND  0.8461538         NA          NA          NA</span></a>
-<a class="sourceLine" id="cb24-10" data-line-number="10"><span class="co">#&gt; 8    PND  0.7142857         NA          NA          NA</span></a>
-<a class="sourceLine" id="cb24-11" data-line-number="11"><span class="co">#&gt; 9    PEM  1.0000000         NA          NA          NA</span></a>
-<a class="sourceLine" id="cb24-12" data-line-number="12"><span class="co">#&gt; 10   Tau  0.8333333 0.13801311  0.19468122  0.97203517</span></a>
-<a class="sourceLine" id="cb24-13" data-line-number="13"><span class="co">#&gt; 11 Tau-U  0.7380952         NA          NA          NA</span></a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" title="1"><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="st">&quot;all&quot;</span>)</a>
+<a class="sourceLine" id="cb25-2" title="2"><span class="co">#&gt;       ES        Est         SE    CI_lower    CI_upper</span></a>
+<a class="sourceLine" id="cb25-3" title="3"><span class="co">#&gt; 1   LRRd -0.1953962 0.05557723 -0.30432554 -0.08646679</span></a>
+<a class="sourceLine" id="cb25-4" title="4"><span class="co">#&gt; 2   LRRi  0.1953962 0.05557723  0.08646679  0.30432554</span></a>
+<a class="sourceLine" id="cb25-5" title="5"><span class="co">#&gt; 3    LOR  0.2609312 0.07356710  0.11674235  0.40512007</span></a>
+<a class="sourceLine" id="cb25-6" title="6"><span class="co">#&gt; 4    SMD  1.6499319 0.63409351  0.40713144  2.89273232</span></a>
+<a class="sourceLine" id="cb25-7" title="7"><span class="co">#&gt; 5    NAP  0.9166667 0.06900656  0.59734061  0.98601758</span></a>
+<a class="sourceLine" id="cb25-8" title="8"><span class="co">#&gt; 6    IRD  0.6904762         NA          NA          NA</span></a>
+<a class="sourceLine" id="cb25-9" title="9"><span class="co">#&gt; 7   PAND  0.8461538         NA          NA          NA</span></a>
+<a class="sourceLine" id="cb25-10" title="10"><span class="co">#&gt; 8    PND  0.7142857         NA          NA          NA</span></a>
+<a class="sourceLine" id="cb25-11" title="11"><span class="co">#&gt; 9    PEM  1.0000000         NA          NA          NA</span></a>
+<a class="sourceLine" id="cb25-12" title="12"><span class="co">#&gt; 10   Tau  0.8333333 0.13801311  0.19468122  0.97203517</span></a>
+<a class="sourceLine" id="cb25-13" title="13"><span class="co">#&gt; 11 Tau-U  0.7380952         NA          NA          NA</span></a></code></pre></div>
 <p><code>ES = &quot;NOM&quot;</code> will return all of the non-overlap measures:</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="st">&quot;NOM&quot;</span>)</a>
-<a class="sourceLine" id="cb25-2" data-line-number="2"><span class="co">#&gt;      ES       Est         SE  CI_lower  CI_upper</span></a>
-<a class="sourceLine" id="cb25-3" data-line-number="3"><span class="co">#&gt; 1   NAP 0.9166667 0.06900656 0.5973406 0.9860176</span></a>
-<a class="sourceLine" id="cb25-4" data-line-number="4"><span class="co">#&gt; 2   IRD 0.6904762         NA        NA        NA</span></a>
-<a class="sourceLine" id="cb25-5" data-line-number="5"><span class="co">#&gt; 3  PAND 0.8461538         NA        NA        NA</span></a>
-<a class="sourceLine" id="cb25-6" data-line-number="6"><span class="co">#&gt; 4   PND 0.7142857         NA        NA        NA</span></a>
-<a class="sourceLine" id="cb25-7" data-line-number="7"><span class="co">#&gt; 5   PEM 1.0000000         NA        NA        NA</span></a>
-<a class="sourceLine" id="cb25-8" data-line-number="8"><span class="co">#&gt; 6   Tau 0.8333333 0.13801311 0.1946812 0.9720352</span></a>
-<a class="sourceLine" id="cb25-9" data-line-number="9"><span class="co">#&gt; 7 Tau-U 0.7380952         NA        NA        NA</span></a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1"><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="st">&quot;NOM&quot;</span>)</a>
+<a class="sourceLine" id="cb26-2" title="2"><span class="co">#&gt;      ES       Est         SE  CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb26-3" title="3"><span class="co">#&gt; 1   NAP 0.9166667 0.06900656 0.5973406 0.9860176</span></a>
+<a class="sourceLine" id="cb26-4" title="4"><span class="co">#&gt; 2   IRD 0.6904762         NA        NA        NA</span></a>
+<a class="sourceLine" id="cb26-5" title="5"><span class="co">#&gt; 3  PAND 0.8461538         NA        NA        NA</span></a>
+<a class="sourceLine" id="cb26-6" title="6"><span class="co">#&gt; 4   PND 0.7142857         NA        NA        NA</span></a>
+<a class="sourceLine" id="cb26-7" title="7"><span class="co">#&gt; 5   PEM 1.0000000         NA        NA        NA</span></a>
+<a class="sourceLine" id="cb26-8" title="8"><span class="co">#&gt; 6   Tau 0.8333333 0.13801311 0.1946812 0.9720352</span></a>
+<a class="sourceLine" id="cb26-9" title="9"><span class="co">#&gt; 7 Tau-U 0.7380952         NA        NA        NA</span></a></code></pre></div>
 <p>and <code>ES = &quot;parametric&quot;</code> will return all of the parametric effect sizes:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="st">&quot;parametric&quot;</span>)</a>
-<a class="sourceLine" id="cb26-2" data-line-number="2"><span class="co">#&gt;     ES        Est         SE    CI_lower    CI_upper</span></a>
-<a class="sourceLine" id="cb26-3" data-line-number="3"><span class="co">#&gt; 1 LRRd -0.1953962 0.05557723 -0.30432554 -0.08646679</span></a>
-<a class="sourceLine" id="cb26-4" data-line-number="4"><span class="co">#&gt; 2 LRRi  0.1953962 0.05557723  0.08646679  0.30432554</span></a>
-<a class="sourceLine" id="cb26-5" data-line-number="5"><span class="co">#&gt; 3  LOR  0.2609312 0.07356710  0.11674235  0.40512007</span></a>
-<a class="sourceLine" id="cb26-6" data-line-number="6"><span class="co">#&gt; 4  SMD  1.7037340 0.63701390  0.45520971  2.95225831</span></a></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1"><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="st">&quot;parametric&quot;</span>)</a>
+<a class="sourceLine" id="cb27-2" title="2"><span class="co">#&gt;     ES        Est         SE    CI_lower    CI_upper</span></a>
+<a class="sourceLine" id="cb27-3" title="3"><span class="co">#&gt; 1 LRRd -0.1953962 0.05557723 -0.30432554 -0.08646679</span></a>
+<a class="sourceLine" id="cb27-4" title="4"><span class="co">#&gt; 2 LRRi  0.1953962 0.05557723  0.08646679  0.30432554</span></a>
+<a class="sourceLine" id="cb27-5" title="5"><span class="co">#&gt; 3  LOR  0.2609312 0.07356710  0.11674235  0.40512007</span></a>
+<a class="sourceLine" id="cb27-6" title="6"><span class="co">#&gt; 4  SMD  1.6499319 0.63409351  0.40713144  2.89273232</span></a></code></pre></div>
 <p>If the <code>ES</code> argument is omitted, <code>calc_ES()</code> will return LRRd, LRRi, SMD, and Tau by default.</p>
 <div id="further-arguments" class="section level2">
 <h2><span class="header-section-number">2.1</span> Further arguments</h2>
 <p>All of the individual effect size functions have the further argument <code>improvement</code>, and several of them also have further optional arguments. Include these arguments in <code>calc_ES()</code> in order to pass them on to the individual effect size calculation functions. For example, we can set the direction of improvement to <code>decrease</code>:</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="st">&quot;NOM&quot;</span>, <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>)</a>
-<a class="sourceLine" id="cb27-2" data-line-number="2"><span class="co">#&gt;      ES         Est         SE    CI_lower   CI_upper</span></a>
-<a class="sourceLine" id="cb27-3" data-line-number="3"><span class="co">#&gt; 1   NAP  0.08333333 0.06900656  0.01398242  0.4026594</span></a>
-<a class="sourceLine" id="cb27-4" data-line-number="4"><span class="co">#&gt; 2   IRD  0.07142857         NA          NA         NA</span></a>
-<a class="sourceLine" id="cb27-5" data-line-number="5"><span class="co">#&gt; 3  PAND  0.53846154         NA          NA         NA</span></a>
-<a class="sourceLine" id="cb27-6" data-line-number="6"><span class="co">#&gt; 4   PND  0.00000000         NA          NA         NA</span></a>
-<a class="sourceLine" id="cb27-7" data-line-number="7"><span class="co">#&gt; 5   PEM  0.00000000         NA          NA         NA</span></a>
-<a class="sourceLine" id="cb27-8" data-line-number="8"><span class="co">#&gt; 6   Tau -0.83333333 0.13801311 -0.97203517 -0.1946812</span></a>
-<a class="sourceLine" id="cb27-9" data-line-number="9"><span class="co">#&gt; 7 Tau-U -0.73809524         NA          NA         NA</span></a></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1"><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="st">&quot;NOM&quot;</span>, <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>)</a>
+<a class="sourceLine" id="cb28-2" title="2"><span class="co">#&gt;      ES         Est         SE    CI_lower   CI_upper</span></a>
+<a class="sourceLine" id="cb28-3" title="3"><span class="co">#&gt; 1   NAP  0.08333333 0.06900656  0.01398242  0.4026594</span></a>
+<a class="sourceLine" id="cb28-4" title="4"><span class="co">#&gt; 2   IRD  0.07142857         NA          NA         NA</span></a>
+<a class="sourceLine" id="cb28-5" title="5"><span class="co">#&gt; 3  PAND  0.53846154         NA          NA         NA</span></a>
+<a class="sourceLine" id="cb28-6" title="6"><span class="co">#&gt; 4   PND  0.00000000         NA          NA         NA</span></a>
+<a class="sourceLine" id="cb28-7" title="7"><span class="co">#&gt; 5   PEM  0.00000000         NA          NA         NA</span></a>
+<a class="sourceLine" id="cb28-8" title="8"><span class="co">#&gt; 6   Tau -0.83333333 0.13801311 -0.97203517 -0.1946812</span></a>
+<a class="sourceLine" id="cb28-9" title="9"><span class="co">#&gt; 7 Tau-U -0.73809524         NA          NA         NA</span></a></code></pre></div>
 <p>To omit the confidence interval calculations for NAP and Tau, we can include the argument <code>confidence = NULL</code>:</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1"><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="st">&quot;NOM&quot;</span>, <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>, <span class="dt">confidence =</span> <span class="ot">NULL</span>)</a>
-<a class="sourceLine" id="cb28-2" data-line-number="2"><span class="co">#&gt;      ES         Est         SE</span></a>
-<a class="sourceLine" id="cb28-3" data-line-number="3"><span class="co">#&gt; 1   NAP  0.08333333 0.06900656</span></a>
-<a class="sourceLine" id="cb28-4" data-line-number="4"><span class="co">#&gt; 2   IRD  0.07142857         NA</span></a>
-<a class="sourceLine" id="cb28-5" data-line-number="5"><span class="co">#&gt; 3  PAND  0.53846154         NA</span></a>
-<a class="sourceLine" id="cb28-6" data-line-number="6"><span class="co">#&gt; 4   PND  0.00000000         NA</span></a>
-<a class="sourceLine" id="cb28-7" data-line-number="7"><span class="co">#&gt; 5   PEM  0.00000000         NA</span></a>
-<a class="sourceLine" id="cb28-8" data-line-number="8"><span class="co">#&gt; 6   Tau -0.83333333 0.13801311</span></a>
-<a class="sourceLine" id="cb28-9" data-line-number="9"><span class="co">#&gt; 7 Tau-U -0.73809524         NA</span></a></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" title="1"><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="st">&quot;NOM&quot;</span>, <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>, <span class="dt">confidence =</span> <span class="ot">NULL</span>)</a>
+<a class="sourceLine" id="cb29-2" title="2"><span class="co">#&gt;      ES         Est         SE</span></a>
+<a class="sourceLine" id="cb29-3" title="3"><span class="co">#&gt; 1   NAP  0.08333333 0.06900656</span></a>
+<a class="sourceLine" id="cb29-4" title="4"><span class="co">#&gt; 2   IRD  0.07142857         NA</span></a>
+<a class="sourceLine" id="cb29-5" title="5"><span class="co">#&gt; 3  PAND  0.53846154         NA</span></a>
+<a class="sourceLine" id="cb29-6" title="6"><span class="co">#&gt; 4   PND  0.00000000         NA</span></a>
+<a class="sourceLine" id="cb29-7" title="7"><span class="co">#&gt; 5   PEM  0.00000000         NA</span></a>
+<a class="sourceLine" id="cb29-8" title="8"><span class="co">#&gt; 6   Tau -0.83333333 0.13801311</span></a>
+<a class="sourceLine" id="cb29-9" title="9"><span class="co">#&gt; 7 Tau-U -0.73809524         NA</span></a></code></pre></div>
 <p>Details such as the measurement scale can also be passed on to functions that will make use of them:</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1"><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="st">&quot;parametric&quot;</span>, <span class="dt">scale =</span> <span class="st">&quot;count&quot;</span>)</a>
-<a class="sourceLine" id="cb29-2" data-line-number="2"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
-<a class="sourceLine" id="cb29-3" data-line-number="3"><span class="co">#&gt; return NAs for other outcome scales.</span></a>
-<a class="sourceLine" id="cb29-4" data-line-number="4"><span class="co">#&gt;     ES        Est         SE    CI_lower    CI_upper</span></a>
-<a class="sourceLine" id="cb29-5" data-line-number="5"><span class="co">#&gt; 1 LRRd -0.1953962 0.05557723 -0.30432554 -0.08646679</span></a>
-<a class="sourceLine" id="cb29-6" data-line-number="6"><span class="co">#&gt; 2 LRRi  0.1953962 0.05557723  0.08646679  0.30432554</span></a>
-<a class="sourceLine" id="cb29-7" data-line-number="7"><span class="co">#&gt; 3  LOR         NA         NA          NA          NA</span></a>
-<a class="sourceLine" id="cb29-8" data-line-number="8"><span class="co">#&gt; 4  SMD  1.7037340 0.63701390  0.45520971  2.95225831</span></a></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" title="1"><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="st">&quot;parametric&quot;</span>, <span class="dt">scale =</span> <span class="st">&quot;count&quot;</span>)</a>
+<a class="sourceLine" id="cb30-2" title="2"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
+<a class="sourceLine" id="cb30-3" title="3"><span class="co">#&gt; return NAs for other outcome scales.</span></a>
+<a class="sourceLine" id="cb30-4" title="4"><span class="co">#&gt;     ES        Est         SE    CI_lower    CI_upper</span></a>
+<a class="sourceLine" id="cb30-5" title="5"><span class="co">#&gt; 1 LRRd -0.1953962 0.05557723 -0.30432554 -0.08646679</span></a>
+<a class="sourceLine" id="cb30-6" title="6"><span class="co">#&gt; 2 LRRi  0.1953962 0.05557723  0.08646679  0.30432554</span></a>
+<a class="sourceLine" id="cb30-7" title="7"><span class="co">#&gt; 3  LOR         NA         NA          NA          NA</span></a>
+<a class="sourceLine" id="cb30-8" title="8"><span class="co">#&gt; 4  SMD  1.6499319 0.63409351  0.40713144  2.89273232</span></a></code></pre></div>
 <p>Any additional arguments will be used in the calculation of effect sizes for which they are relevant and will be ignored if they are not relevant.</p>
 </div>
-<div id="long-vs.wide-format" class="section level2">
+<div id="long-vs.-wide-format" class="section level2">
 <h2><span class="header-section-number">2.2</span> Long vs. wide format</h2>
 <p>Finally, <code>calc_ES()</code> includes an option to change the format of the output. The function defaults to <code>format = &quot;long&quot;</code>; setting <code>format = &quot;wide&quot;</code> will return all of the results as a single line, rather than one line per effect size:</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" data-line-number="1"><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;NAP&quot;</span>,<span class="st">&quot;PND&quot;</span>,<span class="st">&quot;SMD&quot;</span>))</a>
-<a class="sourceLine" id="cb30-2" data-line-number="2"><span class="co">#&gt;    ES       Est         SE  CI_lower  CI_upper</span></a>
-<a class="sourceLine" id="cb30-3" data-line-number="3"><span class="co">#&gt; 1 NAP 0.9166667 0.06900656 0.5973406 0.9860176</span></a>
-<a class="sourceLine" id="cb30-4" data-line-number="4"><span class="co">#&gt; 2 PND 0.7142857         NA        NA        NA</span></a>
-<a class="sourceLine" id="cb30-5" data-line-number="5"><span class="co">#&gt; 3 SMD 1.7037340 0.63701390 0.4552097 2.9522583</span></a>
-<a class="sourceLine" id="cb30-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb30-7" data-line-number="7"><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;NAP&quot;</span>,<span class="st">&quot;PND&quot;</span>,<span class="st">&quot;SMD&quot;</span>), <span class="dt">format =</span> <span class="st">&quot;wide&quot;</span>)</a>
-<a class="sourceLine" id="cb30-8" data-line-number="8"><span class="co">#&gt;     NAP_Est     NAP_SE NAP_CI_lower NAP_CI_upper   PND_Est  SMD_Est</span></a>
-<a class="sourceLine" id="cb30-9" data-line-number="9"><span class="co">#&gt; 1 0.9166667 0.06900656    0.5973406    0.9860176 0.7142857 1.703734</span></a>
-<a class="sourceLine" id="cb30-10" data-line-number="10"><span class="co">#&gt;      SMD_SE SMD_CI_lower SMD_CI_upper</span></a>
-<a class="sourceLine" id="cb30-11" data-line-number="11"><span class="co">#&gt; 1 0.6370139    0.4552097     2.952258</span></a></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" title="1"><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;NAP&quot;</span>,<span class="st">&quot;PND&quot;</span>,<span class="st">&quot;SMD&quot;</span>))</a>
+<a class="sourceLine" id="cb31-2" title="2"><span class="co">#&gt;    ES       Est         SE  CI_lower  CI_upper</span></a>
+<a class="sourceLine" id="cb31-3" title="3"><span class="co">#&gt; 1 NAP 0.9166667 0.06900656 0.5973406 0.9860176</span></a>
+<a class="sourceLine" id="cb31-4" title="4"><span class="co">#&gt; 2 PND 0.7142857         NA        NA        NA</span></a>
+<a class="sourceLine" id="cb31-5" title="5"><span class="co">#&gt; 3 SMD 1.6499319 0.63409351 0.4071314 2.8927323</span></a>
+<a class="sourceLine" id="cb31-6" title="6"></a>
+<a class="sourceLine" id="cb31-7" title="7"><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;NAP&quot;</span>,<span class="st">&quot;PND&quot;</span>,<span class="st">&quot;SMD&quot;</span>), <span class="dt">format =</span> <span class="st">&quot;wide&quot;</span>)</a>
+<a class="sourceLine" id="cb31-8" title="8"><span class="co">#&gt;     NAP_Est     NAP_SE NAP_CI_lower NAP_CI_upper   PND_Est  SMD_Est</span></a>
+<a class="sourceLine" id="cb31-9" title="9"><span class="co">#&gt; 1 0.9166667 0.06900656    0.5973406    0.9860176 0.7142857 1.649932</span></a>
+<a class="sourceLine" id="cb31-10" title="10"><span class="co">#&gt;      SMD_SE SMD_CI_lower SMD_CI_upper</span></a>
+<a class="sourceLine" id="cb31-11" title="11"><span class="co">#&gt; 1 0.6340935    0.4071314     2.892732</span></a></code></pre></div>
 </div>
 </div>
 <div id="batch_calc_es" class="section level1">
@@ -518,7 +531,7 @@ code > span.ot { color: #007020; }
 <div id="mckissick" class="section level3">
 <h3><span class="header-section-number">3.1.1</span> McKissick</h3>
 <p>The <code>McKissick</code> dataset is data drawn from <span class="citation">McKissick, Hawkins, Lentz, Hailley, &amp; McGuire (2010)</span>, a single-case design study of a group contingency intervention. The study used a multiple baseline design across three classrooms. The outcome data are event counts of disruptive behaviors observed at the classroom level.</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="kw">data</span>(McKissick)</a></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" title="1"><span class="kw">data</span>(McKissick)</a></code></pre></div>
 <p>Here are the first few rows of the data:</p>
 <table>
 <thead>
@@ -750,7 +763,7 @@ count
 <div id="schmidt-2007" class="section level3">
 <h3><span class="header-section-number">3.1.2</span> Schmidt (2007)</h3>
 <p>The <code>Schmidt2007</code> dataset are data drawn from <span class="citation">Schmidt (2007)</span>. This data set is somewhat more complicated. It has two outcomes for each participant, and the outcomes differ in directions of therapeutic improvement and measurement scale. The study used an ABAB design, replicated across three participants. Each series therefore has four phases: a baseline phase, a treatment phase, a return to baseline phase, and a second treatment phase.</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" data-line-number="1"><span class="kw">data</span>(Schmidt2007)</a></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1"><span class="kw">data</span>(Schmidt2007)</a></code></pre></div>
 <p>Here are the first few rows of the data</p>
 <div style="border: 1px solid #ddd; padding: 5px; overflow-x: scroll; width:100%; ">
 <table class="table" style="margin-left: auto; margin-right: auto;">
@@ -1130,13 +1143,13 @@ NA
 <div id="main-arguments-of-batch_calc_es" class="section level2">
 <h2><span class="header-section-number">3.2</span> Main arguments of <code>batch_calc_ES()</code></h2>
 <p>Here are the arguments for the batch calculator function:</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="kw">args</span>(batch_calc_ES)</a>
-<a class="sourceLine" id="cb33-2" data-line-number="2"><span class="co">#&gt; function (dat, grouping, condition, outcome, session_number = NULL, </span></a>
-<a class="sourceLine" id="cb33-3" data-line-number="3"><span class="co">#&gt;     baseline_phase = NULL, ES = c(&quot;LRRd&quot;, &quot;LRRi&quot;, &quot;SMD&quot;, &quot;Tau&quot;), </span></a>
-<a class="sourceLine" id="cb33-4" data-line-number="4"><span class="co">#&gt;     improvement = &quot;increase&quot;, scale = &quot;other&quot;, intervals = NA, </span></a>
-<a class="sourceLine" id="cb33-5" data-line-number="5"><span class="co">#&gt;     observation_length = NA, confidence = 0.95, format = &quot;long&quot;, </span></a>
-<a class="sourceLine" id="cb33-6" data-line-number="6"><span class="co">#&gt;     warn = TRUE, ...) </span></a>
-<a class="sourceLine" id="cb33-7" data-line-number="7"><span class="co">#&gt; NULL</span></a></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" title="1"><span class="kw">args</span>(batch_calc_ES)</a>
+<a class="sourceLine" id="cb34-2" title="2"><span class="co">#&gt; function (dat, grouping, condition, outcome, session_number = NULL, </span></a>
+<a class="sourceLine" id="cb34-3" title="3"><span class="co">#&gt;     baseline_phase = NULL, intervention_phase = NULL, ES = c(&quot;LRRd&quot;, </span></a>
+<a class="sourceLine" id="cb34-4" title="4"><span class="co">#&gt;         &quot;LRRi&quot;, &quot;SMD&quot;, &quot;Tau&quot;), improvement = &quot;increase&quot;, scale = &quot;other&quot;, </span></a>
+<a class="sourceLine" id="cb34-5" title="5"><span class="co">#&gt;     intervals = NA, observation_length = NA, confidence = 0.95, </span></a>
+<a class="sourceLine" id="cb34-6" title="6"><span class="co">#&gt;     format = &quot;long&quot;, warn = TRUE, ...) </span></a>
+<a class="sourceLine" id="cb34-7" title="7"><span class="co">#&gt; NULL</span></a></code></pre></div>
 <p>This function has a bunch of arguments, but many of them are optional and only used for certain effect size metrics. For the moment, let’s focus on the first few arguments, which are all we need to get going:</p>
 <ul>
 <li><p>The argument <code>dat</code> should be a dataframe containing all of the observations for all of the data series of interest.</p></li>
@@ -1150,12 +1163,12 @@ NA
 <div id="using-grouping-variables" class="section level2">
 <h2><span class="header-section-number">3.3</span> Using grouping variables</h2>
 <p>Let’s try applying the function to the McKissick data. Remember that these data contains an identifier for each case (<code>Case_pseudonym</code>), a variable (<code>Condition</code>) identifying the baseline (“A”) and treatment (“B”) phases, and an outcome variable containing the values of the outcomes. The outcomes are disruptive behaviors, so a decrease in the behavior corresponds to therapeutic improvement. Just as with the <code>calc_ES()</code> function, we’ll need to specify that using the <code>improvement</code> argument. In the example below, we will calculate estimates of NAP and PND, to keep things simple.</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" data-line-number="1">mckissick_ES &lt;-<span class="st"> </span><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick,</a>
-<a class="sourceLine" id="cb34-2" data-line-number="2">              <span class="dt">grouping =</span> Case_pseudonym, </a>
-<a class="sourceLine" id="cb34-3" data-line-number="3">              <span class="dt">condition =</span> Condition,</a>
-<a class="sourceLine" id="cb34-4" data-line-number="4">              <span class="dt">outcome =</span> Outcome, </a>
-<a class="sourceLine" id="cb34-5" data-line-number="5">              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</a>
-<a class="sourceLine" id="cb34-6" data-line-number="6">              <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;NAP&quot;</span>, <span class="st">&quot;PND&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" title="1">mckissick_ES &lt;-<span class="st"> </span><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick,</a>
+<a class="sourceLine" id="cb35-2" title="2">              <span class="dt">grouping =</span> Case_pseudonym, </a>
+<a class="sourceLine" id="cb35-3" title="3">              <span class="dt">condition =</span> Condition,</a>
+<a class="sourceLine" id="cb35-4" title="4">              <span class="dt">outcome =</span> Outcome, </a>
+<a class="sourceLine" id="cb35-5" title="5">              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</a>
+<a class="sourceLine" id="cb35-6" title="6">              <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;NAP&quot;</span>, <span class="st">&quot;PND&quot;</span>))</a></code></pre></div>
 <p>Note that all of the inputs related to variable names are bare (i.e., no quotes). Let’s take a look at a table of the output.</p>
 <table>
 <thead>
@@ -1306,39 +1319,39 @@ NA
 <p>The output will always start with one or more columns corresponding to each unique combination of values from the <code>grouping</code> argument, followed by a column for each effect size. If <em>any</em> of the requested effect sizes have standard errors and confidence intervals, there will also be columns corresponding to the standard error and the upper and lower limit. Here, PND has <code>NA</code> for each of those, because it does not have a known standard error or confidence interval.</p>
 <p>Now let’s look at an example using the Schmidt data. Remember that these data contain a pseudonym that uniquely identifies each of the three participants (<code>Case_Pseudonym</code>) as well as a variable that specifies whether the outcome is disruptive behavior or on-task behavior (<code>Behavior_type</code>). Furthermore, these data come from a treatment reversal design with two pairs of AB phases for each combination of case and behavior type (<code>Phase_num</code>). We’re going to want an effect size for each combination of pseudonym, behavior, and phase pair. The data also have an outcome variable (<code>Outcome</code>) and a variable identifying whether it was in the baseline (“A”) or treatment (“B”) phase (<code>Condition</code>). Finally, the the two different behavior types have different direction therapeutic improvement, so there is a variable called <code>direction</code> that specifies <code>&quot;increase&quot;</code> for on-task behavior or <code>&quot;decrease&quot;</code> for disruptive behavior.</p>
 <p>Here’s an example of how to calculate NAP and PND for these data:</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1">schmidt_ES &lt;-<span class="st"> </span><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> Schmidt2007,</a>
-<a class="sourceLine" id="cb35-2" data-line-number="2">              <span class="dt">grouping =</span> <span class="kw">c</span>(Case_pseudonym, Behavior_type, Phase_num), </a>
-<a class="sourceLine" id="cb35-3" data-line-number="3">              <span class="dt">condition =</span> Condition,</a>
-<a class="sourceLine" id="cb35-4" data-line-number="4">              <span class="dt">outcome =</span> Outcome, </a>
-<a class="sourceLine" id="cb35-5" data-line-number="5">              <span class="dt">improvement =</span> direction,</a>
-<a class="sourceLine" id="cb35-6" data-line-number="6">              <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;NAP&quot;</span>, <span class="st">&quot;PND&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" title="1">schmidt_ES &lt;-<span class="st"> </span><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> Schmidt2007,</a>
+<a class="sourceLine" id="cb36-2" title="2">              <span class="dt">grouping =</span> <span class="kw">c</span>(Case_pseudonym, Behavior_type, Phase_num), </a>
+<a class="sourceLine" id="cb36-3" title="3">              <span class="dt">condition =</span> Condition,</a>
+<a class="sourceLine" id="cb36-4" title="4">              <span class="dt">outcome =</span> Outcome, </a>
+<a class="sourceLine" id="cb36-5" title="5">              <span class="dt">improvement =</span> direction,</a>
+<a class="sourceLine" id="cb36-6" title="6">              <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;NAP&quot;</span>, <span class="st">&quot;PND&quot;</span>))</a></code></pre></div>
 <p>The syntax is similar to the example with the McKissick dataset, except for two things. Here, we’ve provided a vector of variable names for <code>grouping</code> that identify each series for which we want an effect size. Instead of providing a uniform direction of improvement to the <code>improvement</code> variable, we’ve provided a variable name, <code>direction</code>, which will account for the fact that the two behavior types have different directions of therapeutic improvement. Here is a table of the output:</p>
-<div style="border: 1px solid #ddd; padding: 5px; overflow-y: scroll; height:800px; overflow-x: scroll; width:100%; ">
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:800px; overflow-x: scroll; width:100%; ">
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 Case_pseudonym
 </th>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 Behavior_type
 </th>
-<th style="text-align:right;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
 Phase_num
 </th>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 ES
 </th>
-<th style="text-align:right;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
 Est
 </th>
-<th style="text-align:right;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
 SE
 </th>
-<th style="text-align:right;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
 CI_lower
 </th>
-<th style="text-align:right;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
 CI_upper
 </th>
 </tr>
@@ -1976,22 +1989,22 @@ NA
 <div id="dealing-with-outcome-scales." class="section level2">
 <h2><span class="header-section-number">3.4</span> Dealing with outcome scales.</h2>
 <p>By default, the batch calculator assumes the outcome scale is <code>&quot;other&quot;</code>, which means that if a phase mean is equal to zero, the logs odd ratio or the log response ratio will not be calculated. Just like <code>calc_ES()</code>, when calculating parametric effect sizes, you may need to specify the outcome scales as well as things like the length of the observation session or the number of intervals in each observation session. If these values are the same for all observations in the dataset, it can be quite simple, like this example using the McKissick dataset:</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" data-line-number="1">mckissick_ES &lt;-<span class="st"> </span><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick,</a>
-<a class="sourceLine" id="cb36-2" data-line-number="2">              <span class="dt">grouping =</span> Case_pseudonym, </a>
-<a class="sourceLine" id="cb36-3" data-line-number="3">              <span class="dt">condition =</span> Condition,</a>
-<a class="sourceLine" id="cb36-4" data-line-number="4">              <span class="dt">outcome =</span> Outcome, </a>
-<a class="sourceLine" id="cb36-5" data-line-number="5">              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</a>
-<a class="sourceLine" id="cb36-6" data-line-number="6">              <span class="dt">scale =</span> <span class="st">&quot;count&quot;</span>,</a>
-<a class="sourceLine" id="cb36-7" data-line-number="7">              <span class="dt">observation_length =</span> <span class="dv">20</span>,</a>
-<a class="sourceLine" id="cb36-8" data-line-number="8">              <span class="dt">ES =</span> <span class="st">&quot;parametric&quot;</span>)</a>
-<a class="sourceLine" id="cb36-9" data-line-number="9"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
-<a class="sourceLine" id="cb36-10" data-line-number="10"><span class="co">#&gt; return NAs for other outcome scales.</span></a>
-<a class="sourceLine" id="cb36-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb36-12" data-line-number="12"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
-<a class="sourceLine" id="cb36-13" data-line-number="13"><span class="co">#&gt; return NAs for other outcome scales.</span></a>
-<a class="sourceLine" id="cb36-14" data-line-number="14"></a>
-<a class="sourceLine" id="cb36-15" data-line-number="15"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
-<a class="sourceLine" id="cb36-16" data-line-number="16"><span class="co">#&gt; return NAs for other outcome scales.</span></a></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" title="1">mckissick_ES &lt;-<span class="st"> </span><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick,</a>
+<a class="sourceLine" id="cb37-2" title="2">              <span class="dt">grouping =</span> Case_pseudonym, </a>
+<a class="sourceLine" id="cb37-3" title="3">              <span class="dt">condition =</span> Condition,</a>
+<a class="sourceLine" id="cb37-4" title="4">              <span class="dt">outcome =</span> Outcome, </a>
+<a class="sourceLine" id="cb37-5" title="5">              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</a>
+<a class="sourceLine" id="cb37-6" title="6">              <span class="dt">scale =</span> <span class="st">&quot;count&quot;</span>,</a>
+<a class="sourceLine" id="cb37-7" title="7">              <span class="dt">observation_length =</span> <span class="dv">20</span>,</a>
+<a class="sourceLine" id="cb37-8" title="8">              <span class="dt">ES =</span> <span class="st">&quot;parametric&quot;</span>)</a>
+<a class="sourceLine" id="cb37-9" title="9"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
+<a class="sourceLine" id="cb37-10" title="10"><span class="co">#&gt; return NAs for other outcome scales.</span></a>
+<a class="sourceLine" id="cb37-11" title="11"></a>
+<a class="sourceLine" id="cb37-12" title="12"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
+<a class="sourceLine" id="cb37-13" title="13"><span class="co">#&gt; return NAs for other outcome scales.</span></a>
+<a class="sourceLine" id="cb37-14" title="14"></a>
+<a class="sourceLine" id="cb37-15" title="15"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
+<a class="sourceLine" id="cb37-16" title="16"><span class="co">#&gt; return NAs for other outcome scales.</span></a></code></pre></div>
 <p>Here, we’ve specified the outcome scale is a count, and that each session lasted 20 minutes. Note that we get a warning about the log odds ratio. Let’s take a look at the output:</p>
 <table>
 <thead>
@@ -2085,16 +2098,16 @@ Period 1
 SMD
 </td>
 <td style="text-align:right;">
-3.5061471
+2.7548299
 </td>
 <td style="text-align:right;">
-1.2334987
+0.9432985
 </td>
 <td style="text-align:right;">
-1.0885340
+0.9059988
 </td>
 <td style="text-align:right;">
-5.9237602
+4.6036610
 </td>
 </tr>
 <tr>
@@ -2165,16 +2178,16 @@ Period 2
 SMD
 </td>
 <td style="text-align:right;">
-1.2745438
+1.2108166
 </td>
 <td style="text-align:right;">
-0.6734201
+0.6500765
 </td>
 <td style="text-align:right;">
--0.0453353
+-0.0633100
 </td>
 <td style="text-align:right;">
-2.5944229
+2.4849431
 </td>
 </tr>
 <tr>
@@ -2245,78 +2258,78 @@ Period 3
 SMD
 </td>
 <td style="text-align:right;">
-2.9206280
+2.8852978
 </td>
 <td style="text-align:right;">
-1.0781761
+1.0827635
 </td>
 <td style="text-align:right;">
-0.8074417
+0.7631203
 </td>
 <td style="text-align:right;">
-5.0338143
+5.0074754
 </td>
 </tr>
 </tbody>
 </table>
 <p>Once again, we have a column specifying the case to which the effect sizes correspond, as well as a column specifying the effect size metric. The log odds ratio returns all <code>NA</code>s, because the log odds ratio can’t be estimate for count outcomes.</p>
 <p>Let’s assume that you are interested in estimating effect sizes for data where the measurement scale— as well as perhaps measurement details like the observation length or the number of intervals —varies depending on the data series. The Schmidt data is one example of this. Remember that the Schmidt data has a variable specifying the measurement scale of the outcome (<code>Metric</code>) which is <code>&quot;percentage&quot;</code> for desirable behavior and <code>&quot;count&quot;</code> for disruptive behaviors. It also has a variable that specifies the length of the observation session (<code>Session_length</code>), and a variable that specifies the number of intervals per session for the dependent variable measured using partial interval recording (<code>n_Intervals</code>). The value of <code>Session_length</code> is <code>NA</code> for the percentage outcomes and the value of <code>n_Intervals</code> is <code>NA</code> for the count outcomes because those details are not relevant for those outcome measurement scales. Let’s try it out:</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" data-line-number="1">schmidt_ES &lt;-<span class="st"> </span><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> Schmidt2007,</a>
-<a class="sourceLine" id="cb37-2" data-line-number="2">              <span class="dt">grouping =</span> <span class="kw">c</span>(Case_pseudonym, Behavior_type, Phase_num), </a>
-<a class="sourceLine" id="cb37-3" data-line-number="3">              <span class="dt">condition =</span> Condition,</a>
-<a class="sourceLine" id="cb37-4" data-line-number="4">              <span class="dt">outcome =</span> Outcome, </a>
-<a class="sourceLine" id="cb37-5" data-line-number="5">              <span class="dt">improvement =</span> direction,</a>
-<a class="sourceLine" id="cb37-6" data-line-number="6">              <span class="dt">scale =</span> Metric,</a>
-<a class="sourceLine" id="cb37-7" data-line-number="7">              <span class="dt">observation_length =</span> Session_length,</a>
-<a class="sourceLine" id="cb37-8" data-line-number="8">              <span class="dt">intervals =</span> n_Intervals,</a>
-<a class="sourceLine" id="cb37-9" data-line-number="9">              <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;parametric&quot;</span>))</a>
-<a class="sourceLine" id="cb37-10" data-line-number="10"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
-<a class="sourceLine" id="cb37-11" data-line-number="11"><span class="co">#&gt; return NAs for other outcome scales.</span></a>
-<a class="sourceLine" id="cb37-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb37-13" data-line-number="13"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
-<a class="sourceLine" id="cb37-14" data-line-number="14"><span class="co">#&gt; return NAs for other outcome scales.</span></a>
-<a class="sourceLine" id="cb37-15" data-line-number="15"></a>
-<a class="sourceLine" id="cb37-16" data-line-number="16"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
-<a class="sourceLine" id="cb37-17" data-line-number="17"><span class="co">#&gt; return NAs for other outcome scales.</span></a>
-<a class="sourceLine" id="cb37-18" data-line-number="18"></a>
-<a class="sourceLine" id="cb37-19" data-line-number="19"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
-<a class="sourceLine" id="cb37-20" data-line-number="20"><span class="co">#&gt; return NAs for other outcome scales.</span></a>
-<a class="sourceLine" id="cb37-21" data-line-number="21"></a>
-<a class="sourceLine" id="cb37-22" data-line-number="22"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
-<a class="sourceLine" id="cb37-23" data-line-number="23"><span class="co">#&gt; return NAs for other outcome scales.</span></a>
-<a class="sourceLine" id="cb37-24" data-line-number="24"></a>
-<a class="sourceLine" id="cb37-25" data-line-number="25"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
-<a class="sourceLine" id="cb37-26" data-line-number="26"><span class="co">#&gt; return NAs for other outcome scales.</span></a></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" title="1">schmidt_ES &lt;-<span class="st"> </span><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> Schmidt2007,</a>
+<a class="sourceLine" id="cb38-2" title="2">              <span class="dt">grouping =</span> <span class="kw">c</span>(Case_pseudonym, Behavior_type, Phase_num), </a>
+<a class="sourceLine" id="cb38-3" title="3">              <span class="dt">condition =</span> Condition,</a>
+<a class="sourceLine" id="cb38-4" title="4">              <span class="dt">outcome =</span> Outcome, </a>
+<a class="sourceLine" id="cb38-5" title="5">              <span class="dt">improvement =</span> direction,</a>
+<a class="sourceLine" id="cb38-6" title="6">              <span class="dt">scale =</span> Metric,</a>
+<a class="sourceLine" id="cb38-7" title="7">              <span class="dt">observation_length =</span> Session_length,</a>
+<a class="sourceLine" id="cb38-8" title="8">              <span class="dt">intervals =</span> n_Intervals,</a>
+<a class="sourceLine" id="cb38-9" title="9">              <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;parametric&quot;</span>))</a>
+<a class="sourceLine" id="cb38-10" title="10"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
+<a class="sourceLine" id="cb38-11" title="11"><span class="co">#&gt; return NAs for other outcome scales.</span></a>
+<a class="sourceLine" id="cb38-12" title="12"></a>
+<a class="sourceLine" id="cb38-13" title="13"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
+<a class="sourceLine" id="cb38-14" title="14"><span class="co">#&gt; return NAs for other outcome scales.</span></a>
+<a class="sourceLine" id="cb38-15" title="15"></a>
+<a class="sourceLine" id="cb38-16" title="16"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
+<a class="sourceLine" id="cb38-17" title="17"><span class="co">#&gt; return NAs for other outcome scales.</span></a>
+<a class="sourceLine" id="cb38-18" title="18"></a>
+<a class="sourceLine" id="cb38-19" title="19"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
+<a class="sourceLine" id="cb38-20" title="20"><span class="co">#&gt; return NAs for other outcome scales.</span></a>
+<a class="sourceLine" id="cb38-21" title="21"></a>
+<a class="sourceLine" id="cb38-22" title="22"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
+<a class="sourceLine" id="cb38-23" title="23"><span class="co">#&gt; return NAs for other outcome scales.</span></a>
+<a class="sourceLine" id="cb38-24" title="24"></a>
+<a class="sourceLine" id="cb38-25" title="25"><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will</span></a>
+<a class="sourceLine" id="cb38-26" title="26"><span class="co">#&gt; return NAs for other outcome scales.</span></a></code></pre></div>
 <p>Unlike the previous example, where we specified a uniform value for the <code>scale</code> and <code>observation_length</code>, we now have to specify variable names for <code>scale</code>, <code>observation_length</code>, and the number of <code>intervals</code>. Note that we get some warnings again about the LOR effect size. Let’s take a look at the output:</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" data-line-number="1"><span class="kw">kable</span>(schmidt_ES) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb38-2" data-line-number="2"><span class="st">   </span><span class="kw">kable_styling</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb38-3" data-line-number="3"><span class="st">  </span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;100%&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;800px&quot;</span>)</a></code></pre></div>
-<div style="border: 1px solid #ddd; padding: 5px; overflow-y: scroll; height:800px; overflow-x: scroll; width:100%; ">
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" title="1"><span class="kw">kable</span>(schmidt_ES) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb39-2" title="2"><span class="st">   </span><span class="kw">kable_styling</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb39-3" title="3"><span class="st">  </span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;100%&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;800px&quot;</span>)</a></code></pre></div>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:800px; overflow-x: scroll; width:100%; ">
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 Case_pseudonym
 </th>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 Behavior_type
 </th>
-<th style="text-align:right;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
 Phase_num
 </th>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 ES
 </th>
-<th style="text-align:right;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
 Est
 </th>
-<th style="text-align:right;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
 SE
 </th>
-<th style="text-align:right;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
 CI_lower
 </th>
-<th style="text-align:right;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
 CI_upper
 </th>
 </tr>
@@ -2414,16 +2427,16 @@ Disruptive Behavior
 SMD
 </td>
 <td style="text-align:right;">
-1.9197796
+1.8965565
 </td>
 <td style="text-align:right;">
-0.5318026
+0.5407164
 </td>
 <td style="text-align:right;">
-0.8774657
+0.8367718
 </td>
 <td style="text-align:right;">
-2.9620935
+2.9563411
 </td>
 </tr>
 <tr>
@@ -2518,16 +2531,16 @@ Disruptive Behavior
 SMD
 </td>
 <td style="text-align:right;">
-1.2574608
+0.9880049
 </td>
 <td style="text-align:right;">
-0.5673053
+0.4385407
 </td>
 <td style="text-align:right;">
-0.1455628
+0.1284809
 </td>
 <td style="text-align:right;">
-2.3693587
+1.8475289
 </td>
 </tr>
 <tr>
@@ -2622,16 +2635,16 @@ On Task Behavior
 SMD
 </td>
 <td style="text-align:right;">
-0.9324019
+0.9211229
 </td>
 <td style="text-align:right;">
-0.3696794
+0.3704536
 </td>
 <td style="text-align:right;">
-0.2078436
+0.1950472
 </td>
 <td style="text-align:right;">
-1.6569602
+1.6471986
 </td>
 </tr>
 <tr>
@@ -2726,16 +2739,16 @@ On Task Behavior
 SMD
 </td>
 <td style="text-align:right;">
-0.6457036
+0.5073386
 </td>
 <td style="text-align:right;">
-0.4938273
+0.3858380
 </td>
 <td style="text-align:right;">
--0.3221800
+-0.2488899
 </td>
 <td style="text-align:right;">
-1.6135873
+1.2635670
 </td>
 </tr>
 <tr>
@@ -2830,16 +2843,16 @@ Disruptive Behavior
 SMD
 </td>
 <td style="text-align:right;">
-1.1042564
+1.0867285
 </td>
 <td style="text-align:right;">
-0.4090346
+0.4104570
 </td>
 <td style="text-align:right;">
-0.3025634
+0.2822475
 </td>
 <td style="text-align:right;">
-1.9059494
+1.8912095
 </td>
 </tr>
 <tr>
@@ -2934,16 +2947,16 @@ Disruptive Behavior
 SMD
 </td>
 <td style="text-align:right;">
-1.3269609
+1.0426122
 </td>
 <td style="text-align:right;">
-0.5818037
+0.4493105
 </td>
 <td style="text-align:right;">
-0.1866466
+0.1619797
 </td>
 <td style="text-align:right;">
-2.4672753
+1.9232446
 </td>
 </tr>
 <tr>
@@ -3038,16 +3051,16 @@ On Task Behavior
 SMD
 </td>
 <td style="text-align:right;">
-0.0620767
+0.0610913
 </td>
 <td style="text-align:right;">
-0.5873491
+0.5780437
 </td>
 <td style="text-align:right;">
--1.0891064
+-1.0718535
 </td>
 <td style="text-align:right;">
-1.2132597
+1.1940361
 </td>
 </tr>
 <tr>
@@ -3142,16 +3155,16 @@ On Task Behavior
 SMD
 </td>
 <td style="text-align:right;">
-0.8084812
+0.6352352
 </td>
 <td style="text-align:right;">
-0.4838922
+0.3767243
 </td>
 <td style="text-align:right;">
--0.1399301
+-0.1031308
 </td>
 <td style="text-align:right;">
-1.7568925
+1.3736013
 </td>
 </tr>
 <tr>
@@ -3246,16 +3259,16 @@ Disruptive Behavior
 SMD
 </td>
 <td style="text-align:right;">
-1.9391889
+1.9157310
 </td>
 <td style="text-align:right;">
-0.5215124
+0.5311578
 </td>
 <td style="text-align:right;">
-0.9170434
+0.8746809
 </td>
 <td style="text-align:right;">
-2.9613344
+2.9567811
 </td>
 </tr>
 <tr>
@@ -3350,16 +3363,16 @@ Disruptive Behavior
 SMD
 </td>
 <td style="text-align:right;">
-0.8023088
+0.6303855
 </td>
 <td style="text-align:right;">
-0.5242376
+0.4087430
 </td>
 <td style="text-align:right;">
--0.2251780
+-0.1707360
 </td>
 <td style="text-align:right;">
-1.8297956
+1.4315070
 </td>
 </tr>
 <tr>
@@ -3454,16 +3467,16 @@ On Task Behavior
 SMD
 </td>
 <td style="text-align:right;">
-1.0477764
+1.0351017
 </td>
 <td style="text-align:right;">
-0.3963880
+0.3977671
 </td>
 <td style="text-align:right;">
-0.2708701
+0.2554925
 </td>
 <td style="text-align:right;">
-1.8246826
+1.8147108
 </td>
 </tr>
 <tr>
@@ -3558,16 +3571,16 @@ On Task Behavior
 SMD
 </td>
 <td style="text-align:right;">
-0.2230707
+0.1752699
 </td>
 <td style="text-align:right;">
-0.4396028
+0.3451121
 </td>
 <td style="text-align:right;">
--0.6385349
+-0.5011373
 </td>
 <td style="text-align:right;">
-1.0846764
+0.8516771
 </td>
 </tr>
 </tbody>
@@ -3580,13 +3593,13 @@ SMD
 <div id="output-format" class="section level3">
 <h3><span class="header-section-number">3.5.1</span> Output format</h3>
 <p>We can also request the effect sizes in a wide format:</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" data-line-number="1">mckissick_wide_ES &lt;-<span class="st"> </span><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick,</a>
-<a class="sourceLine" id="cb39-2" data-line-number="2">              <span class="dt">grouping =</span> Case_pseudonym, </a>
-<a class="sourceLine" id="cb39-3" data-line-number="3">              <span class="dt">condition =</span> Condition,</a>
-<a class="sourceLine" id="cb39-4" data-line-number="4">              <span class="dt">outcome =</span> Outcome, </a>
-<a class="sourceLine" id="cb39-5" data-line-number="5">              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</a>
-<a class="sourceLine" id="cb39-6" data-line-number="6">              <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;NAP&quot;</span>, <span class="st">&quot;PND&quot;</span>),</a>
-<a class="sourceLine" id="cb39-7" data-line-number="7">              <span class="dt">format =</span> <span class="st">&quot;wide&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" title="1">mckissick_wide_ES &lt;-<span class="st"> </span><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick,</a>
+<a class="sourceLine" id="cb40-2" title="2">              <span class="dt">grouping =</span> Case_pseudonym, </a>
+<a class="sourceLine" id="cb40-3" title="3">              <span class="dt">condition =</span> Condition,</a>
+<a class="sourceLine" id="cb40-4" title="4">              <span class="dt">outcome =</span> Outcome, </a>
+<a class="sourceLine" id="cb40-5" title="5">              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</a>
+<a class="sourceLine" id="cb40-6" title="6">              <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;NAP&quot;</span>, <span class="st">&quot;PND&quot;</span>),</a>
+<a class="sourceLine" id="cb40-7" title="7">              <span class="dt">format =</span> <span class="st">&quot;wide&quot;</span>)</a></code></pre></div>
 <p>The default argument for the batch calculator is <code>format = &quot;long&quot;</code>, but if you want each case to be on a single line, specifying <code>format = &quot;wide&quot;</code> will provide the output that way, just like <code>calc_ES()</code>. Here’s the output:</p>
 <table>
 <thead>
@@ -3679,80 +3692,80 @@ Period 3
 <div id="suppressing-warnings" class="section level3">
 <h3><span class="header-section-number">3.5.2</span> Suppressing warnings</h3>
 <p>Remember how, when we asked for the LOR for counts, the calculator gave us a bunch of warning messages? If you’re asking for the LOR, and some of your outcomes are in a scale other than percentage or proportion, you can specify the argument <code>warn = &quot;FALSE&quot;</code> (by default it is set to <code>TRUE</code>) if you want to suppress the warning messages. You will still get NA for any series with an inappropriate outcome scale.</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" data-line-number="1"><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick,</a>
-<a class="sourceLine" id="cb40-2" data-line-number="2">              <span class="dt">grouping =</span> Case_pseudonym, </a>
-<a class="sourceLine" id="cb40-3" data-line-number="3">              <span class="dt">condition =</span> Condition,</a>
-<a class="sourceLine" id="cb40-4" data-line-number="4">              <span class="dt">outcome =</span> Outcome, </a>
-<a class="sourceLine" id="cb40-5" data-line-number="5">              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</a>
-<a class="sourceLine" id="cb40-6" data-line-number="6">              <span class="dt">scale =</span> <span class="st">&quot;count&quot;</span>,</a>
-<a class="sourceLine" id="cb40-7" data-line-number="7">              <span class="dt">observation_length =</span> <span class="dv">20</span>,</a>
-<a class="sourceLine" id="cb40-8" data-line-number="8">              <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;LRRi&quot;</span>,<span class="st">&quot;LOR&quot;</span>),</a>
-<a class="sourceLine" id="cb40-9" data-line-number="9">              <span class="dt">warn =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb40-10" data-line-number="10"><span class="co">#&gt; # A tibble: 6 x 6</span></a>
-<a class="sourceLine" id="cb40-11" data-line-number="11"><span class="co">#&gt;   Case_pseudonym ES       Est     SE CI_lower CI_upper</span></a>
-<a class="sourceLine" id="cb40-12" data-line-number="12"><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;</span></a>
-<a class="sourceLine" id="cb40-13" data-line-number="13"><span class="co">#&gt; 1 Period 1       LRRi   0.807  0.198   0.419      1.19</span></a>
-<a class="sourceLine" id="cb40-14" data-line-number="14"><span class="co">#&gt; 2 Period 1       LOR   NA     NA      NA         NA   </span></a>
-<a class="sourceLine" id="cb40-15" data-line-number="15"><span class="co">#&gt; 3 Period 2       LRRi   0.610  0.349  -0.0736     1.29</span></a>
-<a class="sourceLine" id="cb40-16" data-line-number="16"><span class="co">#&gt; 4 Period 2       LOR   NA     NA      NA         NA   </span></a>
-<a class="sourceLine" id="cb40-17" data-line-number="17"><span class="co">#&gt; 5 Period 3       LRRi   0.748  0.353   0.0550     1.44</span></a>
-<a class="sourceLine" id="cb40-18" data-line-number="18"><span class="co">#&gt; 6 Period 3       LOR   NA     NA      NA         NA</span></a></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" title="1"><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick,</a>
+<a class="sourceLine" id="cb41-2" title="2">              <span class="dt">grouping =</span> Case_pseudonym, </a>
+<a class="sourceLine" id="cb41-3" title="3">              <span class="dt">condition =</span> Condition,</a>
+<a class="sourceLine" id="cb41-4" title="4">              <span class="dt">outcome =</span> Outcome, </a>
+<a class="sourceLine" id="cb41-5" title="5">              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</a>
+<a class="sourceLine" id="cb41-6" title="6">              <span class="dt">scale =</span> <span class="st">&quot;count&quot;</span>,</a>
+<a class="sourceLine" id="cb41-7" title="7">              <span class="dt">observation_length =</span> <span class="dv">20</span>,</a>
+<a class="sourceLine" id="cb41-8" title="8">              <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;LRRi&quot;</span>,<span class="st">&quot;LOR&quot;</span>),</a>
+<a class="sourceLine" id="cb41-9" title="9">              <span class="dt">warn =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb41-10" title="10"><span class="co">#&gt; # A tibble: 6 x 6</span></a>
+<a class="sourceLine" id="cb41-11" title="11"><span class="co">#&gt;   Case_pseudonym ES       Est     SE CI_lower CI_upper</span></a>
+<a class="sourceLine" id="cb41-12" title="12"><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb41-13" title="13"><span class="co">#&gt; 1 Period 1       LRRi   0.807  0.198   0.419      1.19</span></a>
+<a class="sourceLine" id="cb41-14" title="14"><span class="co">#&gt; 2 Period 1       LOR   NA     NA      NA         NA   </span></a>
+<a class="sourceLine" id="cb41-15" title="15"><span class="co">#&gt; 3 Period 2       LRRi   0.610  0.349  -0.0736     1.29</span></a>
+<a class="sourceLine" id="cb41-16" title="16"><span class="co">#&gt; 4 Period 2       LOR   NA     NA      NA         NA   </span></a>
+<a class="sourceLine" id="cb41-17" title="17"><span class="co">#&gt; 5 Period 3       LRRi   0.748  0.353   0.0550     1.44</span></a>
+<a class="sourceLine" id="cb41-18" title="18"><span class="co">#&gt; 6 Period 3       LOR   NA     NA      NA         NA</span></a></code></pre></div>
 </div>
 <div id="arguments-to-individual-effect-size-functions" class="section level3">
 <h3><span class="header-section-number">3.5.3</span> Arguments to individual effect size functions</h3>
 <p>The <code>...</code> argument allows you to specify arguments particular to an individual function such as <code>std_dev</code> for the <code>SMD()</code> function. For instance, compare the results of calculating a pooled SMD versus the default, baseline phase only SMD:</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" data-line-number="1"><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick, </a>
-<a class="sourceLine" id="cb41-2" data-line-number="2">              <span class="dt">grouping =</span> Case_pseudonym, </a>
-<a class="sourceLine" id="cb41-3" data-line-number="3">              <span class="dt">condition =</span> Condition,</a>
-<a class="sourceLine" id="cb41-4" data-line-number="4">              <span class="dt">outcome =</span> Outcome, </a>
-<a class="sourceLine" id="cb41-5" data-line-number="5">              <span class="dt">ES =</span> <span class="st">&quot;SMD&quot;</span>, </a>
-<a class="sourceLine" id="cb41-6" data-line-number="6">              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>)</a>
-<a class="sourceLine" id="cb41-7" data-line-number="7"><span class="co">#&gt; # A tibble: 3 x 6</span></a>
-<a class="sourceLine" id="cb41-8" data-line-number="8"><span class="co">#&gt;   Case_pseudonym ES      Est    SE CI_lower CI_upper</span></a>
-<a class="sourceLine" id="cb41-9" data-line-number="9"><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;</span></a>
-<a class="sourceLine" id="cb41-10" data-line-number="10"><span class="co">#&gt; 1 Period 1       SMD    3.51 1.23    1.09       5.92</span></a>
-<a class="sourceLine" id="cb41-11" data-line-number="11"><span class="co">#&gt; 2 Period 2       SMD    1.27 0.673  -0.0453     2.59</span></a>
-<a class="sourceLine" id="cb41-12" data-line-number="12"><span class="co">#&gt; 3 Period 3       SMD    2.92 1.08    0.807      5.03</span></a>
-<a class="sourceLine" id="cb41-13" data-line-number="13"></a>
-<a class="sourceLine" id="cb41-14" data-line-number="14"><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick, </a>
-<a class="sourceLine" id="cb41-15" data-line-number="15">              <span class="dt">grouping =</span> Case_pseudonym, </a>
-<a class="sourceLine" id="cb41-16" data-line-number="16">              <span class="dt">condition =</span> Condition,</a>
-<a class="sourceLine" id="cb41-17" data-line-number="17">              <span class="dt">outcome =</span> Outcome, </a>
-<a class="sourceLine" id="cb41-18" data-line-number="18">              <span class="dt">ES =</span> <span class="st">&quot;SMD&quot;</span>, </a>
-<a class="sourceLine" id="cb41-19" data-line-number="19">              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</a>
-<a class="sourceLine" id="cb41-20" data-line-number="20">              <span class="dt">std_dev =</span> <span class="st">&quot;pool&quot;</span>)</a>
-<a class="sourceLine" id="cb41-21" data-line-number="21"><span class="co">#&gt; # A tibble: 3 x 6</span></a>
-<a class="sourceLine" id="cb41-22" data-line-number="22"><span class="co">#&gt;   Case_pseudonym ES      Est    SE CI_lower CI_upper</span></a>
-<a class="sourceLine" id="cb41-23" data-line-number="23"><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;</span></a>
-<a class="sourceLine" id="cb41-24" data-line-number="24"><span class="co">#&gt; 1 Period 1       SMD    2.58 0.853   0.909      4.25</span></a>
-<a class="sourceLine" id="cb41-25" data-line-number="25"><span class="co">#&gt; 2 Period 2       SMD    1.12 0.588  -0.0345     2.27</span></a>
-<a class="sourceLine" id="cb41-26" data-line-number="26"><span class="co">#&gt; 3 Period 3       SMD    2.34 0.727   0.920      3.77</span></a></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" title="1"><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick, </a>
+<a class="sourceLine" id="cb42-2" title="2">              <span class="dt">grouping =</span> Case_pseudonym, </a>
+<a class="sourceLine" id="cb42-3" title="3">              <span class="dt">condition =</span> Condition,</a>
+<a class="sourceLine" id="cb42-4" title="4">              <span class="dt">outcome =</span> Outcome, </a>
+<a class="sourceLine" id="cb42-5" title="5">              <span class="dt">ES =</span> <span class="st">&quot;SMD&quot;</span>, </a>
+<a class="sourceLine" id="cb42-6" title="6">              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>)</a>
+<a class="sourceLine" id="cb42-7" title="7"><span class="co">#&gt; # A tibble: 3 x 6</span></a>
+<a class="sourceLine" id="cb42-8" title="8"><span class="co">#&gt;   Case_pseudonym ES      Est    SE CI_lower CI_upper</span></a>
+<a class="sourceLine" id="cb42-9" title="9"><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb42-10" title="10"><span class="co">#&gt; 1 Period 1       SMD    2.75 0.943   0.906      4.60</span></a>
+<a class="sourceLine" id="cb42-11" title="11"><span class="co">#&gt; 2 Period 2       SMD    1.21 0.650  -0.0633     2.48</span></a>
+<a class="sourceLine" id="cb42-12" title="12"><span class="co">#&gt; 3 Period 3       SMD    2.89 1.08    0.763      5.01</span></a>
+<a class="sourceLine" id="cb42-13" title="13"></a>
+<a class="sourceLine" id="cb42-14" title="14"><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick, </a>
+<a class="sourceLine" id="cb42-15" title="15">              <span class="dt">grouping =</span> Case_pseudonym, </a>
+<a class="sourceLine" id="cb42-16" title="16">              <span class="dt">condition =</span> Condition,</a>
+<a class="sourceLine" id="cb42-17" title="17">              <span class="dt">outcome =</span> Outcome, </a>
+<a class="sourceLine" id="cb42-18" title="18">              <span class="dt">ES =</span> <span class="st">&quot;SMD&quot;</span>, </a>
+<a class="sourceLine" id="cb42-19" title="19">              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</a>
+<a class="sourceLine" id="cb42-20" title="20">              <span class="dt">std_dev =</span> <span class="st">&quot;pool&quot;</span>)</a>
+<a class="sourceLine" id="cb42-21" title="21"><span class="co">#&gt; # A tibble: 3 x 6</span></a>
+<a class="sourceLine" id="cb42-22" title="22"><span class="co">#&gt;   Case_pseudonym ES      Est    SE CI_lower CI_upper</span></a>
+<a class="sourceLine" id="cb42-23" title="23"><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb42-24" title="24"><span class="co">#&gt; 1 Period 1       SMD    2.58 0.853   0.909      4.25</span></a>
+<a class="sourceLine" id="cb42-25" title="25"><span class="co">#&gt; 2 Period 2       SMD    1.12 0.588  -0.0345     2.27</span></a>
+<a class="sourceLine" id="cb42-26" title="26"><span class="co">#&gt; 3 Period 3       SMD    2.34 0.727   0.920      3.77</span></a></code></pre></div>
 <p>Arguments common to several functions will be used when calculating any of the effect sizes for which they are relevant. For example, the <code>bias_correct</code> argument applies to all of the parametric effect sizes:</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" data-line-number="1"><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick, </a>
-<a class="sourceLine" id="cb42-2" data-line-number="2">              <span class="dt">grouping =</span> Case_pseudonym, </a>
-<a class="sourceLine" id="cb42-3" data-line-number="3">              <span class="dt">condition =</span> Condition,</a>
-<a class="sourceLine" id="cb42-4" data-line-number="4">              <span class="dt">outcome =</span> Outcome, </a>
-<a class="sourceLine" id="cb42-5" data-line-number="5">              <span class="dt">ES =</span> <span class="st">&quot;parametric&quot;</span>, </a>
-<a class="sourceLine" id="cb42-6" data-line-number="6">              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</a>
-<a class="sourceLine" id="cb42-7" data-line-number="7">              <span class="dt">scale =</span> Procedure, </a>
-<a class="sourceLine" id="cb42-8" data-line-number="8">              <span class="dt">observation_length =</span> Session_length,</a>
-<a class="sourceLine" id="cb42-9" data-line-number="9">              <span class="dt">bias_correct =</span> <span class="ot">FALSE</span>,</a>
-<a class="sourceLine" id="cb42-10" data-line-number="10">              <span class="dt">warn =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb42-11" data-line-number="11"><span class="co">#&gt; # A tibble: 12 x 6</span></a>
-<a class="sourceLine" id="cb42-12" data-line-number="12"><span class="co">#&gt;    Case_pseudonym ES        Est     SE CI_lower CI_upper</span></a>
-<a class="sourceLine" id="cb42-13" data-line-number="13"><span class="co">#&gt;    &lt;chr&gt;          &lt;chr&gt;   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;</span></a>
-<a class="sourceLine" id="cb42-14" data-line-number="14"><span class="co">#&gt;  1 Period 1       LRRd   -0.822  0.198  -1.21    -0.435 </span></a>
-<a class="sourceLine" id="cb42-15" data-line-number="15"><span class="co">#&gt;  2 Period 1       LRRi    0.822  0.198   0.435    1.21  </span></a>
-<a class="sourceLine" id="cb42-16" data-line-number="16"><span class="co">#&gt;  3 Period 1       LOR    NA     NA      NA       NA     </span></a>
-<a class="sourceLine" id="cb42-17" data-line-number="17"><span class="co">#&gt;  4 Period 1       SMD     4.82   2.17    0.571    9.07  </span></a>
-<a class="sourceLine" id="cb42-18" data-line-number="18"><span class="co">#&gt;  5 Period 2       LRRd   -0.650  0.349  -1.33     0.0328</span></a>
-<a class="sourceLine" id="cb42-19" data-line-number="19"><span class="co">#&gt;  6 Period 2       LRRi    0.650  0.349  -0.0328   1.33  </span></a>
-<a class="sourceLine" id="cb42-20" data-line-number="20"><span class="co">#&gt;  7 Period 2       LOR    NA     NA      NA       NA     </span></a>
-<a class="sourceLine" id="cb42-21" data-line-number="21"><span class="co">#&gt;  8 Period 2       SMD     1.51   0.840  -0.133    3.16  </span></a>
-<a class="sourceLine" id="cb42-22" data-line-number="22"><span class="co">#&gt;  9 Period 3       LRRd   -0.807  0.353  -1.50    -0.114 </span></a>
-<a class="sourceLine" id="cb42-23" data-line-number="23"><span class="co">#&gt; 10 Period 3       LRRi    0.807  0.353   0.114    1.50  </span></a>
-<a class="sourceLine" id="cb42-24" data-line-number="24"><span class="co">#&gt; 11 Period 3       LOR    NA     NA      NA       NA     </span></a>
-<a class="sourceLine" id="cb42-25" data-line-number="25"><span class="co">#&gt; 12 Period 3       SMD     3.19   1.22    0.807    5.58</span></a></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" title="1"><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick, </a>
+<a class="sourceLine" id="cb43-2" title="2">              <span class="dt">grouping =</span> Case_pseudonym, </a>
+<a class="sourceLine" id="cb43-3" title="3">              <span class="dt">condition =</span> Condition,</a>
+<a class="sourceLine" id="cb43-4" title="4">              <span class="dt">outcome =</span> Outcome, </a>
+<a class="sourceLine" id="cb43-5" title="5">              <span class="dt">ES =</span> <span class="st">&quot;parametric&quot;</span>, </a>
+<a class="sourceLine" id="cb43-6" title="6">              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</a>
+<a class="sourceLine" id="cb43-7" title="7">              <span class="dt">scale =</span> Procedure, </a>
+<a class="sourceLine" id="cb43-8" title="8">              <span class="dt">observation_length =</span> Session_length,</a>
+<a class="sourceLine" id="cb43-9" title="9">              <span class="dt">bias_correct =</span> <span class="ot">FALSE</span>,</a>
+<a class="sourceLine" id="cb43-10" title="10">              <span class="dt">warn =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb43-11" title="11"><span class="co">#&gt; # A tibble: 12 x 6</span></a>
+<a class="sourceLine" id="cb43-12" title="12"><span class="co">#&gt;    Case_pseudonym ES       Est     SE CI_lower CI_upper</span></a>
+<a class="sourceLine" id="cb43-13" title="13"><span class="co">#&gt;    &lt;chr&gt;          &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb43-14" title="14"><span class="co">#&gt;  1 Period 1       LRRd  -0.822  0.198  -1.21    -0.435 </span></a>
+<a class="sourceLine" id="cb43-15" title="15"><span class="co">#&gt;  2 Period 1       LRRi   0.822  0.198   0.435    1.21  </span></a>
+<a class="sourceLine" id="cb43-16" title="16"><span class="co">#&gt;  3 Period 1       LOR   NA     NA      NA       NA     </span></a>
+<a class="sourceLine" id="cb43-17" title="17"><span class="co">#&gt;  4 Period 1       SMD    4.82   2.58   -0.229    9.87  </span></a>
+<a class="sourceLine" id="cb43-18" title="18"><span class="co">#&gt;  5 Period 2       LRRd  -0.650  0.349  -1.33     0.0328</span></a>
+<a class="sourceLine" id="cb43-19" title="19"><span class="co">#&gt;  6 Period 2       LRRi   0.650  0.349  -0.0328   1.33  </span></a>
+<a class="sourceLine" id="cb43-20" title="20"><span class="co">#&gt;  7 Period 2       LOR   NA     NA      NA       NA     </span></a>
+<a class="sourceLine" id="cb43-21" title="21"><span class="co">#&gt;  8 Period 2       SMD    1.51   0.874  -0.199    3.23  </span></a>
+<a class="sourceLine" id="cb43-22" title="22"><span class="co">#&gt;  9 Period 3       LRRd  -0.807  0.353  -1.50    -0.114 </span></a>
+<a class="sourceLine" id="cb43-23" title="23"><span class="co">#&gt; 10 Period 3       LRRi   0.807  0.353   0.114    1.50  </span></a>
+<a class="sourceLine" id="cb43-24" title="24"><span class="co">#&gt; 11 Period 3       LOR   NA     NA      NA       NA     </span></a>
+<a class="sourceLine" id="cb43-25" title="25"><span class="co">#&gt; 12 Period 3       SMD    3.19   1.25    0.751    5.64</span></a></code></pre></div>
 <p>The <code>bias_correct</code> argument cannot be specified differently for different effect size functions. If you wanted bias corrected values for the LRRd effect size and not for the SMD effect size, you would need to call <code>batch_calc_ES()</code> separately for the two different effect sizes.</p>
 </div>
 <div id="order-of-observations" class="section level3">
@@ -3766,31 +3779,31 @@ Period 3
 <div id="confidence-levels" class="section level3">
 <h3><span class="header-section-number">3.5.6</span> Confidence levels</h3>
 <p>The <code>confidence</code> argument controls the confidence intervals in the same way as all the other functions. To skip calculating confidence intervals, specify <code>confidence = NULL</code>:</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" data-line-number="1"><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick, </a>
-<a class="sourceLine" id="cb43-2" data-line-number="2">              <span class="dt">grouping =</span> Case_pseudonym, </a>
-<a class="sourceLine" id="cb43-3" data-line-number="3">              <span class="dt">condition =</span> Condition,</a>
-<a class="sourceLine" id="cb43-4" data-line-number="4">              <span class="dt">outcome =</span> Outcome, </a>
-<a class="sourceLine" id="cb43-5" data-line-number="5">              <span class="dt">ES =</span> <span class="st">&quot;parametric&quot;</span>, </a>
-<a class="sourceLine" id="cb43-6" data-line-number="6">              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</a>
-<a class="sourceLine" id="cb43-7" data-line-number="7">              <span class="dt">scale =</span> Procedure, </a>
-<a class="sourceLine" id="cb43-8" data-line-number="8">              <span class="dt">observation_length =</span> Session_length,</a>
-<a class="sourceLine" id="cb43-9" data-line-number="9">              <span class="dt">confidence =</span> <span class="ot">NULL</span>,</a>
-<a class="sourceLine" id="cb43-10" data-line-number="10">              <span class="dt">warn =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb43-11" data-line-number="11"><span class="co">#&gt; # A tibble: 12 x 4</span></a>
-<a class="sourceLine" id="cb43-12" data-line-number="12"><span class="co">#&gt;    Case_pseudonym ES        Est     SE</span></a>
-<a class="sourceLine" id="cb43-13" data-line-number="13"><span class="co">#&gt;    &lt;chr&gt;          &lt;chr&gt;   &lt;dbl&gt;  &lt;dbl&gt;</span></a>
-<a class="sourceLine" id="cb43-14" data-line-number="14"><span class="co">#&gt;  1 Period 1       LRRd   -0.807  0.198</span></a>
-<a class="sourceLine" id="cb43-15" data-line-number="15"><span class="co">#&gt;  2 Period 1       LRRi    0.807  0.198</span></a>
-<a class="sourceLine" id="cb43-16" data-line-number="16"><span class="co">#&gt;  3 Period 1       LOR    NA     NA    </span></a>
-<a class="sourceLine" id="cb43-17" data-line-number="17"><span class="co">#&gt;  4 Period 1       SMD     3.51   1.23 </span></a>
-<a class="sourceLine" id="cb43-18" data-line-number="18"><span class="co">#&gt;  5 Period 2       LRRd   -0.610  0.349</span></a>
-<a class="sourceLine" id="cb43-19" data-line-number="19"><span class="co">#&gt;  6 Period 2       LRRi    0.610  0.349</span></a>
-<a class="sourceLine" id="cb43-20" data-line-number="20"><span class="co">#&gt;  7 Period 2       LOR    NA     NA    </span></a>
-<a class="sourceLine" id="cb43-21" data-line-number="21"><span class="co">#&gt;  8 Period 2       SMD     1.27   0.673</span></a>
-<a class="sourceLine" id="cb43-22" data-line-number="22"><span class="co">#&gt;  9 Period 3       LRRd   -0.748  0.353</span></a>
-<a class="sourceLine" id="cb43-23" data-line-number="23"><span class="co">#&gt; 10 Period 3       LRRi    0.748  0.353</span></a>
-<a class="sourceLine" id="cb43-24" data-line-number="24"><span class="co">#&gt; 11 Period 3       LOR    NA     NA    </span></a>
-<a class="sourceLine" id="cb43-25" data-line-number="25"><span class="co">#&gt; 12 Period 3       SMD     2.92   1.08</span></a></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" title="1"><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick, </a>
+<a class="sourceLine" id="cb44-2" title="2">              <span class="dt">grouping =</span> Case_pseudonym, </a>
+<a class="sourceLine" id="cb44-3" title="3">              <span class="dt">condition =</span> Condition,</a>
+<a class="sourceLine" id="cb44-4" title="4">              <span class="dt">outcome =</span> Outcome, </a>
+<a class="sourceLine" id="cb44-5" title="5">              <span class="dt">ES =</span> <span class="st">&quot;parametric&quot;</span>, </a>
+<a class="sourceLine" id="cb44-6" title="6">              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</a>
+<a class="sourceLine" id="cb44-7" title="7">              <span class="dt">scale =</span> Procedure, </a>
+<a class="sourceLine" id="cb44-8" title="8">              <span class="dt">observation_length =</span> Session_length,</a>
+<a class="sourceLine" id="cb44-9" title="9">              <span class="dt">confidence =</span> <span class="ot">NULL</span>,</a>
+<a class="sourceLine" id="cb44-10" title="10">              <span class="dt">warn =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb44-11" title="11"><span class="co">#&gt; # A tibble: 12 x 4</span></a>
+<a class="sourceLine" id="cb44-12" title="12"><span class="co">#&gt;    Case_pseudonym ES       Est     SE</span></a>
+<a class="sourceLine" id="cb44-13" title="13"><span class="co">#&gt;    &lt;chr&gt;          &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb44-14" title="14"><span class="co">#&gt;  1 Period 1       LRRd  -0.807  0.198</span></a>
+<a class="sourceLine" id="cb44-15" title="15"><span class="co">#&gt;  2 Period 1       LRRi   0.807  0.198</span></a>
+<a class="sourceLine" id="cb44-16" title="16"><span class="co">#&gt;  3 Period 1       LOR   NA     NA    </span></a>
+<a class="sourceLine" id="cb44-17" title="17"><span class="co">#&gt;  4 Period 1       SMD    2.75   0.943</span></a>
+<a class="sourceLine" id="cb44-18" title="18"><span class="co">#&gt;  5 Period 2       LRRd  -0.610  0.349</span></a>
+<a class="sourceLine" id="cb44-19" title="19"><span class="co">#&gt;  6 Period 2       LRRi   0.610  0.349</span></a>
+<a class="sourceLine" id="cb44-20" title="20"><span class="co">#&gt;  7 Period 2       LOR   NA     NA    </span></a>
+<a class="sourceLine" id="cb44-21" title="21"><span class="co">#&gt;  8 Period 2       SMD    1.21   0.650</span></a>
+<a class="sourceLine" id="cb44-22" title="22"><span class="co">#&gt;  9 Period 3       LRRd  -0.748  0.353</span></a>
+<a class="sourceLine" id="cb44-23" title="23"><span class="co">#&gt; 10 Period 3       LRRi   0.748  0.353</span></a>
+<a class="sourceLine" id="cb44-24" title="24"><span class="co">#&gt; 11 Period 3       LOR   NA     NA    </span></a>
+<a class="sourceLine" id="cb44-25" title="25"><span class="co">#&gt; 12 Period 3       SMD    2.89   1.08</span></a></code></pre></div>
 </div>
 </div>
 </div>
@@ -3798,7 +3811,7 @@ Period 3
 <h1>References</h1>
 <div id="refs" class="references">
 <div id="ref-McKissick2010randomizing">
-<p>McKissick, C., Hawkins, R. O., Lentz, F. E., Hailley, J., &amp; McGuire, S. (2010). Randomizing multiple contingency components to decrease disruptive behaviors and increase student engagement in an urban second-grade classroom. <em>Psychology in the Schools</em>, <em>47</em>(9), 944–959. <a href="https://doi.org/10.1002/pits.20516" class="uri">https://doi.org/10.1002/pits.20516</a></p>
+<p>McKissick, C., Hawkins, R. O., Lentz, F. E., Hailley, J., &amp; McGuire, S. (2010). Randomizing multiple contingency components to decrease disruptive behaviors and increase student engagement in an urban second-grade classroom. <em>Psychology in the Schools</em>, <em>47</em>(9), 944–959. <a href="https://doi.org/10.1002/pits.20516">https://doi.org/10.1002/pits.20516</a></p>
 </div>
 <div id="ref-parker2009improved">
 <p>Parker, R. I., &amp; Vannest, K. (2009). An improved effect size for single-case research: Nonoverlap of all pairs. <em>Behavior Therapy</em>, <em>40</em>(4), 357–367.</p>
@@ -3816,7 +3829,7 @@ Period 3
 <p>Scruggs, T. E., Mastropieri, M. A., &amp; Casto, G. (1987). The quantitative synthesis of single-subject research: Methodology and validation. <em>Remedial and Special Education</em>, <em>8</em>(2), 24–33.</p>
 </div>
 <div id="ref-Swan2018gradual">
-<p>Swan, D. M., &amp; Pustejovsky, J. E. (2018). A Gradual Effects Model for Single-Case Designs. <em>Multivariate Behavioral Research</em>. <a href="https://doi.org/10.1080/00273171.2018.1466681" class="uri">https://doi.org/10.1080/00273171.2018.1466681</a></p>
+<p>Swan, D. M., &amp; Pustejovsky, J. E. (2018). A Gradual Effects Model for Single-Case Designs. <em>Multivariate Behavioral Research</em>. <a href="https://doi.org/10.1080/00273171.2018.1466681">https://doi.org/10.1080/00273171.2018.1466681</a></p>
 </div>
 </div>
 </div>
