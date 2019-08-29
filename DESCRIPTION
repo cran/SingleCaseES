@@ -1,8 +1,8 @@
 Package: SingleCaseES
 Type: Package
 Title: A Calculator for Single-Case Effect Sizes
-Version: 0.4.2
-Date: 2019-06-13
+Version: 0.4.3
+Date: 2019-08-29
 Authors@R: c(
   person(c("James","E."), "Pustejovsky", email = "jepusto@gmail.com", role = c("aut", "cre")),
   person(c("Daniel","M."), "Swan", email = "dswan@utexas.edu", role = "aut")
@@ -27,10 +27,10 @@ Encoding: UTF-8
 Language: en-US
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2019-06-14 15:16:00 UTC; jep2963
+Packaged: 2019-08-29 18:25:50 UTC; jep2963
 Author: James E. Pustejovsky [aut, cre],
   Daniel M. Swan [aut]
 Maintainer: James E. Pustejovsky <jepusto@gmail.com>
 Depends: R (>= 3.5.0)
 Repository: CRAN
-Date/Publication: 2019-06-14 15:40:03 UTC
+Date/Publication: 2019-08-29 23:10:05 UTC

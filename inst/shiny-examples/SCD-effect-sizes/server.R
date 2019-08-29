@@ -23,18 +23,24 @@ full_names <- list(IRD = "Robust Improvement Rate Difference",
 
 
 shinyServer(function(input, output, session) {
+
+  f <- function(x) {
+    y <- as.numeric(unlist(strsplit(x, split = "\\s|\\t|\\n|,")))
+    y[!is.na(y)]
+  }
   
   dat <- reactive({ 
     dat_strings <- list(A = input$A_dat, B = input$B_dat)
-    dat <- lapply(dat_strings, function(x) as.numeric(unlist(strsplit(x, split = "\\s|\\t|\\n|,"))))
+    dat <- lapply(dat_strings, f)
     dat$compute <- all(sapply(dat, function(x) sum(!is.na(x)) >= 3))
     dat
     })
   
   output$SCDplot <- renderPlot({
+    
     if (input$plot & dat()$compute) {
-      A_dat <- dat()$A[!is.na(dat()$A)]
-      B_dat <- dat()$B[!is.na(dat()$B)]
+      A_dat <- dat()$A
+      B_dat <- dat()$B
       m <- length(A_dat)
       n <- length(B_dat)
       dat <- data.frame(session = 1:(m + n),
@@ -57,6 +63,7 @@ shinyServer(function(input, output, session) {
                      improvement = input$improvement,
                      std_dev = substr(input$SMD_denom, 1, nchar(input$SMD_denom) - 3),
                      confidence = (input$confidence/100),
+                     pct_change = input$pct_change,
                      scale = input$outScale,
                      observation_length = input$obslength,
                      intervals = input$intervals,
@@ -97,18 +104,27 @@ shinyServer(function(input, output, session) {
     full_names[[index]] 
   })
   
-  output$result <- renderUI({
-    index <- ES()$index
+  output$result <- renderText({
+    index <- ES()$index[1]
     
     if (dat()$compute) {
-      fmt <- function(x) format(x, digits = input$digits, nsmall = input$digits)
+      fmt <- function(x) formatC(x, digits = input$digits, format = "f")
+      pct <- function(x) formatC(x, digits = input$digits - 2, format = "f")
       est <- ES()$est
+      
       if (ES()$index %in% statistical_indices) {
-        Est_txt <- paste("Effect size estimate:", fmt(est$Est))
-        SE_txt <- paste("Standard error:", fmt(est$SE))
-        CI_txt <- paste0(input$confidence,"% CI: [", fmt(est$CI_lower), ", ", fmt(est$CI_upper), "]")
+        Est_txt <- paste("Effect size estimate:", fmt(est$Est[1]))
+        SE_txt <- paste("Standard error:", fmt(est$SE[1]))
+        CI_txt <- paste0(input$confidence,"% CI: [", fmt(est$CI_lower[1]), ", ", fmt(est$CI_upper[1]), "]")
+        if (nrow(est) > 1) {
+          pct_est <- paste("<br/>Percentage change:", pct(est$Est[2]))
+          pct_CI <- paste0(input$confidence,"% CI: [", pct(est$CI_lower[2]), ", ", pct(est$CI_upper[2]), "]")
+          pct_txt <- paste(pct_est, pct_CI, sep = "<br/>")
+        } else {
+          pct_txt <- NULL
+        }
         note_txt <- "<br/>Note: SE and CI are based on the assumption that measurements are mutually independent (i.e., not auto-correlated)." 
-        HTML(paste(Est_txt, SE_txt, CI_txt, note_txt, sep = "<br/>"))
+        HTML(paste(Est_txt, SE_txt, CI_txt, pct_txt, note_txt, sep = "<br/>"))
       } else {
         Est_txt <- paste("Effect size estimate:", fmt(est$Est))
         HTML(Est_txt)
@@ -142,35 +158,40 @@ shinyServer(function(input, output, session) {
         list(
         selectizeInput("b_clusters", label = "Select all variables uniquely identifying cases (e.g. pseudonym, study, behavior).", choices = var_names, 
                        selected = NULL, multiple = TRUE),
-        selectInput("b_phase", label = "Phase Indicator", choices = var_names, selected = var_names[3]))
+        selectInput("b_phase", label = "Phase indicator", choices = var_names, selected = var_names[3]))
       } else {
         curMap <- exampleMapping[[input$example]]
         list(
           selectizeInput("b_clusters", label = "Select all variables uniquely identifying cases (e.g. pseudonym, study, behavior).", choices = var_names, 
                          selected = curMap$cluster_vars, multiple = TRUE),
-          selectInput("b_phase", label = "Phase Indicator", choices = var_names, selected = curMap$condition)
+          selectInput("b_phase", label = "Phase indicator", choices = var_names, selected = curMap$condition)
         )
         
       }
   })
   
-  output$phaseDefine <- renderUI({
+  output$baseDefine <- renderUI({
     
+    phase_choices <- if (!is.null(input$b_phase)) unique(datFile()[[input$b_phase]]) else c("A","B")
+    
+    if (input$dat_type == "dat") {
+      selectInput("b_base", label = "Baseline phase value", choices = phase_choices)
+    } else {
+      curMap <- exampleMapping[[input$example]]
+      selectInput("b_base", label = "Baseline phase value", choices = phase_choices, selected = curMap$phase_vals[1])
+    }
+  })
+  
+  output$treatDefine <- renderUI({
     
     phase_choices <- if (!is.null(input$b_phase)) unique(datFile()[[input$b_phase]]) else c("A","B")
     trt_choices <- setdiff(phase_choices, input$b_base)
     
     if (input$dat_type == "dat") {
-      list(
-        selectInput("b_base", label = "Baseline Phase Value", choices = phase_choices),
-        selectInput("b_treat", label = "Treatment Phase Value", choices = trt_choices)
-      )
+      selectInput("b_treat", label = "Treatment phase value", choices = trt_choices)
     } else {
       curMap <- exampleMapping[[input$example]]
-      list(
-        selectInput("b_base", label = "Baseline Phase Value", choices = phase_choices, selected = curMap$phase_vals[1]),
-        selectInput("b_treat", label = "Treatment Phase Value", choices = trt_choices, selected = curMap$phase_vals[2])  
-      )
+      selectInput("b_treat", label = "Treatment phase value", choices = trt_choices, selected = curMap$phase_vals[2])  
     }
   })
 
@@ -181,14 +202,14 @@ shinyServer(function(input, output, session) {
 
     if (input$dat_type == "dat") {
       list(
-        selectInput("session_number", label = "Within-Case Session Number", choices = var_names, selected = var_names[5]),
+        selectInput("session_number", label = "Session number", choices = var_names, selected = var_names[5]),
         selectInput("b_out", label = "Outcome", choices = var_names, selected = var_names[4]),
         selectInput("bimprovement", label = "Direction of improvement", choices = c("all increase" = "increase", "all decrease" = "decrease", "by series" = "series"))
       )
     } else {
       curMap <- exampleMapping[[input$example]]
       list(
-        selectInput("session_number", label = "Within-Case Session Number", choices = var_names, selected = curMap$session_num),
+        selectInput("session_number", label = "Session number", choices = var_names, selected = curMap$session_num),
         selectInput("b_out", label = "Outcome", choices = var_names, selected = curMap$outcome),
         selectInput("bimprovement", label = "Direction of improvement", choices = c("all increase" = "increase", "all decrease" = "decrease", "by series" = "series"),
                     selected = curMap$direction)
@@ -281,8 +302,10 @@ shinyServer(function(input, output, session) {
                   intervention_phase = input$b_treat,
                   ES = c(input$bESno, input$bESpar),
                   improvement = improvement,
+                  pct_change = input$b_pct_change,
                   scale = scale_val,
                   std_dev = input$bSMD_denom,
+                  confidence = input$bconfidence / 100,
                   format = input$resultsformat)
 
   })
