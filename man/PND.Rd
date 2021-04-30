@@ -4,8 +4,14 @@
 \alias{PND}
 \title{Percentage of non-overlapping data}
 \usage{
-PND(A_data, B_data, condition, outcome,
-  baseline_phase = unique(condition)[1], improvement = "increase")
+PND(
+  A_data,
+  B_data,
+  condition,
+  outcome,
+  baseline_phase = unique(condition)[1],
+  improvement = "increase"
+)
 }
 \arguments{
 \item{A_data}{vector of numeric data for A phase. Missing values are dropped.}
@@ -48,5 +54,5 @@ PND(A_data = A, B_data = B)
 Scruggs, T. E., Mastropieri, M. A., & Casto, G. (1987). The 
   quantitative synthesis of single-subject research: Methodology and 
   validation. \emph{Remedial and Special Education, 8}(2), 24--43. 
-  doi:\href{http://dx.doi.org/10.1177/074193258700800206}{10.1177/074193258700800206}
+  doi:\doi{10.1177/074193258700800206}
 }

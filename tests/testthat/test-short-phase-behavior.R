@@ -1,4 +1,5 @@
 context("Handling phases with a single observation.")
+set.seed(20210323)
 
 A1 <- rbinom(1, 15, 0.3) * 100 / 15
 
@@ -28,13 +29,13 @@ test_that("calc_ES() works with single observation in baseline.", {
   NAP_Tau <- calc_ES(A_data = A1, B_data = B3, 
                      improvement = "decrease", ES = c("NAP","Tau"),
                      confidence = NULL)
-  expect_true(all(is.nan(NAP_Tau$SE)))
+  expect_true(all(is.infinite(NAP_Tau$SE)))
   
   NOMs <- calc_ES(A_data = A1, B_data = B3, 
                   improvement = "decrease", ES = c("NAP","Tau","PND","PAND","PEM","IRD","Tau-U"),
                   confidence = NULL, format = "wide")
-  expect_identical(NOMs$NAP_Est, NOMs$PEM_Est)
-  expect_identical(NOMs$NAP_Est, NOMs$PND_Est)
+  expect_equal(NOMs$NAP_Est, NOMs$PEM_Est)
+  expect_equal(NOMs$NAP_Est, NOMs$PND_Est)
   expect_equal(NOMs$Tau_Est, NOMs$`Tau-U_Est`)
 })
 
@@ -55,13 +56,14 @@ test_that("calc_ES() works with single observation in treatment", {
   NAP_Tau <- calc_ES(A_data = A3, B_data = B1, 
                      improvement = "decrease", ES = c("NAP","Tau"),
                      confidence = NULL)
-  expect_true(all(is.nan(NAP_Tau$SE)))
+  expect_true(all(is.infinite(NAP_Tau$SE)))
   
   NOMs <- calc_ES(A_data = A1, B_data = B3, 
                   improvement = "decrease", ES = c("NAP","Tau","PND","PAND","PEM","IRD","Tau-U"),
                   confidence = NULL, format = "wide")
-  expect_identical(NOMs$NAP_Est, NOMs$PEM_Est)
-  expect_identical(NOMs$NAP_Est, NOMs$PND_Est)
+  
+  expect_equal(NOMs$NAP_Est, NOMs$PEM_Est)
+  expect_equal(NOMs$NAP_Est, NOMs$PND_Est)
   expect_equal(NOMs$Tau_Est, NOMs$`Tau-U_Est`)
 })
 
@@ -88,7 +90,7 @@ test_that("calc_ES() works with single observation in each phase", {
   NAP_Tau <- calc_ES(A_data = A1, B_data = B1, 
                      improvement = "decrease", ES = c("NAP","Tau"),
                      confidence = NULL)
-  expect_true(all(is.nan(NAP_Tau$SE)))
+  expect_true(all(is.infinite(NAP_Tau$SE)))
   
   NOMs <- calc_ES(A_data = A1, B_data = B1, 
                   improvement = "decrease", ES = c("NAP","Tau","PND","PAND","PEM","IRD","Tau-U"),

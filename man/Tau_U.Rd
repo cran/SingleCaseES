@@ -4,8 +4,14 @@
 \alias{Tau_U}
 \title{Tau-U}
 \usage{
-Tau_U(A_data, B_data, condition, outcome,
-  baseline_phase = unique(condition)[1], improvement = "increase")
+Tau_U(
+  A_data,
+  B_data,
+  condition,
+  outcome,
+  baseline_phase = unique(condition)[1],
+  improvement = "increase"
+)
 }
 \arguments{
 \item{A_data}{vector of numeric data for A phase, sorted in order of session 
@@ -51,5 +57,5 @@ Tau_U(A_data = A, B_data = B)
 Parker, R. I., Vannest, K. J., Davis, J. L., & Sauber, S. B. 
   (2011). Combining nonoverlap and trend for single-case research: Tau-U. 
   \emph{Behavior Therapy, 42}(2), 284--299. 
-  doi:\href{http://dx.doi.org/10.1016/j.beth.2010.08.006}{10.1016/j.beth.2010.08.006}
+  doi:\doi{10.1016/j.beth.2010.08.006}
 }

@@ -4,8 +4,14 @@
 \alias{PAND}
 \title{Percentage of all non-overlapping data (PAND)}
 \usage{
-PAND(A_data, B_data, condition, outcome,
-  baseline_phase = unique(condition)[1], improvement = "increase")
+PAND(
+  A_data,
+  B_data,
+  condition,
+  outcome,
+  baseline_phase = unique(condition)[1],
+  improvement = "increase"
+)
 }
 \arguments{
 \item{A_data}{vector of numeric data for A phase. Missing values are dropped.}
@@ -53,10 +59,10 @@ PAND(A_data = A, B_data = B)
 Parker, R. I., Hagan-Burke, S., & Vannest, K. J. (2007). 
   Percentage of all non-overlapping data (PAND): An alternative to PND. 
   \emph{The Journal of Special Education, 40}(4), 194--204. 
-  doi:\href{http://dx.doi.org/10.1177/00224669070400040101}{10.1177/00224669070400040101}
+  doi:\doi{10.1177/00224669070400040101}
   
   Parker, R. I., Vannest, K. J., & Davis, J. L. (2011). Effect size in 
   single-case research: A review of nine nonoverlap techniques. 
   \emph{Behavior Modification, 35}(4), 303--22. 
-  doi:\href{http://dx.doi.org/10.1177/0145445511399147}{10.1177/0145445511399147}
+  doi:\doi{10.1177/0145445511399147}
 }
