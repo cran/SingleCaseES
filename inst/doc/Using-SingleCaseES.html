@@ -12,7 +12,7 @@
 
 <meta name="author" content="Daniel M. Swan and James E. Pustejovsky" />
 
-<meta name="date" content="2018-07-27" />
+<meta name="date" content="2021-09-22" />
 
 <title>Basic effect sizes calculations using SingleCaseES</title>
 
@@ -164,7 +164,7 @@ code span.ot { color: #007020; }
 <section class="page-header">
 <h1 class="title toc-ignore project-name">Basic effect sizes calculations using SingleCaseES</h1>
 <h4 class="author project-author">Daniel M. Swan and James E. Pustejovsky</h4>
-<h4 class="date project-date">July 27, 2018</h4>
+<h4 class="date project-date">September 22, 2021</h4>
 </section>
 
 
@@ -189,8 +189,9 @@ code span.ot { color: #007020; }
 <li><a href="#data-organization"><span class="toc-section-number">3.1</span> Data organization</a></li>
 <li><a href="#main-arguments-of-batch_calc_es"><span class="toc-section-number">3.2</span> Main arguments of <code>batch_calc_ES()</code></a></li>
 <li><a href="#using-grouping-variables"><span class="toc-section-number">3.3</span> Using grouping variables</a></li>
-<li><a href="#dealing-with-outcome-scales."><span class="toc-section-number">3.4</span> Dealing with outcome scales.</a></li>
-<li><a href="#further-arguments-1"><span class="toc-section-number">3.5</span> Further arguments</a></li>
+<li><a href="#aggregating-across-replications"><span class="toc-section-number">3.4</span> Aggregating across replications</a></li>
+<li><a href="#dealing-with-outcome-scales."><span class="toc-section-number">3.5</span> Dealing with outcome scales.</a></li>
+<li><a href="#further-arguments-1"><span class="toc-section-number">3.6</span> Further arguments</a></li>
 </ul></li>
 <li><a href="#references">References</a></li>
 </ul>
@@ -217,6 +218,7 @@ code span.ot { color: #007020; }
 <li>Percentage exceeding the median (<code>PEM</code>)</li>
 <li>Non-overlap of all pairs (<code>NAP</code>)</li>
 <li>Tau non-overlap (<code>Tau</code>)</li>
+<li>Baseline-corrected Tau (<code>Tau_BC</code>)</li>
 <li>Tau-U, which includes baseline trend adjustment (<code>Tau_U</code>)</li>
 </ul>
 <p>The following parametric effect sizes are available:</p>
@@ -224,6 +226,7 @@ code span.ot { color: #007020; }
 <li>Within-case standardized mean difference (<code>SMD</code>)</li>
 <li>The increasing and decreasing versions of the log response ratio (<code>LRRi</code> and <code>LRRd</code>)</li>
 <li>Log odds ratio (<code>LOR</code>)</li>
+<li>Log ratio of medians (<code>LRM</code>)</li>
 </ul>
 <p>All of the functions for calculating individual effect sizes follow the same basic syntax. For demonstration purposes, let’s take a look at the syntax for <code>NAP()</code>, which calculates the non-overlap of all pairs <span class="citation">(Parker &amp; Vannest, 2009)</span>:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">args</span>(NAP)</span>
@@ -286,7 +289,7 @@ code span.ot { color: #007020; }
 </div>
 <div id="further-options-for-nap" class="section level2">
 <h2><span class="header-section-number">1.4</span> Further options for <code>NAP()</code></h2>
-<p>The <code>NAP</code> function provides several possible methods for calculating the standard error. By default, the exactly unbiased standard errors are used. However, the function can also produce standard errors using the Hanley-McNeil estimator, the variance under the null hypothesis of no effect, or no standard errors at all:</p>
+<p>The <code>NAP</code> function provides several possible methods for calculating the standard error. By default, the exactly unbiased standard errors are used. However, the function can also produce standard errors using the Hanley-McNeil estimator, the standard error under the null hypothesis of no effect, or no standard errors at all:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">NAP</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">SE =</span> <span class="st">&quot;unbiased&quot;</span>)</span>
 <span id="cb10-2"><a href="#cb10-2"></a><span class="co">#&gt;    ES       Est         SE  CI_lower  CI_upper</span></span>
 <span id="cb10-3"><a href="#cb10-3"></a><span class="co">#&gt; 1 NAP 0.9166667 0.06900656 0.5973406 0.9860176</span></span>
@@ -321,30 +324,34 @@ code span.ot { color: #007020; }
 </div>
 <div id="other-non-overlap-indices" class="section level2">
 <h2><span class="header-section-number">1.5</span> Other non-overlap indices</h2>
-<p>The <code>SingleCaseES</code> package includes functions for calculating several other non-overlap indices in addition to NAP. All of the functions accept data in either the A, B format or the condition, outcome format with optional baseline specification, and all of the functions include an argument to specify the direction of improvement. Like the function for NAP, the function for Tau (<code>Tau</code>) can produce unbiased standard errors, Hanley-McNeil standard errors, standard errors under the null hypothesis of no effect, or no standard errors at all. Only <code>NAP</code> and <code>Tau</code> return standard errors and confidence intervals. The remaining non-overlap measures return only a point estimate:</p>
+<p>The <code>SingleCaseES</code> package includes functions for calculating several other non-overlap indices in addition to NAP. All of the functions accept data in either the A, B format or the condition, outcome format with optional baseline specification, and all of the functions include an argument to specify the direction of improvement. Like the function for NAP, the functions for Tau (<code>Tau</code>) and baseline-corrected Tau (<code>Tau_BC</code>) can produce unbiased standard errors, Hanley-McNeil standard errors, standard errors under the null hypothesis of no effect, or no standard errors at all. Only <code>NAP</code>, <code>Tau</code>, and <code>Tau_BC</code> return standard errors and confidence intervals. The remaining non-overlap measures return only a point estimate:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="kw">Tau</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</span>
 <span id="cb13-2"><a href="#cb13-2"></a><span class="co">#&gt;    ES       Est        SE  CI_lower  CI_upper</span></span>
 <span id="cb13-3"><a href="#cb13-3"></a><span class="co">#&gt; 1 Tau 0.8333333 0.1380131 0.1946812 0.9720352</span></span>
 <span id="cb13-4"><a href="#cb13-4"></a></span>
-<span id="cb13-5"><a href="#cb13-5"></a><span class="kw">PND</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</span>
-<span id="cb13-6"><a href="#cb13-6"></a><span class="co">#&gt;    ES       Est</span></span>
-<span id="cb13-7"><a href="#cb13-7"></a><span class="co">#&gt; 1 PND 0.7142857</span></span>
+<span id="cb13-5"><a href="#cb13-5"></a><span class="kw">Tau_BC</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</span>
+<span id="cb13-6"><a href="#cb13-6"></a><span class="co">#&gt;       ES       Est        SE   CI_lower  CI_upper</span></span>
+<span id="cb13-7"><a href="#cb13-7"></a><span class="co">#&gt; 1 Tau-BC 0.2857143 0.3595159 -0.3260702 0.7180613</span></span>
 <span id="cb13-8"><a href="#cb13-8"></a></span>
-<span id="cb13-9"><a href="#cb13-9"></a><span class="kw">PEM</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</span>
-<span id="cb13-10"><a href="#cb13-10"></a><span class="co">#&gt;    ES Est</span></span>
-<span id="cb13-11"><a href="#cb13-11"></a><span class="co">#&gt; 1 PEM   1</span></span>
+<span id="cb13-9"><a href="#cb13-9"></a><span class="kw">PND</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</span>
+<span id="cb13-10"><a href="#cb13-10"></a><span class="co">#&gt;    ES       Est</span></span>
+<span id="cb13-11"><a href="#cb13-11"></a><span class="co">#&gt; 1 PND 0.7142857</span></span>
 <span id="cb13-12"><a href="#cb13-12"></a></span>
-<span id="cb13-13"><a href="#cb13-13"></a><span class="kw">PAND</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</span>
-<span id="cb13-14"><a href="#cb13-14"></a><span class="co">#&gt;     ES       Est</span></span>
-<span id="cb13-15"><a href="#cb13-15"></a><span class="co">#&gt; 1 PAND 0.8461538</span></span>
+<span id="cb13-13"><a href="#cb13-13"></a><span class="kw">PEM</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</span>
+<span id="cb13-14"><a href="#cb13-14"></a><span class="co">#&gt;    ES Est</span></span>
+<span id="cb13-15"><a href="#cb13-15"></a><span class="co">#&gt; 1 PEM   1</span></span>
 <span id="cb13-16"><a href="#cb13-16"></a></span>
-<span id="cb13-17"><a href="#cb13-17"></a><span class="kw">IRD</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</span>
-<span id="cb13-18"><a href="#cb13-18"></a><span class="co">#&gt;    ES       Est</span></span>
-<span id="cb13-19"><a href="#cb13-19"></a><span class="co">#&gt; 1 IRD 0.6904762</span></span>
+<span id="cb13-17"><a href="#cb13-17"></a><span class="kw">PAND</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</span>
+<span id="cb13-18"><a href="#cb13-18"></a><span class="co">#&gt;     ES       Est</span></span>
+<span id="cb13-19"><a href="#cb13-19"></a><span class="co">#&gt; 1 PAND 0.8461538</span></span>
 <span id="cb13-20"><a href="#cb13-20"></a></span>
-<span id="cb13-21"><a href="#cb13-21"></a><span class="kw">Tau_U</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</span>
-<span id="cb13-22"><a href="#cb13-22"></a><span class="co">#&gt;      ES       Est</span></span>
-<span id="cb13-23"><a href="#cb13-23"></a><span class="co">#&gt; 1 Tau-U 0.7380952</span></span></code></pre></div>
+<span id="cb13-21"><a href="#cb13-21"></a><span class="kw">IRD</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</span>
+<span id="cb13-22"><a href="#cb13-22"></a><span class="co">#&gt;    ES       Est</span></span>
+<span id="cb13-23"><a href="#cb13-23"></a><span class="co">#&gt; 1 IRD 0.6904762</span></span>
+<span id="cb13-24"><a href="#cb13-24"></a></span>
+<span id="cb13-25"><a href="#cb13-25"></a><span class="kw">Tau_U</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B)</span>
+<span id="cb13-26"><a href="#cb13-26"></a><span class="co">#&gt;      ES       Est</span></span>
+<span id="cb13-27"><a href="#cb13-27"></a><span class="co">#&gt; 1 Tau-U 0.7380952</span></span></code></pre></div>
 </div>
 <div id="further-options-for-smd" class="section level2">
 <h2><span class="header-section-number">1.6</span> Further options for <code>SMD()</code></h2>
@@ -441,8 +448,8 @@ code span.ot { color: #007020; }
 <span id="cb20-10"><a href="#cb20-10"></a><span class="co">#&gt; 1 LOR 0.2852854 0.09790282 0.09339935 0.4771713</span></span>
 <span id="cb20-11"><a href="#cb20-11"></a></span>
 <span id="cb20-12"><a href="#cb20-12"></a><span class="kw">LOR</span>(<span class="dt">A_data =</span> A_pct, <span class="dt">B_data =</span> B_pct, <span class="dt">scale =</span> <span class="st">&quot;count&quot;</span>)</span>
-<span id="cb20-13"><a href="#cb20-13"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will return</span></span>
-<span id="cb20-14"><a href="#cb20-14"></a><span class="co">#&gt; NAs for other outcome scales.</span></span>
+<span id="cb20-13"><a href="#cb20-13"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. It will</span></span>
+<span id="cb20-14"><a href="#cb20-14"></a><span class="co">#&gt; return NAs for other outcome scales.</span></span>
 <span id="cb20-15"><a href="#cb20-15"></a><span class="co">#&gt;    ES Est SE CI_lower CI_upper</span></span>
 <span id="cb20-16"><a href="#cb20-16"></a><span class="co">#&gt; 1 LOR  NA NA       NA       NA</span></span>
 <span id="cb20-17"><a href="#cb20-17"></a></span>
@@ -490,70 +497,77 @@ code span.ot { color: #007020; }
 <span id="cb24-6"><a href="#cb24-6"></a><span class="co">#&gt; 1   NAP 0.9166667 0.06900656 0.5973406 0.9860176</span></span>
 <span id="cb24-7"><a href="#cb24-7"></a><span class="co">#&gt; 2   PND 0.7142857         NA        NA        NA</span></span>
 <span id="cb24-8"><a href="#cb24-8"></a><span class="co">#&gt; 3 Tau-U 0.7380952         NA        NA        NA</span></span></code></pre></div>
-<p>The <code>ES</code> argument can include any of the following metrics: <code>&quot;LRRd&quot;</code>, <code>&quot;LRRi&quot;</code>, <code>&quot;LOR&quot;</code>, <code>&quot;SMD&quot;</code>, <code>&quot;NAP&quot;</code>, <code>&quot;PND&quot;</code>, <code>&quot;PEM&quot;</code>, <code>&quot;PAND&quot;</code>, <code>&quot;IRD&quot;</code>, <code>&quot;Tau&quot;</code>, or <code>&quot;Tau-U&quot;</code>.</p>
+<p>The <code>ES</code> argument can include any of the following metrics: <code>&quot;LRRd&quot;</code>, <code>&quot;LRRi&quot;</code>, <code>&quot;LOR&quot;</code>, <code>&quot;LRM&quot;</code>, <code>&quot;SMD&quot;</code>, <code>&quot;NAP&quot;</code>, <code>&quot;PND&quot;</code>, <code>&quot;PEM&quot;</code>, <code>&quot;PAND&quot;</code>, <code>&quot;IRD&quot;</code>, <code>&quot;Tau&quot;</code>, <code>&quot;Tau_BC&quot;</code> or <code>&quot;Tau-U&quot;</code>.</p>
 <p>Setting <code>ES = &quot;all&quot;</code> will return all available effect sizes:</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="st">&quot;all&quot;</span>)</span>
-<span id="cb25-2"><a href="#cb25-2"></a><span class="co">#&gt;       ES        Est         SE    CI_lower    CI_upper</span></span>
-<span id="cb25-3"><a href="#cb25-3"></a><span class="co">#&gt; 1   LRRd -0.1953962 0.05557723 -0.30432554 -0.08646679</span></span>
-<span id="cb25-4"><a href="#cb25-4"></a><span class="co">#&gt; 2   LRRi  0.1953962 0.05557723  0.08646679  0.30432554</span></span>
-<span id="cb25-5"><a href="#cb25-5"></a><span class="co">#&gt; 3    LOR  0.2609312 0.07356710  0.11674235  0.40512007</span></span>
-<span id="cb25-6"><a href="#cb25-6"></a><span class="co">#&gt; 4    SMD  1.6499319 0.63409351  0.40713144  2.89273232</span></span>
-<span id="cb25-7"><a href="#cb25-7"></a><span class="co">#&gt; 5    NAP  0.9166667 0.06900656  0.59734061  0.98601758</span></span>
-<span id="cb25-8"><a href="#cb25-8"></a><span class="co">#&gt; 6    IRD  0.6904762         NA          NA          NA</span></span>
-<span id="cb25-9"><a href="#cb25-9"></a><span class="co">#&gt; 7   PAND  0.8461538         NA          NA          NA</span></span>
-<span id="cb25-10"><a href="#cb25-10"></a><span class="co">#&gt; 8    PND  0.7142857         NA          NA          NA</span></span>
-<span id="cb25-11"><a href="#cb25-11"></a><span class="co">#&gt; 9    PEM  1.0000000         NA          NA          NA</span></span>
-<span id="cb25-12"><a href="#cb25-12"></a><span class="co">#&gt; 10   Tau  0.8333333 0.13801311  0.19468122  0.97203517</span></span>
-<span id="cb25-13"><a href="#cb25-13"></a><span class="co">#&gt; 11 Tau-U  0.7380952         NA          NA          NA</span></span></code></pre></div>
+<span id="cb25-2"><a href="#cb25-2"></a><span class="co">#&gt;        ES        Est         SE    CI_lower    CI_upper</span></span>
+<span id="cb25-3"><a href="#cb25-3"></a><span class="co">#&gt; 1    LRRd -0.1953962 0.05557723 -0.30432554 -0.08646679</span></span>
+<span id="cb25-4"><a href="#cb25-4"></a><span class="co">#&gt; 2    LRRi  0.1953962 0.05557723  0.08646679  0.30432554</span></span>
+<span id="cb25-5"><a href="#cb25-5"></a><span class="co">#&gt; 3     LOR  0.2609312 0.07356710  0.11674235  0.40512007</span></span>
+<span id="cb25-6"><a href="#cb25-6"></a><span class="co">#&gt; 4     SMD  1.6499319 0.63409351  0.40713144  2.89273232</span></span>
+<span id="cb25-7"><a href="#cb25-7"></a><span class="co">#&gt; 5     LRM  0.2186892 0.07641543  0.06891771  0.36846070</span></span>
+<span id="cb25-8"><a href="#cb25-8"></a><span class="co">#&gt; 6     NAP  0.9166667 0.06900656  0.59734061  0.98601758</span></span>
+<span id="cb25-9"><a href="#cb25-9"></a><span class="co">#&gt; 7     IRD  0.6904762         NA          NA          NA</span></span>
+<span id="cb25-10"><a href="#cb25-10"></a><span class="co">#&gt; 8    PAND  0.8461538         NA          NA          NA</span></span>
+<span id="cb25-11"><a href="#cb25-11"></a><span class="co">#&gt; 9     PND  0.7142857         NA          NA          NA</span></span>
+<span id="cb25-12"><a href="#cb25-12"></a><span class="co">#&gt; 10    PEM  1.0000000         NA          NA          NA</span></span>
+<span id="cb25-13"><a href="#cb25-13"></a><span class="co">#&gt; 11    Tau  0.8333333 0.13801311  0.19468122  0.97203517</span></span>
+<span id="cb25-14"><a href="#cb25-14"></a><span class="co">#&gt; 12  Tau-U  0.7380952         NA          NA          NA</span></span>
+<span id="cb25-15"><a href="#cb25-15"></a><span class="co">#&gt; 13 Tau-BC  0.2857143 0.35951593 -0.32607024  0.71806125</span></span></code></pre></div>
 <p><code>ES = &quot;NOM&quot;</code> will return all of the non-overlap measures:</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="st">&quot;NOM&quot;</span>)</span>
-<span id="cb26-2"><a href="#cb26-2"></a><span class="co">#&gt;      ES       Est         SE  CI_lower  CI_upper</span></span>
-<span id="cb26-3"><a href="#cb26-3"></a><span class="co">#&gt; 1   NAP 0.9166667 0.06900656 0.5973406 0.9860176</span></span>
-<span id="cb26-4"><a href="#cb26-4"></a><span class="co">#&gt; 2   IRD 0.6904762         NA        NA        NA</span></span>
-<span id="cb26-5"><a href="#cb26-5"></a><span class="co">#&gt; 3  PAND 0.8461538         NA        NA        NA</span></span>
-<span id="cb26-6"><a href="#cb26-6"></a><span class="co">#&gt; 4   PND 0.7142857         NA        NA        NA</span></span>
-<span id="cb26-7"><a href="#cb26-7"></a><span class="co">#&gt; 5   PEM 1.0000000         NA        NA        NA</span></span>
-<span id="cb26-8"><a href="#cb26-8"></a><span class="co">#&gt; 6   Tau 0.8333333 0.13801311 0.1946812 0.9720352</span></span>
-<span id="cb26-9"><a href="#cb26-9"></a><span class="co">#&gt; 7 Tau-U 0.7380952         NA        NA        NA</span></span></code></pre></div>
+<span id="cb26-2"><a href="#cb26-2"></a><span class="co">#&gt;       ES       Est         SE   CI_lower  CI_upper</span></span>
+<span id="cb26-3"><a href="#cb26-3"></a><span class="co">#&gt; 1    NAP 0.9166667 0.06900656  0.5973406 0.9860176</span></span>
+<span id="cb26-4"><a href="#cb26-4"></a><span class="co">#&gt; 2    IRD 0.6904762         NA         NA        NA</span></span>
+<span id="cb26-5"><a href="#cb26-5"></a><span class="co">#&gt; 3   PAND 0.8461538         NA         NA        NA</span></span>
+<span id="cb26-6"><a href="#cb26-6"></a><span class="co">#&gt; 4    PND 0.7142857         NA         NA        NA</span></span>
+<span id="cb26-7"><a href="#cb26-7"></a><span class="co">#&gt; 5    PEM 1.0000000         NA         NA        NA</span></span>
+<span id="cb26-8"><a href="#cb26-8"></a><span class="co">#&gt; 6    Tau 0.8333333 0.13801311  0.1946812 0.9720352</span></span>
+<span id="cb26-9"><a href="#cb26-9"></a><span class="co">#&gt; 7  Tau-U 0.7380952         NA         NA        NA</span></span>
+<span id="cb26-10"><a href="#cb26-10"></a><span class="co">#&gt; 8 Tau-BC 0.2857143 0.35951593 -0.3260702 0.7180613</span></span></code></pre></div>
 <p>and <code>ES = &quot;parametric&quot;</code> will return all of the parametric effect sizes:</p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="st">&quot;parametric&quot;</span>)</span>
 <span id="cb27-2"><a href="#cb27-2"></a><span class="co">#&gt;     ES        Est         SE    CI_lower    CI_upper</span></span>
 <span id="cb27-3"><a href="#cb27-3"></a><span class="co">#&gt; 1 LRRd -0.1953962 0.05557723 -0.30432554 -0.08646679</span></span>
 <span id="cb27-4"><a href="#cb27-4"></a><span class="co">#&gt; 2 LRRi  0.1953962 0.05557723  0.08646679  0.30432554</span></span>
 <span id="cb27-5"><a href="#cb27-5"></a><span class="co">#&gt; 3  LOR  0.2609312 0.07356710  0.11674235  0.40512007</span></span>
-<span id="cb27-6"><a href="#cb27-6"></a><span class="co">#&gt; 4  SMD  1.6499319 0.63409351  0.40713144  2.89273232</span></span></code></pre></div>
+<span id="cb27-6"><a href="#cb27-6"></a><span class="co">#&gt; 4  SMD  1.6499319 0.63409351  0.40713144  2.89273232</span></span>
+<span id="cb27-7"><a href="#cb27-7"></a><span class="co">#&gt; 5  LRM  0.2186892 0.07641543  0.06891771  0.36846070</span></span></code></pre></div>
 <p>If the <code>ES</code> argument is omitted, <code>calc_ES()</code> will return LRRd, LRRi, SMD, and Tau by default.</p>
 <div id="further-arguments" class="section level2">
 <h2><span class="header-section-number">2.1</span> Further arguments</h2>
 <p>All of the individual effect size functions have the further argument <code>improvement</code>, and several of them also have further optional arguments. Include these arguments in <code>calc_ES()</code> in order to pass them on to the individual effect size calculation functions. For example, we can set the direction of improvement to <code>decrease</code>:</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="st">&quot;NOM&quot;</span>, <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>)</span>
-<span id="cb28-2"><a href="#cb28-2"></a><span class="co">#&gt;      ES         Est         SE    CI_lower   CI_upper</span></span>
-<span id="cb28-3"><a href="#cb28-3"></a><span class="co">#&gt; 1   NAP  0.08333333 0.06900656  0.01398242  0.4026594</span></span>
-<span id="cb28-4"><a href="#cb28-4"></a><span class="co">#&gt; 2   IRD  0.07142857         NA          NA         NA</span></span>
-<span id="cb28-5"><a href="#cb28-5"></a><span class="co">#&gt; 3  PAND  0.53846154         NA          NA         NA</span></span>
-<span id="cb28-6"><a href="#cb28-6"></a><span class="co">#&gt; 4   PND  0.00000000         NA          NA         NA</span></span>
-<span id="cb28-7"><a href="#cb28-7"></a><span class="co">#&gt; 5   PEM  0.00000000         NA          NA         NA</span></span>
-<span id="cb28-8"><a href="#cb28-8"></a><span class="co">#&gt; 6   Tau -0.83333333 0.13801311 -0.97203517 -0.1946812</span></span>
-<span id="cb28-9"><a href="#cb28-9"></a><span class="co">#&gt; 7 Tau-U -0.73809524         NA          NA         NA</span></span></code></pre></div>
+<span id="cb28-2"><a href="#cb28-2"></a><span class="co">#&gt;       ES         Est         SE    CI_lower   CI_upper</span></span>
+<span id="cb28-3"><a href="#cb28-3"></a><span class="co">#&gt; 1    NAP  0.08333333 0.06900656  0.01398242  0.4026594</span></span>
+<span id="cb28-4"><a href="#cb28-4"></a><span class="co">#&gt; 2    IRD  0.07142857         NA          NA         NA</span></span>
+<span id="cb28-5"><a href="#cb28-5"></a><span class="co">#&gt; 3   PAND  0.53846154         NA          NA         NA</span></span>
+<span id="cb28-6"><a href="#cb28-6"></a><span class="co">#&gt; 4    PND  0.00000000         NA          NA         NA</span></span>
+<span id="cb28-7"><a href="#cb28-7"></a><span class="co">#&gt; 5    PEM  0.00000000         NA          NA         NA</span></span>
+<span id="cb28-8"><a href="#cb28-8"></a><span class="co">#&gt; 6    Tau -0.83333333 0.13801311 -0.97203517 -0.1946812</span></span>
+<span id="cb28-9"><a href="#cb28-9"></a><span class="co">#&gt; 7  Tau-U -0.73809524         NA          NA         NA</span></span>
+<span id="cb28-10"><a href="#cb28-10"></a><span class="co">#&gt; 8 Tau-BC -0.28571429 0.35951593 -0.71806125  0.3260702</span></span></code></pre></div>
 <p>To omit the confidence interval calculations for NAP and Tau, we can include the argument <code>confidence = NULL</code>:</p>
 <div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="st">&quot;NOM&quot;</span>, <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>, <span class="dt">confidence =</span> <span class="ot">NULL</span>)</span>
-<span id="cb29-2"><a href="#cb29-2"></a><span class="co">#&gt;      ES         Est         SE</span></span>
-<span id="cb29-3"><a href="#cb29-3"></a><span class="co">#&gt; 1   NAP  0.08333333 0.06900656</span></span>
-<span id="cb29-4"><a href="#cb29-4"></a><span class="co">#&gt; 2   IRD  0.07142857         NA</span></span>
-<span id="cb29-5"><a href="#cb29-5"></a><span class="co">#&gt; 3  PAND  0.53846154         NA</span></span>
-<span id="cb29-6"><a href="#cb29-6"></a><span class="co">#&gt; 4   PND  0.00000000         NA</span></span>
-<span id="cb29-7"><a href="#cb29-7"></a><span class="co">#&gt; 5   PEM  0.00000000         NA</span></span>
-<span id="cb29-8"><a href="#cb29-8"></a><span class="co">#&gt; 6   Tau -0.83333333 0.13801311</span></span>
-<span id="cb29-9"><a href="#cb29-9"></a><span class="co">#&gt; 7 Tau-U -0.73809524         NA</span></span></code></pre></div>
+<span id="cb29-2"><a href="#cb29-2"></a><span class="co">#&gt;       ES         Est         SE</span></span>
+<span id="cb29-3"><a href="#cb29-3"></a><span class="co">#&gt; 1    NAP  0.08333333 0.06900656</span></span>
+<span id="cb29-4"><a href="#cb29-4"></a><span class="co">#&gt; 2    IRD  0.07142857         NA</span></span>
+<span id="cb29-5"><a href="#cb29-5"></a><span class="co">#&gt; 3   PAND  0.53846154         NA</span></span>
+<span id="cb29-6"><a href="#cb29-6"></a><span class="co">#&gt; 4    PND  0.00000000         NA</span></span>
+<span id="cb29-7"><a href="#cb29-7"></a><span class="co">#&gt; 5    PEM  0.00000000         NA</span></span>
+<span id="cb29-8"><a href="#cb29-8"></a><span class="co">#&gt; 6    Tau -0.83333333 0.13801311</span></span>
+<span id="cb29-9"><a href="#cb29-9"></a><span class="co">#&gt; 7  Tau-U -0.73809524         NA</span></span>
+<span id="cb29-10"><a href="#cb29-10"></a><span class="co">#&gt; 8 Tau-BC -0.28571429 0.35951593</span></span></code></pre></div>
 <p>Details such as the measurement scale can also be passed on to functions that will make use of them:</p>
 <div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="kw">calc_ES</span>(<span class="dt">A_data =</span> A, <span class="dt">B_data =</span> B, <span class="dt">ES =</span> <span class="st">&quot;parametric&quot;</span>, <span class="dt">scale =</span> <span class="st">&quot;count&quot;</span>)</span>
-<span id="cb30-2"><a href="#cb30-2"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will return</span></span>
-<span id="cb30-3"><a href="#cb30-3"></a><span class="co">#&gt; NAs for other outcome scales.</span></span>
+<span id="cb30-2"><a href="#cb30-2"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. It will</span></span>
+<span id="cb30-3"><a href="#cb30-3"></a><span class="co">#&gt; return NAs for other outcome scales.</span></span>
 <span id="cb30-4"><a href="#cb30-4"></a><span class="co">#&gt;     ES        Est         SE    CI_lower    CI_upper</span></span>
 <span id="cb30-5"><a href="#cb30-5"></a><span class="co">#&gt; 1 LRRd -0.1953962 0.05557723 -0.30432554 -0.08646679</span></span>
 <span id="cb30-6"><a href="#cb30-6"></a><span class="co">#&gt; 2 LRRi  0.1953962 0.05557723  0.08646679  0.30432554</span></span>
 <span id="cb30-7"><a href="#cb30-7"></a><span class="co">#&gt; 3  LOR         NA         NA          NA          NA</span></span>
-<span id="cb30-8"><a href="#cb30-8"></a><span class="co">#&gt; 4  SMD  1.6499319 0.63409351  0.40713144  2.89273232</span></span></code></pre></div>
+<span id="cb30-8"><a href="#cb30-8"></a><span class="co">#&gt; 4  SMD  1.6499319 0.63409351  0.40713144  2.89273232</span></span>
+<span id="cb30-9"><a href="#cb30-9"></a><span class="co">#&gt; 5  LRM  0.2186892 0.07641543  0.06891771  0.36846070</span></span></code></pre></div>
 <p>Any additional arguments will be used in the calculation of effect sizes for which they are relevant and will be ignored if they are not relevant.</p>
 </div>
 <div id="long-vs.-wide-format" class="section level2">
@@ -1194,21 +1208,22 @@ NA
 <h2><span class="header-section-number">3.2</span> Main arguments of <code>batch_calc_ES()</code></h2>
 <p>Here are the arguments for the batch calculator function:</p>
 <div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="kw">args</span>(batch_calc_ES)</span>
-<span id="cb34-2"><a href="#cb34-2"></a><span class="co">#&gt; function (dat, grouping, condition, outcome, session_number = NULL, </span></span>
-<span id="cb34-3"><a href="#cb34-3"></a><span class="co">#&gt;     baseline_phase = NULL, intervention_phase = NULL, ES = c(&quot;LRRd&quot;, </span></span>
-<span id="cb34-4"><a href="#cb34-4"></a><span class="co">#&gt;         &quot;LRRi&quot;, &quot;SMD&quot;, &quot;Tau&quot;), improvement = &quot;increase&quot;, scale = &quot;other&quot;, </span></span>
-<span id="cb34-5"><a href="#cb34-5"></a><span class="co">#&gt;     intervals = NA, observation_length = NA, confidence = 0.95, </span></span>
-<span id="cb34-6"><a href="#cb34-6"></a><span class="co">#&gt;     format = &quot;long&quot;, warn = TRUE, ...) </span></span>
-<span id="cb34-7"><a href="#cb34-7"></a><span class="co">#&gt; NULL</span></span></code></pre></div>
+<span id="cb34-2"><a href="#cb34-2"></a><span class="co">#&gt; function (dat, grouping, condition, outcome, aggregate = NULL, </span></span>
+<span id="cb34-3"><a href="#cb34-3"></a><span class="co">#&gt;     weighting = &quot;1/V&quot;, session_number = NULL, baseline_phase = NULL, </span></span>
+<span id="cb34-4"><a href="#cb34-4"></a><span class="co">#&gt;     intervention_phase = NULL, ES = c(&quot;LRRd&quot;, &quot;LRRi&quot;, &quot;SMD&quot;, </span></span>
+<span id="cb34-5"><a href="#cb34-5"></a><span class="co">#&gt;         &quot;Tau&quot;), improvement = &quot;increase&quot;, scale = &quot;other&quot;, intervals = NA, </span></span>
+<span id="cb34-6"><a href="#cb34-6"></a><span class="co">#&gt;     observation_length = NA, confidence = 0.95, format = &quot;long&quot;, </span></span>
+<span id="cb34-7"><a href="#cb34-7"></a><span class="co">#&gt;     warn = TRUE, ...) </span></span>
+<span id="cb34-8"><a href="#cb34-8"></a><span class="co">#&gt; NULL</span></span></code></pre></div>
 <p>This function has a bunch of arguments, but many of them are optional and only used for certain effect size metrics. For the moment, let’s focus on the first few arguments, which are all we need to get going:</p>
 <ul>
 <li><p>The argument <code>dat</code> should be a dataframe containing all of the observations for all of the data series of interest.</p></li>
 <li><p>The <code>grouping</code> argument should specify the set of variables that uniquely identify each series. For a single study consisting of several series, like the McKissick dataset, this might simply be a variable name that identifies the participant pseudonym. Specify using bare variable names (i.e., without quotes).</p></li>
 <li><p>The <code>condition</code> argument should be the variable that identifies the treatment condition for each observation in the series. Specify using a bare variable name. The values for the baseline and treatment phases should be uniform across all of the series within a dataset. That is, if some series are coded as “0” for baseline and “1” for treatment, whereas other series had “A” as baseline and “B” as treatment, you’ll first need to clean your data and standardize the coding.</p></li>
 <li><p>The <code>outcome</code> argument should be the variable that contains the outcomes of interest. Specify using a bare variable name.</p></li>
-<li><p>The <code>ES</code> argument allows you to specify which effect sizes are desired. By default, the batch calculator generates estimates of LRRd, LRRi, SMD, and Tau. However, you’re probably going to want to specify your own effect sizes. Just like <code>calc_ES</code>, you request your desired effect sizes as a character vector, with the individual options of <code>&quot;LRRd&quot;</code>, <code>&quot;LRRi&quot;</code>, <code>&quot;LOR&quot;</code>, <code>&quot;SMD&quot;</code>, <code>&quot;NAP&quot;</code>, <code>&quot;PND&quot;</code>, <code>&quot;PEM&quot;</code>, <code>&quot;PAND&quot;</code>, <code>&quot;IRD&quot;</code>, <code>&quot;Tau&quot;</code>, or <code>&quot;Tau-U&quot;</code>, in addition to <code>&quot;all&quot;</code> for all effect sizes, <code>&quot;NOM&quot;</code> for all non-overlap measures, and <code>&quot;parametric&quot;</code> for all parametric effect sizes.</p></li>
+<li><p>The <code>ES</code> argument allows you to specify which effect sizes are desired. By default, the batch calculator generates estimates of LRRd, LRRi, SMD, and Tau. However, you’re probably going to want to specify your own effect sizes. Just like <code>calc_ES</code>, you request your desired effect sizes as a character vector, with the individual options of <code>&quot;LRRd&quot;</code>, <code>&quot;LRRi&quot;</code>, <code>&quot;LOR&quot;</code>, <code>&quot;LRM&quot;</code>, <code>&quot;SMD&quot;</code>, <code>&quot;NAP&quot;</code>, <code>&quot;PND&quot;</code>, <code>&quot;PEM&quot;</code>, <code>&quot;PAND&quot;</code>, <code>&quot;IRD&quot;</code>, <code>&quot;Tau&quot;</code>, <code>&quot;Tau_BC&quot;</code> or <code>&quot;Tau-U&quot;</code>, in addition to <code>&quot;all&quot;</code> for all effect sizes, <code>&quot;NOM&quot;</code> for all non-overlap measures, and <code>&quot;parametric&quot;</code> for all parametric effect sizes.</p></li>
 </ul>
-<p>All of the other arguments are truly optional, and we’ll introduce them as we go along.</p>
+<p>All of the remaining arguments are truly optional, and we’ll introduce them as we go along.</p>
 </div>
 <div id="using-grouping-variables" class="section level2">
 <h2><span class="header-section-number">3.3</span> Using grouping variables</h2>
@@ -1368,40 +1383,40 @@ NA
 </table>
 <p>The output will always start with one or more columns corresponding to each unique combination of values from the <code>grouping</code> argument, followed by a column for each effect size. If <em>any</em> of the requested effect sizes have standard errors and confidence intervals, there will also be columns corresponding to the standard error and the upper and lower limit. Here, PND has <code>NA</code> for each of those, because it does not have a known standard error or confidence interval.</p>
 <p>Now let’s look at an example using the Schmidt data. Remember that these data contain a pseudonym that uniquely identifies each of the three participants (<code>Case_Pseudonym</code>) as well as a variable that specifies whether the outcome is disruptive behavior or on-task behavior (<code>Behavior_type</code>). Furthermore, these data come from a treatment reversal design with two pairs of AB phases for each combination of case and behavior type (<code>Phase_num</code>). We’re going to want an effect size for each combination of pseudonym, behavior, and phase pair. The data also have an outcome variable (<code>Outcome</code>) and a variable identifying whether it was in the baseline (“A”) or treatment (“B”) phase (<code>Condition</code>). Finally, the the two different behavior types have different direction therapeutic improvement, so there is a variable called <code>direction</code> that specifies <code>&quot;increase&quot;</code> for on-task behavior or <code>&quot;decrease&quot;</code> for disruptive behavior.</p>
-<p>Here’s an example of how to calculate NAP and PND for these data:</p>
+<p>Here’s an example of how to calculate NAP and LRRi for these data:</p>
 <div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>schmidt_ES &lt;-<span class="st"> </span><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> Schmidt2007,</span>
 <span id="cb36-2"><a href="#cb36-2"></a>              <span class="dt">grouping =</span> <span class="kw">c</span>(Case_pseudonym, Behavior_type, Phase_num), </span>
 <span id="cb36-3"><a href="#cb36-3"></a>              <span class="dt">condition =</span> Condition,</span>
 <span id="cb36-4"><a href="#cb36-4"></a>              <span class="dt">outcome =</span> Outcome, </span>
 <span id="cb36-5"><a href="#cb36-5"></a>              <span class="dt">improvement =</span> direction,</span>
-<span id="cb36-6"><a href="#cb36-6"></a>              <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;NAP&quot;</span>, <span class="st">&quot;PND&quot;</span>))</span></code></pre></div>
+<span id="cb36-6"><a href="#cb36-6"></a>              <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;NAP&quot;</span>, <span class="st">&quot;LRRi&quot;</span>))</span></code></pre></div>
 <p>The syntax is similar to the example with the McKissick dataset, except for two things. Here, we’ve provided a vector of variable names for <code>grouping</code> that identify each series for which we want an effect size. Instead of providing a uniform direction of improvement to the <code>improvement</code> variable, we’ve provided a variable name, <code>direction</code>, which will account for the fact that the two behavior types have different directions of therapeutic improvement. Here is a table of the output:</p>
 <div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:800px; overflow-x: scroll; width:100%; ">
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:left;position: sticky; top:0; background-color: green;">
 Case_pseudonym
 </th>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:left;position: sticky; top:0; background-color: green;">
 Behavior_type
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: green;">
 Phase_num
 </th>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:left;position: sticky; top:0; background-color: green;">
 ES
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: green;">
 Est
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: green;">
 SE
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: green;">
 CI_lower
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: green;">
 CI_upper
 </th>
 </tr>
@@ -1444,19 +1459,19 @@ Disruptive Behavior
 1
 </td>
 <td style="text-align:left;">
-PND
+LRRi
 </td>
 <td style="text-align:right;">
-0.6250000
+1.6062336
 </td>
 <td style="text-align:right;">
-NA
+0.3238081
 </td>
 <td style="text-align:right;">
-NA
+0.9715813
 </td>
 <td style="text-align:right;">
-NA
+2.2408858
 </td>
 </tr>
 <tr>
@@ -1496,19 +1511,19 @@ Disruptive Behavior
 2
 </td>
 <td style="text-align:left;">
-PND
+LRRi
 </td>
 <td style="text-align:right;">
-1.0000000
+1.6511675
 </td>
 <td style="text-align:right;">
-NA
+0.3758734
 </td>
 <td style="text-align:right;">
-NA
+0.9144692
 </td>
 <td style="text-align:right;">
-NA
+2.3878658
 </td>
 </tr>
 <tr>
@@ -1548,19 +1563,19 @@ On Task Behavior
 1
 </td>
 <td style="text-align:left;">
-PND
+LRRi
 </td>
 <td style="text-align:right;">
-0.0000000
+0.3226186
 </td>
 <td style="text-align:right;">
-NA
+0.1293019
 </td>
 <td style="text-align:right;">
-NA
+0.0691916
 </td>
 <td style="text-align:right;">
-NA
+0.5760456
 </td>
 </tr>
 <tr>
@@ -1600,19 +1615,19 @@ On Task Behavior
 2
 </td>
 <td style="text-align:left;">
-PND
+LRRi
 </td>
 <td style="text-align:right;">
-0.8000000
+0.2412181
 </td>
 <td style="text-align:right;">
-NA
+0.2007565
 </td>
 <td style="text-align:right;">
-NA
+-0.1522573
 </td>
 <td style="text-align:right;">
-NA
+0.6346935
 </td>
 </tr>
 <tr>
@@ -1652,19 +1667,19 @@ Disruptive Behavior
 1
 </td>
 <td style="text-align:left;">
-PND
+LRRi
 </td>
 <td style="text-align:right;">
-0.0714286
+1.1680541
 </td>
 <td style="text-align:right;">
-NA
+0.2268083
 </td>
 <td style="text-align:right;">
-NA
+0.7235180
 </td>
 <td style="text-align:right;">
-NA
+1.6125902
 </td>
 </tr>
 <tr>
@@ -1704,19 +1719,19 @@ Disruptive Behavior
 2
 </td>
 <td style="text-align:left;">
-PND
+LRRi
 </td>
 <td style="text-align:right;">
-1.0000000
+1.4268305
 </td>
 <td style="text-align:right;">
-NA
+0.3100491
 </td>
 <td style="text-align:right;">
-NA
+0.8191455
 </td>
 <td style="text-align:right;">
-NA
+2.0345154
 </td>
 </tr>
 <tr>
@@ -1756,19 +1771,19 @@ On Task Behavior
 1
 </td>
 <td style="text-align:left;">
-PND
+LRRi
 </td>
 <td style="text-align:right;">
-0.0000000
+0.0147192
 </td>
 <td style="text-align:right;">
-NA
+0.1143270
 </td>
 <td style="text-align:right;">
-NA
+-0.2093577
 </td>
 <td style="text-align:right;">
-NA
+0.2387961
 </td>
 </tr>
 <tr>
@@ -1808,19 +1823,19 @@ On Task Behavior
 2
 </td>
 <td style="text-align:left;">
-PND
+LRRi
 </td>
 <td style="text-align:right;">
-0.6000000
+0.6044398
 </td>
 <td style="text-align:right;">
-NA
+0.6716160
 </td>
 <td style="text-align:right;">
-NA
+-0.7119033
 </td>
 <td style="text-align:right;">
-NA
+1.9207829
 </td>
 </tr>
 <tr>
@@ -1860,19 +1875,19 @@ Disruptive Behavior
 1
 </td>
 <td style="text-align:left;">
-PND
+LRRi
 </td>
 <td style="text-align:right;">
-1.0000000
+1.7491983
 </td>
 <td style="text-align:right;">
-NA
+0.2097252
 </td>
 <td style="text-align:right;">
-NA
+1.3381445
 </td>
 <td style="text-align:right;">
-NA
+2.1602520
 </td>
 </tr>
 <tr>
@@ -1912,19 +1927,19 @@ Disruptive Behavior
 2
 </td>
 <td style="text-align:left;">
-PND
+LRRi
 </td>
 <td style="text-align:right;">
-0.5000000
+0.9465255
 </td>
 <td style="text-align:right;">
-NA
+0.5379386
 </td>
 <td style="text-align:right;">
-NA
+-0.1078148
 </td>
 <td style="text-align:right;">
-NA
+2.0008657
 </td>
 </tr>
 <tr>
@@ -1964,19 +1979,19 @@ On Task Behavior
 1
 </td>
 <td style="text-align:left;">
-PND
+LRRi
 </td>
 <td style="text-align:right;">
-0.0000000
+0.4210015
 </td>
 <td style="text-align:right;">
-NA
+0.1621196
 </td>
 <td style="text-align:right;">
-NA
+0.1032530
 </td>
 <td style="text-align:right;">
-NA
+0.7387500
 </td>
 </tr>
 <tr>
@@ -2016,19 +2031,19 @@ On Task Behavior
 2
 </td>
 <td style="text-align:left;">
-PND
+LRRi
 </td>
 <td style="text-align:right;">
-0.1666667
+0.0524781
 </td>
 <td style="text-align:right;">
-NA
+0.1169389
 </td>
 <td style="text-align:right;">
-NA
+-0.1767180
 </td>
 <td style="text-align:right;">
-NA
+0.2816742
 </td>
 </tr>
 </tbody>
@@ -2036,25 +2051,388 @@ NA
 </div>
 <p>The first three columns are the unique values from the variables supplied to <code>grouping</code>, followed by the effect size information.</p>
 </div>
+<div id="aggregating-across-replications" class="section level2">
+<h2><span class="header-section-number">3.4</span> Aggregating across replications</h2>
+<p>The Schmidt study used an ABAB design, and as a consequence we end up with not one but <em>two</em> effect size estimates for each case and each outcome. Under some circumstances, it may make sense to aggregate—or average together—the effect size estimates from the first and second AB pairs for each case. Doing so simplifies the structure of the resulting effect size dataset, so that there is just one effect size estimate per case per outcome. The <code>batch_calc_ES</code> function includes an optional argument called <code>aggregate</code> that allows you to aggregate effect size estimates across a grouping variable. To use it, specify the name of one or more variables across which to aggregate. These variables will then be treated as grouping variables for purposes of effect size calculation (just like those specified in the <code>grouping</code> argument), but the results will then be aggregated over the unique values of the variables.</p>
+<p>Here’s an example of how to use <code>aggregate</code> with the Schmidt dataset (for simplicity, we will calculate only the NAP effect size). Rather than specifying <code>Phase_num</code> as a grouping variable, we specify it as an <code>aggregate</code> variable:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>schmidt_ES_agg &lt;-<span class="st"> </span></span>
+<span id="cb37-2"><a href="#cb37-2"></a><span class="st">  </span><span class="kw">batch_calc_ES</span>(</span>
+<span id="cb37-3"><a href="#cb37-3"></a>    <span class="dt">dat =</span> Schmidt2007,</span>
+<span id="cb37-4"><a href="#cb37-4"></a>    <span class="dt">grouping =</span> <span class="kw">c</span>(Case_pseudonym, Behavior_type),</span>
+<span id="cb37-5"><a href="#cb37-5"></a>    <span class="dt">aggregate =</span> Phase_num,</span>
+<span id="cb37-6"><a href="#cb37-6"></a>    <span class="dt">condition =</span> Condition,</span>
+<span id="cb37-7"><a href="#cb37-7"></a>    <span class="dt">outcome =</span> Outcome, </span>
+<span id="cb37-8"><a href="#cb37-8"></a>    <span class="dt">improvement =</span> direction,</span>
+<span id="cb37-9"><a href="#cb37-9"></a>    <span class="dt">ES =</span> <span class="st">&quot;NAP&quot;</span></span>
+<span id="cb37-10"><a href="#cb37-10"></a>  )</span></code></pre></div>
+The resulting data frame has just one effect size estimate per case per outcome because the estimates for each unique <code>phase_num</code> have been averaged together:
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Case_pseudonym
+</th>
+<th style="text-align:left;">
+Behavior_type
+</th>
+<th style="text-align:left;">
+ES
+</th>
+<th style="text-align:right;">
+Est
+</th>
+<th style="text-align:right;">
+SE
+</th>
+<th style="text-align:right;">
+CI_lower
+</th>
+<th style="text-align:right;">
+CI_upper
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Albert
+</td>
+<td style="text-align:left;">
+Disruptive Behavior
+</td>
+<td style="text-align:left;">
+NAP
+</td>
+<td style="text-align:right;">
+0.9708835
+</td>
+<td style="text-align:right;">
+0.0348308
+</td>
+<td style="text-align:right;">
+0.9026164
+</td>
+<td style="text-align:right;">
+1.0391507
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Albert
+</td>
+<td style="text-align:left;">
+On Task Behavior
+</td>
+<td style="text-align:left;">
+NAP
+</td>
+<td style="text-align:right;">
+0.8982151
+</td>
+<td style="text-align:right;">
+0.0590250
+</td>
+<td style="text-align:right;">
+0.7825283
+</td>
+<td style="text-align:right;">
+1.0139020
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Faith
+</td>
+<td style="text-align:left;">
+Disruptive Behavior
+</td>
+<td style="text-align:left;">
+NAP
+</td>
+<td style="text-align:right;">
+0.9648736
+</td>
+<td style="text-align:right;">
+0.0582575
+</td>
+<td style="text-align:right;">
+0.8506909
+</td>
+<td style="text-align:right;">
+1.0790563
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Faith
+</td>
+<td style="text-align:left;">
+On Task Behavior
+</td>
+<td style="text-align:left;">
+NAP
+</td>
+<td style="text-align:right;">
+0.7256986
+</td>
+<td style="text-align:right;">
+0.0949983
+</td>
+<td style="text-align:right;">
+0.5395055
+</td>
+<td style="text-align:right;">
+0.9118918
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lilly
+</td>
+<td style="text-align:left;">
+Disruptive Behavior
+</td>
+<td style="text-align:left;">
+NAP
+</td>
+<td style="text-align:right;">
+0.9997029
+</td>
+<td style="text-align:right;">
+0.0066506
+</td>
+<td style="text-align:right;">
+0.9866680
+</td>
+<td style="text-align:right;">
+1.0127379
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lilly
+</td>
+<td style="text-align:left;">
+On Task Behavior
+</td>
+<td style="text-align:left;">
+NAP
+</td>
+<td style="text-align:right;">
+0.6781082
+</td>
+<td style="text-align:right;">
+0.1301212
+</td>
+<td style="text-align:right;">
+0.4230754
+</td>
+<td style="text-align:right;">
+0.9331410
+</td>
+</tr>
+</tbody>
+</table>
+<p>The package currently allows two different weighting schemes when aggregating effect sizes. The default option, <code>weighting = &quot;1/V&quot;</code>, takes a weighted average of the effect size estimates with weights that are inversely proportional to the sampling variances of the estimates (i.e., the square of the standard error). This weighting scheme is the most efficient approach if the components being averaged together are all estimating the same underlying parameter. However, inverse variance weighting will not work for effect size estimates that do not have a known standard error, such as PND or PAND. Another option is to use equal weighting, meaning taking the simple arithmetic average of the effect size estimates. To use equal weighting, set the option <code>weights = &quot;equal&quot;</code>.</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>schmidt_ES_agg &lt;-<span class="st"> </span></span>
+<span id="cb38-2"><a href="#cb38-2"></a><span class="st">  </span><span class="kw">batch_calc_ES</span>(</span>
+<span id="cb38-3"><a href="#cb38-3"></a>    <span class="dt">dat =</span> Schmidt2007,</span>
+<span id="cb38-4"><a href="#cb38-4"></a>    <span class="dt">grouping =</span> <span class="kw">c</span>(Case_pseudonym, Behavior_type),</span>
+<span id="cb38-5"><a href="#cb38-5"></a>    <span class="dt">aggregate =</span> Phase_num,</span>
+<span id="cb38-6"><a href="#cb38-6"></a>    <span class="dt">weighting =</span> <span class="st">&quot;equal&quot;</span>,</span>
+<span id="cb38-7"><a href="#cb38-7"></a>    <span class="dt">condition =</span> Condition,</span>
+<span id="cb38-8"><a href="#cb38-8"></a>    <span class="dt">outcome =</span> Outcome, </span>
+<span id="cb38-9"><a href="#cb38-9"></a>    <span class="dt">improvement =</span> direction,</span>
+<span id="cb38-10"><a href="#cb38-10"></a>    <span class="dt">ES =</span> <span class="st">&quot;NAP&quot;</span></span>
+<span id="cb38-11"><a href="#cb38-11"></a>  )</span></code></pre></div>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Case_pseudonym
+</th>
+<th style="text-align:left;">
+Behavior_type
+</th>
+<th style="text-align:left;">
+ES
+</th>
+<th style="text-align:right;">
+Est
+</th>
+<th style="text-align:right;">
+SE
+</th>
+<th style="text-align:right;">
+CI_lower
+</th>
+<th style="text-align:right;">
+CI_upper
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Albert
+</td>
+<td style="text-align:left;">
+Disruptive Behavior
+</td>
+<td style="text-align:left;">
+NAP
+</td>
+<td style="text-align:right;">
+0.9791667
+</td>
+<td style="text-align:right;">
+0.0379601
+</td>
+<td style="text-align:right;">
+0.9047662
+</td>
+<td style="text-align:right;">
+1.0535672
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Albert
+</td>
+<td style="text-align:left;">
+On Task Behavior
+</td>
+<td style="text-align:left;">
+NAP
+</td>
+<td style="text-align:right;">
+0.8520833
+</td>
+<td style="text-align:right;">
+0.0717033
+</td>
+<td style="text-align:right;">
+0.7115474
+</td>
+<td style="text-align:right;">
+0.9926193
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Faith
+</td>
+<td style="text-align:left;">
+Disruptive Behavior
+</td>
+<td style="text-align:left;">
+NAP
+</td>
+<td style="text-align:right;">
+0.8883929
+</td>
+<td style="text-align:right;">
+0.0799921
+</td>
+<td style="text-align:right;">
+0.7316112
+</td>
+<td style="text-align:right;">
+1.0451745
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Faith
+</td>
+<td style="text-align:left;">
+On Task Behavior
+</td>
+<td style="text-align:left;">
+NAP
+</td>
+<td style="text-align:right;">
+0.7235119
+</td>
+<td style="text-align:right;">
+0.0950093
+</td>
+<td style="text-align:right;">
+0.5372970
+</td>
+<td style="text-align:right;">
+0.9097268
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lilly
+</td>
+<td style="text-align:left;">
+Disruptive Behavior
+</td>
+<td style="text-align:left;">
+NAP
+</td>
+<td style="text-align:right;">
+0.9305556
+</td>
+<td style="text-align:right;">
+0.0719780
+</td>
+<td style="text-align:right;">
+0.7894812
+</td>
+<td style="text-align:right;">
+1.0716299
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lilly
+</td>
+<td style="text-align:left;">
+On Task Behavior
+</td>
+<td style="text-align:left;">
+NAP
+</td>
+<td style="text-align:right;">
+0.5897436
+</td>
+<td style="text-align:right;">
+0.1639183
+</td>
+<td style="text-align:right;">
+0.2684697
+</td>
+<td style="text-align:right;">
+0.9110175
+</td>
+</tr>
+</tbody>
+</table>
+<p>Further weighting options may be added in future releases of the package.</p>
+</div>
 <div id="dealing-with-outcome-scales." class="section level2">
-<h2><span class="header-section-number">3.4</span> Dealing with outcome scales.</h2>
-<p>By default, the batch calculator assumes the outcome scale is <code>&quot;other&quot;</code>, which means that if a phase mean is equal to zero, the logs odd ratio or the log response ratio will not be calculated. Just like <code>calc_ES()</code>, when calculating parametric effect sizes, you may need to specify the outcome scales as well as things like the length of the observation session or the number of intervals in each observation session. If these values are the same for all observations in the dataset, it can be quite simple, like this example using the McKissick dataset:</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>mckissick_ES &lt;-<span class="st"> </span><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick,</span>
-<span id="cb37-2"><a href="#cb37-2"></a>              <span class="dt">grouping =</span> Case_pseudonym, </span>
-<span id="cb37-3"><a href="#cb37-3"></a>              <span class="dt">condition =</span> Condition,</span>
-<span id="cb37-4"><a href="#cb37-4"></a>              <span class="dt">outcome =</span> Outcome, </span>
-<span id="cb37-5"><a href="#cb37-5"></a>              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</span>
-<span id="cb37-6"><a href="#cb37-6"></a>              <span class="dt">scale =</span> <span class="st">&quot;count&quot;</span>,</span>
-<span id="cb37-7"><a href="#cb37-7"></a>              <span class="dt">observation_length =</span> <span class="dv">20</span>,</span>
-<span id="cb37-8"><a href="#cb37-8"></a>              <span class="dt">ES =</span> <span class="st">&quot;parametric&quot;</span>)</span>
-<span id="cb37-9"><a href="#cb37-9"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will return</span></span>
-<span id="cb37-10"><a href="#cb37-10"></a><span class="co">#&gt; NAs for other outcome scales.</span></span>
-<span id="cb37-11"><a href="#cb37-11"></a></span>
-<span id="cb37-12"><a href="#cb37-12"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will return</span></span>
-<span id="cb37-13"><a href="#cb37-13"></a><span class="co">#&gt; NAs for other outcome scales.</span></span>
-<span id="cb37-14"><a href="#cb37-14"></a></span>
-<span id="cb37-15"><a href="#cb37-15"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will return</span></span>
-<span id="cb37-16"><a href="#cb37-16"></a><span class="co">#&gt; NAs for other outcome scales.</span></span></code></pre></div>
+<h2><span class="header-section-number">3.5</span> Dealing with outcome scales.</h2>
+<p>By default, the batch calculator assumes the outcome scale is <code>&quot;other&quot;</code>, which means that if a phase mean is equal to zero, the logs odd ratio or the log response ratio will not be calculated. Just as with <code>calc_ES()</code>, you may need to specify the outcome scales as well as things like the length of the observation session or the number of intervals in each observation session in order to calculate parametric effect sizes. If these values are the same for all observations in the dataset, it can be quite simple, like this example using the McKissick dataset:</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>mckissick_ES &lt;-<span class="st"> </span><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick,</span>
+<span id="cb39-2"><a href="#cb39-2"></a>              <span class="dt">grouping =</span> Case_pseudonym, </span>
+<span id="cb39-3"><a href="#cb39-3"></a>              <span class="dt">condition =</span> Condition,</span>
+<span id="cb39-4"><a href="#cb39-4"></a>              <span class="dt">outcome =</span> Outcome, </span>
+<span id="cb39-5"><a href="#cb39-5"></a>              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</span>
+<span id="cb39-6"><a href="#cb39-6"></a>              <span class="dt">scale =</span> <span class="st">&quot;count&quot;</span>,</span>
+<span id="cb39-7"><a href="#cb39-7"></a>              <span class="dt">observation_length =</span> <span class="dv">20</span>,</span>
+<span id="cb39-8"><a href="#cb39-8"></a>              <span class="dt">ES =</span> <span class="st">&quot;parametric&quot;</span>)</span>
+<span id="cb39-9"><a href="#cb39-9"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. It will</span></span>
+<span id="cb39-10"><a href="#cb39-10"></a><span class="co">#&gt; return NAs for other outcome scales.</span></span>
+<span id="cb39-11"><a href="#cb39-11"></a></span>
+<span id="cb39-12"><a href="#cb39-12"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. It will</span></span>
+<span id="cb39-13"><a href="#cb39-13"></a><span class="co">#&gt; return NAs for other outcome scales.</span></span>
+<span id="cb39-14"><a href="#cb39-14"></a></span>
+<span id="cb39-15"><a href="#cb39-15"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. It will</span></span>
+<span id="cb39-16"><a href="#cb39-16"></a><span class="co">#&gt; return NAs for other outcome scales.</span></span></code></pre></div>
 <p>Here, we’ve specified the outcome scale is a count, and that each session lasted 20 minutes. Note that we get a warning about the log odds ratio. Let’s take a look at the output:</p>
 <table>
 <thead>
@@ -2162,6 +2540,26 @@ SMD
 </tr>
 <tr>
 <td style="text-align:left;">
+Period 1
+</td>
+<td style="text-align:left;">
+LRM
+</td>
+<td style="text-align:right;">
+0.8502390
+</td>
+<td style="text-align:right;">
+0.3040896
+</td>
+<td style="text-align:right;">
+0.2542343
+</td>
+<td style="text-align:right;">
+1.4462438
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 Period 2
 </td>
 <td style="text-align:left;">
@@ -2238,6 +2636,26 @@ SMD
 </td>
 <td style="text-align:right;">
 2.4849431
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Period 2
+</td>
+<td style="text-align:left;">
+LRM
+</td>
+<td style="text-align:right;">
+0.7168964
+</td>
+<td style="text-align:right;">
+1.3541288
+</td>
+<td style="text-align:right;">
+-1.9371473
+</td>
+<td style="text-align:right;">
+3.3709400
 </td>
 </tr>
 <tr>
@@ -2320,66 +2738,87 @@ SMD
 5.0074754
 </td>
 </tr>
+<tr>
+<td style="text-align:left;">
+Period 3
+</td>
+<td style="text-align:left;">
+LRM
+</td>
+<td style="text-align:right;">
+0.9095620
+</td>
+<td style="text-align:right;">
+0.5886437
+</td>
+<td style="text-align:right;">
+-0.2441584
+</td>
+<td style="text-align:right;">
+2.0632824
+</td>
+</tr>
 </tbody>
 </table>
 <p>Once again, we have a column specifying the case to which the effect sizes correspond, as well as a column specifying the effect size metric. The log odds ratio returns all <code>NA</code>s, because the log odds ratio can’t be estimate for count outcomes.</p>
-<p>Let’s assume that you are interested in estimating effect sizes for data where the measurement scale— as well as perhaps measurement details like the observation length or the number of intervals —varies depending on the data series. The Schmidt data is one example of this. Remember that the Schmidt data has a variable specifying the measurement scale of the outcome (<code>Metric</code>) which is <code>&quot;percentage&quot;</code> for desirable behavior and <code>&quot;count&quot;</code> for disruptive behaviors. It also has a variable that specifies the length of the observation session (<code>Session_length</code>), and a variable that specifies the number of intervals per session for the dependent variable measured using partial interval recording (<code>n_Intervals</code>). The value of <code>Session_length</code> is <code>NA</code> for the percentage outcomes and the value of <code>n_Intervals</code> is <code>NA</code> for the count outcomes because those details are not relevant for those outcome measurement scales. Let’s try it out:</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>schmidt_ES &lt;-<span class="st"> </span><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> Schmidt2007,</span>
-<span id="cb38-2"><a href="#cb38-2"></a>              <span class="dt">grouping =</span> <span class="kw">c</span>(Case_pseudonym, Behavior_type, Phase_num), </span>
-<span id="cb38-3"><a href="#cb38-3"></a>              <span class="dt">condition =</span> Condition,</span>
-<span id="cb38-4"><a href="#cb38-4"></a>              <span class="dt">outcome =</span> Outcome, </span>
-<span id="cb38-5"><a href="#cb38-5"></a>              <span class="dt">improvement =</span> direction,</span>
-<span id="cb38-6"><a href="#cb38-6"></a>              <span class="dt">scale =</span> Metric,</span>
-<span id="cb38-7"><a href="#cb38-7"></a>              <span class="dt">observation_length =</span> Session_length,</span>
-<span id="cb38-8"><a href="#cb38-8"></a>              <span class="dt">intervals =</span> n_Intervals,</span>
-<span id="cb38-9"><a href="#cb38-9"></a>              <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;parametric&quot;</span>))</span>
-<span id="cb38-10"><a href="#cb38-10"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will return</span></span>
-<span id="cb38-11"><a href="#cb38-11"></a><span class="co">#&gt; NAs for other outcome scales.</span></span>
-<span id="cb38-12"><a href="#cb38-12"></a></span>
-<span id="cb38-13"><a href="#cb38-13"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will return</span></span>
-<span id="cb38-14"><a href="#cb38-14"></a><span class="co">#&gt; NAs for other outcome scales.</span></span>
-<span id="cb38-15"><a href="#cb38-15"></a></span>
-<span id="cb38-16"><a href="#cb38-16"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will return</span></span>
-<span id="cb38-17"><a href="#cb38-17"></a><span class="co">#&gt; NAs for other outcome scales.</span></span>
-<span id="cb38-18"><a href="#cb38-18"></a></span>
-<span id="cb38-19"><a href="#cb38-19"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will return</span></span>
-<span id="cb38-20"><a href="#cb38-20"></a><span class="co">#&gt; NAs for other outcome scales.</span></span>
-<span id="cb38-21"><a href="#cb38-21"></a></span>
-<span id="cb38-22"><a href="#cb38-22"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will return</span></span>
-<span id="cb38-23"><a href="#cb38-23"></a><span class="co">#&gt; NAs for other outcome scales.</span></span>
-<span id="cb38-24"><a href="#cb38-24"></a></span>
-<span id="cb38-25"><a href="#cb38-25"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. Will return</span></span>
-<span id="cb38-26"><a href="#cb38-26"></a><span class="co">#&gt; NAs for other outcome scales.</span></span></code></pre></div>
+<p>Let’s suppose that we are interested in estimating effect sizes for data where the measurement scale— as well as perhaps measurement details like the observation length or the number of intervals —varies depending on the data series. The Schmidt data is one example of this. Remember that the Schmidt data has a variable specifying the measurement scale of the outcome (<code>Metric</code>) which is <code>&quot;percentage&quot;</code> for desirable behavior and <code>&quot;count&quot;</code> for disruptive behaviors. It also has a variable that specifies the length of the observation session (<code>Session_length</code>), and a variable that specifies the number of intervals per session for the dependent variable measured using partial interval recording (<code>n_Intervals</code>). The value of <code>Session_length</code> is <code>NA</code> for the percentage outcomes and the value of <code>n_Intervals</code> is <code>NA</code> for the count outcomes because those details are not relevant for those outcome measurement scales. Let’s try it out:</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>schmidt_ES &lt;-<span class="st"> </span><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> Schmidt2007,</span>
+<span id="cb40-2"><a href="#cb40-2"></a>              <span class="dt">grouping =</span> <span class="kw">c</span>(Case_pseudonym, Behavior_type, Phase_num), </span>
+<span id="cb40-3"><a href="#cb40-3"></a>              <span class="dt">condition =</span> Condition,</span>
+<span id="cb40-4"><a href="#cb40-4"></a>              <span class="dt">outcome =</span> Outcome, </span>
+<span id="cb40-5"><a href="#cb40-5"></a>              <span class="dt">improvement =</span> direction,</span>
+<span id="cb40-6"><a href="#cb40-6"></a>              <span class="dt">scale =</span> Metric,</span>
+<span id="cb40-7"><a href="#cb40-7"></a>              <span class="dt">observation_length =</span> Session_length,</span>
+<span id="cb40-8"><a href="#cb40-8"></a>              <span class="dt">intervals =</span> n_Intervals,</span>
+<span id="cb40-9"><a href="#cb40-9"></a>              <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;parametric&quot;</span>))</span>
+<span id="cb40-10"><a href="#cb40-10"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. It will</span></span>
+<span id="cb40-11"><a href="#cb40-11"></a><span class="co">#&gt; return NAs for other outcome scales.</span></span>
+<span id="cb40-12"><a href="#cb40-12"></a></span>
+<span id="cb40-13"><a href="#cb40-13"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. It will</span></span>
+<span id="cb40-14"><a href="#cb40-14"></a><span class="co">#&gt; return NAs for other outcome scales.</span></span>
+<span id="cb40-15"><a href="#cb40-15"></a></span>
+<span id="cb40-16"><a href="#cb40-16"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. It will</span></span>
+<span id="cb40-17"><a href="#cb40-17"></a><span class="co">#&gt; return NAs for other outcome scales.</span></span>
+<span id="cb40-18"><a href="#cb40-18"></a></span>
+<span id="cb40-19"><a href="#cb40-19"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. It will</span></span>
+<span id="cb40-20"><a href="#cb40-20"></a><span class="co">#&gt; return NAs for other outcome scales.</span></span>
+<span id="cb40-21"><a href="#cb40-21"></a></span>
+<span id="cb40-22"><a href="#cb40-22"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. It will</span></span>
+<span id="cb40-23"><a href="#cb40-23"></a><span class="co">#&gt; return NAs for other outcome scales.</span></span>
+<span id="cb40-24"><a href="#cb40-24"></a></span>
+<span id="cb40-25"><a href="#cb40-25"></a><span class="co">#&gt; Warning: LOR can only be calculated for proportions or percentages. It will</span></span>
+<span id="cb40-26"><a href="#cb40-26"></a><span class="co">#&gt; return NAs for other outcome scales.</span></span></code></pre></div>
 <p>Unlike the previous example, where we specified a uniform value for the <code>scale</code> and <code>observation_length</code>, we now have to specify variable names for <code>scale</code>, <code>observation_length</code>, and the number of <code>intervals</code>. Note that we get some warnings again about the LOR effect size. Let’s take a look at the output:</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a><span class="kw">kable</span>(schmidt_ES) <span class="op">%&gt;%</span></span>
-<span id="cb39-2"><a href="#cb39-2"></a><span class="st">   </span><span class="kw">kable_styling</span>() <span class="op">%&gt;%</span></span>
-<span id="cb39-3"><a href="#cb39-3"></a><span class="st">  </span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;100%&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;800px&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a><span class="kw">kable</span>(schmidt_ES) <span class="op">%&gt;%</span></span>
+<span id="cb41-2"><a href="#cb41-2"></a><span class="st">  </span><span class="kw">kable_styling</span>() <span class="op">%&gt;%</span></span>
+<span id="cb41-3"><a href="#cb41-3"></a><span class="st">  </span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;100%&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;800px&quot;</span>, </span>
+<span id="cb41-4"><a href="#cb41-4"></a>             <span class="dt">fixed_thead =</span> <span class="kw">list</span>(<span class="dt">enabled =</span> <span class="ot">TRUE</span>, <span class="dt">background =</span> <span class="st">&quot;green&quot;</span>))</span></code></pre></div>
 <div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:800px; overflow-x: scroll; width:100%; ">
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:left;position: sticky; top:0; background-color: green;">
 Case_pseudonym
 </th>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:left;position: sticky; top:0; background-color: green;">
 Behavior_type
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: green;">
 Phase_num
 </th>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:left;position: sticky; top:0; background-color: green;">
 ES
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: green;">
 Est
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: green;">
 SE
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: green;">
 CI_lower
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: green;">
 CI_upper
 </th>
 </tr>
@@ -2497,6 +2936,32 @@ Albert
 Disruptive Behavior
 </td>
 <td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+LRM
+</td>
+<td style="text-align:right;">
+2.0286346
+</td>
+<td style="text-align:right;">
+0.5397730
+</td>
+<td style="text-align:right;">
+0.9706990
+</td>
+<td style="text-align:right;">
+3.0865702
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Albert
+</td>
+<td style="text-align:left;">
+Disruptive Behavior
+</td>
+<td style="text-align:right;">
 2
 </td>
 <td style="text-align:left;">
@@ -2591,6 +3056,32 @@ SMD
 </td>
 <td style="text-align:right;">
 1.8475289
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Albert
+</td>
+<td style="text-align:left;">
+Disruptive Behavior
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+LRM
+</td>
+<td style="text-align:right;">
+1.2054469
+</td>
+<td style="text-align:right;">
+0.5531155
+</td>
+<td style="text-align:right;">
+0.1213604
+</td>
+<td style="text-align:right;">
+2.2895333
 </td>
 </tr>
 <tr>
@@ -2705,6 +3196,32 @@ Albert
 On Task Behavior
 </td>
 <td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+LRM
+</td>
+<td style="text-align:right;">
+0.5705449
+</td>
+<td style="text-align:right;">
+0.1809276
+</td>
+<td style="text-align:right;">
+0.2159333
+</td>
+<td style="text-align:right;">
+0.9251564
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Albert
+</td>
+<td style="text-align:left;">
+On Task Behavior
+</td>
+<td style="text-align:right;">
 2
 </td>
 <td style="text-align:left;">
@@ -2799,6 +3316,32 @@ SMD
 </td>
 <td style="text-align:right;">
 1.2635670
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Albert
+</td>
+<td style="text-align:left;">
+On Task Behavior
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+LRM
+</td>
+<td style="text-align:right;">
+0.3615139
+</td>
+<td style="text-align:right;">
+0.3048235
+</td>
+<td style="text-align:right;">
+-0.2359291
+</td>
+<td style="text-align:right;">
+0.9589569
 </td>
 </tr>
 <tr>
@@ -2913,6 +3456,32 @@ Faith
 Disruptive Behavior
 </td>
 <td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+LRM
+</td>
+<td style="text-align:right;">
+1.3643155
+</td>
+<td style="text-align:right;">
+0.4643005
+</td>
+<td style="text-align:right;">
+0.4543032
+</td>
+<td style="text-align:right;">
+2.2743277
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Faith
+</td>
+<td style="text-align:left;">
+Disruptive Behavior
+</td>
+<td style="text-align:right;">
 2
 </td>
 <td style="text-align:left;">
@@ -3007,6 +3576,32 @@ SMD
 </td>
 <td style="text-align:right;">
 1.9232446
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Faith
+</td>
+<td style="text-align:left;">
+Disruptive Behavior
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+LRM
+</td>
+<td style="text-align:right;">
+1.3035822
+</td>
+<td style="text-align:right;">
+0.4868420
+</td>
+<td style="text-align:right;">
+0.3493894
+</td>
+<td style="text-align:right;">
+2.2577750
 </td>
 </tr>
 <tr>
@@ -3121,6 +3716,32 @@ Faith
 On Task Behavior
 </td>
 <td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+LRM
+</td>
+<td style="text-align:right;">
+0.1819568
+</td>
+<td style="text-align:right;">
+0.1329308
+</td>
+<td style="text-align:right;">
+-0.0785828
+</td>
+<td style="text-align:right;">
+0.4424964
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Faith
+</td>
+<td style="text-align:left;">
+On Task Behavior
+</td>
+<td style="text-align:right;">
 2
 </td>
 <td style="text-align:left;">
@@ -3215,6 +3836,32 @@ SMD
 </td>
 <td style="text-align:right;">
 1.3736013
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Faith
+</td>
+<td style="text-align:left;">
+On Task Behavior
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+LRM
+</td>
+<td style="text-align:right;">
+1.3409580
+</td>
+<td style="text-align:right;">
+1.4285749
+</td>
+<td style="text-align:right;">
+-1.4589973
+</td>
+<td style="text-align:right;">
+4.1409134
 </td>
 </tr>
 <tr>
@@ -3329,6 +3976,32 @@ Lilly
 Disruptive Behavior
 </td>
 <td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+LRM
+</td>
+<td style="text-align:right;">
+1.6544299
+</td>
+<td style="text-align:right;">
+0.4409404
+</td>
+<td style="text-align:right;">
+0.7902025
+</td>
+<td style="text-align:right;">
+2.5186572
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lilly
+</td>
+<td style="text-align:left;">
+Disruptive Behavior
+</td>
+<td style="text-align:right;">
 2
 </td>
 <td style="text-align:left;">
@@ -3423,6 +4096,32 @@ SMD
 </td>
 <td style="text-align:right;">
 1.4315070
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lilly
+</td>
+<td style="text-align:left;">
+Disruptive Behavior
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+LRM
+</td>
+<td style="text-align:right;">
+1.5773496
+</td>
+<td style="text-align:right;">
+0.8553150
+</td>
+<td style="text-align:right;">
+-0.0990371
+</td>
+<td style="text-align:right;">
+3.2537362
 </td>
 </tr>
 <tr>
@@ -3537,6 +4236,32 @@ Lilly
 On Task Behavior
 </td>
 <td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+LRM
+</td>
+<td style="text-align:right;">
+0.5048959
+</td>
+<td style="text-align:right;">
+0.3645370
+</td>
+<td style="text-align:right;">
+-0.2095834
+</td>
+<td style="text-align:right;">
+1.2193752
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lilly
+</td>
+<td style="text-align:left;">
+On Task Behavior
+</td>
+<td style="text-align:right;">
 2
 </td>
 <td style="text-align:left;">
@@ -3633,23 +4358,52 @@ SMD
 0.8516771
 </td>
 </tr>
+<tr>
+<td style="text-align:left;">
+Lilly
+</td>
+<td style="text-align:left;">
+On Task Behavior
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+LRM
+</td>
+<td style="text-align:right;">
+-0.0261994
+</td>
+<td style="text-align:right;">
+0.1648713
+</td>
+<td style="text-align:right;">
+-0.3493411
+</td>
+<td style="text-align:right;">
+0.2969423
+</td>
+</tr>
 </tbody>
 </table>
 </div>
 <p>In this case, LOR is all <code>NA</code> for the outcomes that are disruptive behaviors because those are counts and therefore the LOR isn’t an appropriate effect size. However, for the percentage of on task behavior, the LOR <em>was</em> estimated.</p>
 </div>
 <div id="further-arguments-1" class="section level2">
-<h2><span class="header-section-number">3.5</span> Further arguments</h2>
+<h2><span class="header-section-number">3.6</span> Further arguments</h2>
 <div id="output-format" class="section level3">
-<h3><span class="header-section-number">3.5.1</span> Output format</h3>
+<h3><span class="header-section-number">3.6.1</span> Output format</h3>
 <p>We can also request the effect sizes in a wide format:</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>mckissick_wide_ES &lt;-<span class="st"> </span><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick,</span>
-<span id="cb40-2"><a href="#cb40-2"></a>              <span class="dt">grouping =</span> Case_pseudonym, </span>
-<span id="cb40-3"><a href="#cb40-3"></a>              <span class="dt">condition =</span> Condition,</span>
-<span id="cb40-4"><a href="#cb40-4"></a>              <span class="dt">outcome =</span> Outcome, </span>
-<span id="cb40-5"><a href="#cb40-5"></a>              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</span>
-<span id="cb40-6"><a href="#cb40-6"></a>              <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;NAP&quot;</span>, <span class="st">&quot;PND&quot;</span>),</span>
-<span id="cb40-7"><a href="#cb40-7"></a>              <span class="dt">format =</span> <span class="st">&quot;wide&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>mckissick_wide_ES &lt;-<span class="st"> </span></span>
+<span id="cb42-2"><a href="#cb42-2"></a><span class="st">  </span><span class="kw">batch_calc_ES</span>(</span>
+<span id="cb42-3"><a href="#cb42-3"></a>    <span class="dt">dat =</span> McKissick,</span>
+<span id="cb42-4"><a href="#cb42-4"></a>    <span class="dt">grouping =</span> Case_pseudonym, </span>
+<span id="cb42-5"><a href="#cb42-5"></a>    <span class="dt">condition =</span> Condition,</span>
+<span id="cb42-6"><a href="#cb42-6"></a>    <span class="dt">outcome =</span> Outcome, </span>
+<span id="cb42-7"><a href="#cb42-7"></a>    <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</span>
+<span id="cb42-8"><a href="#cb42-8"></a>    <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;NAP&quot;</span>, <span class="st">&quot;PND&quot;</span>),</span>
+<span id="cb42-9"><a href="#cb42-9"></a>    <span class="dt">format =</span> <span class="st">&quot;wide&quot;</span></span>
+<span id="cb42-10"><a href="#cb42-10"></a>  )</span></code></pre></div>
 <p>The default argument for the batch calculator is <code>format = &quot;long&quot;</code>, but if you want each case to be on a single line, specifying <code>format = &quot;wide&quot;</code> will provide the output that way, just like <code>calc_ES()</code>. Here’s the output:</p>
 <table>
 <thead>
@@ -3740,120 +4494,126 @@ Period 3
 <p>In this case there is a column for NAP, NAP’s standard error, and the upper and lower bound of the confidence interval. PND only has a column for the estimate, but remember that the values for SE and upper and lower CI were all <code>NA</code> in the long format. Columns that would have all <code>NA</code> values are removed when specifying <code>format = &quot;wide&quot;</code>.</p>
 </div>
 <div id="suppressing-warnings" class="section level3">
-<h3><span class="header-section-number">3.5.2</span> Suppressing warnings</h3>
-<p>Remember how, when we asked for the LOR for counts, the calculator gave us a bunch of warning messages? If you’re asking for the LOR, and some of your outcomes are in a scale other than percentage or proportion, you can specify the argument <code>warn = &quot;FALSE&quot;</code> (by default it is set to <code>TRUE</code>) if you want to suppress the warning messages. You will still get NA for any series with an inappropriate outcome scale.</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick,</span>
-<span id="cb41-2"><a href="#cb41-2"></a>              <span class="dt">grouping =</span> Case_pseudonym, </span>
-<span id="cb41-3"><a href="#cb41-3"></a>              <span class="dt">condition =</span> Condition,</span>
-<span id="cb41-4"><a href="#cb41-4"></a>              <span class="dt">outcome =</span> Outcome, </span>
-<span id="cb41-5"><a href="#cb41-5"></a>              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</span>
-<span id="cb41-6"><a href="#cb41-6"></a>              <span class="dt">scale =</span> <span class="st">&quot;count&quot;</span>,</span>
-<span id="cb41-7"><a href="#cb41-7"></a>              <span class="dt">observation_length =</span> <span class="dv">20</span>,</span>
-<span id="cb41-8"><a href="#cb41-8"></a>              <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;LRRi&quot;</span>,<span class="st">&quot;LOR&quot;</span>),</span>
-<span id="cb41-9"><a href="#cb41-9"></a>              <span class="dt">warn =</span> <span class="ot">FALSE</span>)</span>
-<span id="cb41-10"><a href="#cb41-10"></a><span class="co">#&gt; # A tibble: 6 x 6</span></span>
-<span id="cb41-11"><a href="#cb41-11"></a><span class="co">#&gt;   Case_pseudonym ES       Est     SE CI_lower CI_upper</span></span>
-<span id="cb41-12"><a href="#cb41-12"></a><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;</span></span>
-<span id="cb41-13"><a href="#cb41-13"></a><span class="co">#&gt; 1 Period 1       LRRi   0.807  0.198   0.419      1.19</span></span>
-<span id="cb41-14"><a href="#cb41-14"></a><span class="co">#&gt; 2 Period 1       LOR   NA     NA      NA         NA   </span></span>
-<span id="cb41-15"><a href="#cb41-15"></a><span class="co">#&gt; 3 Period 2       LRRi   0.610  0.349  -0.0736     1.29</span></span>
-<span id="cb41-16"><a href="#cb41-16"></a><span class="co">#&gt; 4 Period 2       LOR   NA     NA      NA         NA   </span></span>
-<span id="cb41-17"><a href="#cb41-17"></a><span class="co">#&gt; 5 Period 3       LRRi   0.748  0.353   0.0550     1.44</span></span>
-<span id="cb41-18"><a href="#cb41-18"></a><span class="co">#&gt; 6 Period 3       LOR   NA     NA      NA         NA</span></span></code></pre></div>
-</div>
-<div id="arguments-to-individual-effect-size-functions" class="section level3">
-<h3><span class="header-section-number">3.5.3</span> Arguments to individual effect size functions</h3>
-<p>The <code>...</code> argument allows you to specify arguments particular to an individual function such as <code>std_dev</code> for the <code>SMD()</code> function. For instance, compare the results of calculating a pooled SMD versus the default, baseline phase only SMD:</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick, </span>
-<span id="cb42-2"><a href="#cb42-2"></a>              <span class="dt">grouping =</span> Case_pseudonym, </span>
-<span id="cb42-3"><a href="#cb42-3"></a>              <span class="dt">condition =</span> Condition,</span>
-<span id="cb42-4"><a href="#cb42-4"></a>              <span class="dt">outcome =</span> Outcome, </span>
-<span id="cb42-5"><a href="#cb42-5"></a>              <span class="dt">ES =</span> <span class="st">&quot;SMD&quot;</span>, </span>
-<span id="cb42-6"><a href="#cb42-6"></a>              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>)</span>
-<span id="cb42-7"><a href="#cb42-7"></a><span class="co">#&gt; # A tibble: 3 x 6</span></span>
-<span id="cb42-8"><a href="#cb42-8"></a><span class="co">#&gt;   Case_pseudonym ES      Est    SE CI_lower CI_upper</span></span>
-<span id="cb42-9"><a href="#cb42-9"></a><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;</span></span>
-<span id="cb42-10"><a href="#cb42-10"></a><span class="co">#&gt; 1 Period 1       SMD    2.75 0.943   0.906      4.60</span></span>
-<span id="cb42-11"><a href="#cb42-11"></a><span class="co">#&gt; 2 Period 2       SMD    1.21 0.650  -0.0633     2.48</span></span>
-<span id="cb42-12"><a href="#cb42-12"></a><span class="co">#&gt; 3 Period 3       SMD    2.89 1.08    0.763      5.01</span></span>
-<span id="cb42-13"><a href="#cb42-13"></a></span>
-<span id="cb42-14"><a href="#cb42-14"></a><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick, </span>
-<span id="cb42-15"><a href="#cb42-15"></a>              <span class="dt">grouping =</span> Case_pseudonym, </span>
-<span id="cb42-16"><a href="#cb42-16"></a>              <span class="dt">condition =</span> Condition,</span>
-<span id="cb42-17"><a href="#cb42-17"></a>              <span class="dt">outcome =</span> Outcome, </span>
-<span id="cb42-18"><a href="#cb42-18"></a>              <span class="dt">ES =</span> <span class="st">&quot;SMD&quot;</span>, </span>
-<span id="cb42-19"><a href="#cb42-19"></a>              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</span>
-<span id="cb42-20"><a href="#cb42-20"></a>              <span class="dt">std_dev =</span> <span class="st">&quot;pool&quot;</span>)</span>
-<span id="cb42-21"><a href="#cb42-21"></a><span class="co">#&gt; # A tibble: 3 x 6</span></span>
-<span id="cb42-22"><a href="#cb42-22"></a><span class="co">#&gt;   Case_pseudonym ES      Est    SE CI_lower CI_upper</span></span>
-<span id="cb42-23"><a href="#cb42-23"></a><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;</span></span>
-<span id="cb42-24"><a href="#cb42-24"></a><span class="co">#&gt; 1 Period 1       SMD    2.58 0.853   0.909      4.25</span></span>
-<span id="cb42-25"><a href="#cb42-25"></a><span class="co">#&gt; 2 Period 2       SMD    1.12 0.588  -0.0345     2.27</span></span>
-<span id="cb42-26"><a href="#cb42-26"></a><span class="co">#&gt; 3 Period 3       SMD    2.34 0.727   0.920      3.77</span></span></code></pre></div>
-<p>Arguments common to several functions will be used when calculating any of the effect sizes for which they are relevant. For example, the <code>bias_correct</code> argument applies to all of the parametric effect sizes:</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick, </span>
+<h3><span class="header-section-number">3.6.2</span> Suppressing warnings</h3>
+<p>Remember how, when we asked for the LOR for counts, the calculator gave us a bunch of warning messages? If you’re asking for the LOR, and some of your outcomes are in a scale other than percentage or proportion, you can specify the argument <code>warn = FALSE</code> (by default it is set to <code>TRUE</code>) if you want to suppress the warning messages. You will still get NA for any series with an inappropriate outcome scale.</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick,</span>
 <span id="cb43-2"><a href="#cb43-2"></a>              <span class="dt">grouping =</span> Case_pseudonym, </span>
 <span id="cb43-3"><a href="#cb43-3"></a>              <span class="dt">condition =</span> Condition,</span>
 <span id="cb43-4"><a href="#cb43-4"></a>              <span class="dt">outcome =</span> Outcome, </span>
-<span id="cb43-5"><a href="#cb43-5"></a>              <span class="dt">ES =</span> <span class="st">&quot;parametric&quot;</span>, </span>
-<span id="cb43-6"><a href="#cb43-6"></a>              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</span>
-<span id="cb43-7"><a href="#cb43-7"></a>              <span class="dt">scale =</span> Procedure, </span>
-<span id="cb43-8"><a href="#cb43-8"></a>              <span class="dt">observation_length =</span> Session_length,</span>
-<span id="cb43-9"><a href="#cb43-9"></a>              <span class="dt">bias_correct =</span> <span class="ot">FALSE</span>,</span>
-<span id="cb43-10"><a href="#cb43-10"></a>              <span class="dt">warn =</span> <span class="ot">FALSE</span>)</span>
-<span id="cb43-11"><a href="#cb43-11"></a><span class="co">#&gt; # A tibble: 12 x 6</span></span>
-<span id="cb43-12"><a href="#cb43-12"></a><span class="co">#&gt;    Case_pseudonym ES       Est     SE CI_lower CI_upper</span></span>
-<span id="cb43-13"><a href="#cb43-13"></a><span class="co">#&gt;    &lt;chr&gt;          &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;</span></span>
-<span id="cb43-14"><a href="#cb43-14"></a><span class="co">#&gt;  1 Period 1       LRRd  -0.822  0.198  -1.21    -0.435 </span></span>
-<span id="cb43-15"><a href="#cb43-15"></a><span class="co">#&gt;  2 Period 1       LRRi   0.822  0.198   0.435    1.21  </span></span>
-<span id="cb43-16"><a href="#cb43-16"></a><span class="co">#&gt;  3 Period 1       LOR   NA     NA      NA       NA     </span></span>
-<span id="cb43-17"><a href="#cb43-17"></a><span class="co">#&gt;  4 Period 1       SMD    4.82   2.58   -0.229    9.87  </span></span>
-<span id="cb43-18"><a href="#cb43-18"></a><span class="co">#&gt;  5 Period 2       LRRd  -0.650  0.349  -1.33     0.0328</span></span>
-<span id="cb43-19"><a href="#cb43-19"></a><span class="co">#&gt;  6 Period 2       LRRi   0.650  0.349  -0.0328   1.33  </span></span>
-<span id="cb43-20"><a href="#cb43-20"></a><span class="co">#&gt;  7 Period 2       LOR   NA     NA      NA       NA     </span></span>
-<span id="cb43-21"><a href="#cb43-21"></a><span class="co">#&gt;  8 Period 2       SMD    1.51   0.874  -0.199    3.23  </span></span>
-<span id="cb43-22"><a href="#cb43-22"></a><span class="co">#&gt;  9 Period 3       LRRd  -0.807  0.353  -1.50    -0.114 </span></span>
-<span id="cb43-23"><a href="#cb43-23"></a><span class="co">#&gt; 10 Period 3       LRRi   0.807  0.353   0.114    1.50  </span></span>
-<span id="cb43-24"><a href="#cb43-24"></a><span class="co">#&gt; 11 Period 3       LOR   NA     NA      NA       NA     </span></span>
-<span id="cb43-25"><a href="#cb43-25"></a><span class="co">#&gt; 12 Period 3       SMD    3.19   1.25    0.751    5.64</span></span></code></pre></div>
-<p>The <code>bias_correct</code> argument cannot be specified differently for different effect size functions. If you wanted bias corrected values for the LRRd effect size and not for the SMD effect size, you would need to call <code>batch_calc_ES()</code> separately for the two different effect sizes.</p>
+<span id="cb43-5"><a href="#cb43-5"></a>              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</span>
+<span id="cb43-6"><a href="#cb43-6"></a>              <span class="dt">scale =</span> <span class="st">&quot;count&quot;</span>,</span>
+<span id="cb43-7"><a href="#cb43-7"></a>              <span class="dt">observation_length =</span> <span class="dv">20</span>,</span>
+<span id="cb43-8"><a href="#cb43-8"></a>              <span class="dt">ES =</span> <span class="kw">c</span>(<span class="st">&quot;LRRi&quot;</span>,<span class="st">&quot;LOR&quot;</span>),</span>
+<span id="cb43-9"><a href="#cb43-9"></a>              <span class="dt">warn =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb43-10"><a href="#cb43-10"></a><span class="co">#&gt; # A tibble: 6 x 6</span></span>
+<span id="cb43-11"><a href="#cb43-11"></a><span class="co">#&gt;   Case_pseudonym ES       Est     SE CI_lower CI_upper</span></span>
+<span id="cb43-12"><a href="#cb43-12"></a><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;</span></span>
+<span id="cb43-13"><a href="#cb43-13"></a><span class="co">#&gt; 1 Period 1       LRRi   0.807  0.198   0.419      1.19</span></span>
+<span id="cb43-14"><a href="#cb43-14"></a><span class="co">#&gt; 2 Period 1       LOR   NA     NA      NA         NA   </span></span>
+<span id="cb43-15"><a href="#cb43-15"></a><span class="co">#&gt; 3 Period 2       LRRi   0.610  0.349  -0.0736     1.29</span></span>
+<span id="cb43-16"><a href="#cb43-16"></a><span class="co">#&gt; 4 Period 2       LOR   NA     NA      NA         NA   </span></span>
+<span id="cb43-17"><a href="#cb43-17"></a><span class="co">#&gt; 5 Period 3       LRRi   0.748  0.353   0.0550     1.44</span></span>
+<span id="cb43-18"><a href="#cb43-18"></a><span class="co">#&gt; 6 Period 3       LOR   NA     NA      NA         NA</span></span></code></pre></div>
 </div>
-<div id="order-of-observations" class="section level3">
-<h3><span class="header-section-number">3.5.4</span> Order of observations</h3>
-<p>The <code>session_number</code> argument orders the data within each series by the specified variable. This argument is only important if Tau-U is being calculated, because it adjusts for trend in the baseline and so the ordering of the baseline phase is important. This argument is irrelevant for all of the other effect sizes.</p>
-</div>
-<div id="specifying-a-baseline-phase" class="section level3">
-<h3><span class="header-section-number">3.5.5</span> Specifying a baseline phase</h3>
-<p>The <code>baseline_phase</code> argument works in a similar way the <code>calc_ES()</code> argument. If nothing is specified, the first phase in each series will be treated as the baseline phase. However, if the baseline phase is not always the first phase in each series, such as an SCD with four cases that use a cross-over treatment reversal design, where two of the cases follow an ABAB design and the other two cases follow a BABA design, you will have to specify the <code>baseline_phase</code> in the same way as the <code>calc_ES()</code> function.</p>
-</div>
-<div id="confidence-levels" class="section level3">
-<h3><span class="header-section-number">3.5.6</span> Confidence levels</h3>
-<p>The <code>confidence</code> argument controls the confidence intervals in the same way as all the other functions. To skip calculating confidence intervals, specify <code>confidence = NULL</code>:</p>
+<div id="arguments-to-individual-effect-size-functions" class="section level3">
+<h3><span class="header-section-number">3.6.3</span> Arguments to individual effect size functions</h3>
+<p>The <code>...</code> argument allows you to specify arguments particular to an individual function such as <code>std_dev</code> for the <code>SMD()</code> function. For instance, compare the results of calculating a pooled SMD versus the default, baseline phase only SMD:</p>
 <div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick, </span>
 <span id="cb44-2"><a href="#cb44-2"></a>              <span class="dt">grouping =</span> Case_pseudonym, </span>
 <span id="cb44-3"><a href="#cb44-3"></a>              <span class="dt">condition =</span> Condition,</span>
 <span id="cb44-4"><a href="#cb44-4"></a>              <span class="dt">outcome =</span> Outcome, </span>
-<span id="cb44-5"><a href="#cb44-5"></a>              <span class="dt">ES =</span> <span class="st">&quot;parametric&quot;</span>, </span>
-<span id="cb44-6"><a href="#cb44-6"></a>              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</span>
-<span id="cb44-7"><a href="#cb44-7"></a>              <span class="dt">scale =</span> Procedure, </span>
-<span id="cb44-8"><a href="#cb44-8"></a>              <span class="dt">observation_length =</span> Session_length,</span>
-<span id="cb44-9"><a href="#cb44-9"></a>              <span class="dt">confidence =</span> <span class="ot">NULL</span>,</span>
-<span id="cb44-10"><a href="#cb44-10"></a>              <span class="dt">warn =</span> <span class="ot">FALSE</span>)</span>
-<span id="cb44-11"><a href="#cb44-11"></a><span class="co">#&gt; # A tibble: 12 x 4</span></span>
-<span id="cb44-12"><a href="#cb44-12"></a><span class="co">#&gt;    Case_pseudonym ES       Est     SE</span></span>
-<span id="cb44-13"><a href="#cb44-13"></a><span class="co">#&gt;    &lt;chr&gt;          &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt;</span></span>
-<span id="cb44-14"><a href="#cb44-14"></a><span class="co">#&gt;  1 Period 1       LRRd  -0.807  0.198</span></span>
-<span id="cb44-15"><a href="#cb44-15"></a><span class="co">#&gt;  2 Period 1       LRRi   0.807  0.198</span></span>
-<span id="cb44-16"><a href="#cb44-16"></a><span class="co">#&gt;  3 Period 1       LOR   NA     NA    </span></span>
-<span id="cb44-17"><a href="#cb44-17"></a><span class="co">#&gt;  4 Period 1       SMD    2.75   0.943</span></span>
-<span id="cb44-18"><a href="#cb44-18"></a><span class="co">#&gt;  5 Period 2       LRRd  -0.610  0.349</span></span>
-<span id="cb44-19"><a href="#cb44-19"></a><span class="co">#&gt;  6 Period 2       LRRi   0.610  0.349</span></span>
-<span id="cb44-20"><a href="#cb44-20"></a><span class="co">#&gt;  7 Period 2       LOR   NA     NA    </span></span>
-<span id="cb44-21"><a href="#cb44-21"></a><span class="co">#&gt;  8 Period 2       SMD    1.21   0.650</span></span>
-<span id="cb44-22"><a href="#cb44-22"></a><span class="co">#&gt;  9 Period 3       LRRd  -0.748  0.353</span></span>
-<span id="cb44-23"><a href="#cb44-23"></a><span class="co">#&gt; 10 Period 3       LRRi   0.748  0.353</span></span>
-<span id="cb44-24"><a href="#cb44-24"></a><span class="co">#&gt; 11 Period 3       LOR   NA     NA    </span></span>
-<span id="cb44-25"><a href="#cb44-25"></a><span class="co">#&gt; 12 Period 3       SMD    2.89   1.08</span></span></code></pre></div>
+<span id="cb44-5"><a href="#cb44-5"></a>              <span class="dt">ES =</span> <span class="st">&quot;SMD&quot;</span>, </span>
+<span id="cb44-6"><a href="#cb44-6"></a>              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>)</span>
+<span id="cb44-7"><a href="#cb44-7"></a><span class="co">#&gt; # A tibble: 3 x 6</span></span>
+<span id="cb44-8"><a href="#cb44-8"></a><span class="co">#&gt;   Case_pseudonym ES      Est    SE CI_lower CI_upper</span></span>
+<span id="cb44-9"><a href="#cb44-9"></a><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;</span></span>
+<span id="cb44-10"><a href="#cb44-10"></a><span class="co">#&gt; 1 Period 1       SMD    2.75 0.943   0.906      4.60</span></span>
+<span id="cb44-11"><a href="#cb44-11"></a><span class="co">#&gt; 2 Period 2       SMD    1.21 0.650  -0.0633     2.48</span></span>
+<span id="cb44-12"><a href="#cb44-12"></a><span class="co">#&gt; 3 Period 3       SMD    2.89 1.08    0.763      5.01</span></span>
+<span id="cb44-13"><a href="#cb44-13"></a></span>
+<span id="cb44-14"><a href="#cb44-14"></a><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick, </span>
+<span id="cb44-15"><a href="#cb44-15"></a>              <span class="dt">grouping =</span> Case_pseudonym, </span>
+<span id="cb44-16"><a href="#cb44-16"></a>              <span class="dt">condition =</span> Condition,</span>
+<span id="cb44-17"><a href="#cb44-17"></a>              <span class="dt">outcome =</span> Outcome, </span>
+<span id="cb44-18"><a href="#cb44-18"></a>              <span class="dt">ES =</span> <span class="st">&quot;SMD&quot;</span>, </span>
+<span id="cb44-19"><a href="#cb44-19"></a>              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</span>
+<span id="cb44-20"><a href="#cb44-20"></a>              <span class="dt">std_dev =</span> <span class="st">&quot;pool&quot;</span>)</span>
+<span id="cb44-21"><a href="#cb44-21"></a><span class="co">#&gt; # A tibble: 3 x 6</span></span>
+<span id="cb44-22"><a href="#cb44-22"></a><span class="co">#&gt;   Case_pseudonym ES      Est    SE CI_lower CI_upper</span></span>
+<span id="cb44-23"><a href="#cb44-23"></a><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;</span></span>
+<span id="cb44-24"><a href="#cb44-24"></a><span class="co">#&gt; 1 Period 1       SMD    2.58 0.853   0.909      4.25</span></span>
+<span id="cb44-25"><a href="#cb44-25"></a><span class="co">#&gt; 2 Period 2       SMD    1.12 0.588  -0.0345     2.27</span></span>
+<span id="cb44-26"><a href="#cb44-26"></a><span class="co">#&gt; 3 Period 3       SMD    2.34 0.727   0.920      3.77</span></span></code></pre></div>
+<p>Arguments common to several functions will be used when calculating any of the effect sizes for which they are relevant. For example, the <code>bias_correct</code> argument applies to all of the parametric effect sizes:</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick, </span>
+<span id="cb45-2"><a href="#cb45-2"></a>              <span class="dt">grouping =</span> Case_pseudonym, </span>
+<span id="cb45-3"><a href="#cb45-3"></a>              <span class="dt">condition =</span> Condition,</span>
+<span id="cb45-4"><a href="#cb45-4"></a>              <span class="dt">outcome =</span> Outcome, </span>
+<span id="cb45-5"><a href="#cb45-5"></a>              <span class="dt">ES =</span> <span class="st">&quot;parametric&quot;</span>, </span>
+<span id="cb45-6"><a href="#cb45-6"></a>              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</span>
+<span id="cb45-7"><a href="#cb45-7"></a>              <span class="dt">scale =</span> Procedure, </span>
+<span id="cb45-8"><a href="#cb45-8"></a>              <span class="dt">observation_length =</span> Session_length,</span>
+<span id="cb45-9"><a href="#cb45-9"></a>              <span class="dt">bias_correct =</span> <span class="ot">FALSE</span>,</span>
+<span id="cb45-10"><a href="#cb45-10"></a>              <span class="dt">warn =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb45-11"><a href="#cb45-11"></a><span class="co">#&gt; # A tibble: 15 x 6</span></span>
+<span id="cb45-12"><a href="#cb45-12"></a><span class="co">#&gt;    Case_pseudonym ES       Est     SE CI_lower CI_upper</span></span>
+<span id="cb45-13"><a href="#cb45-13"></a><span class="co">#&gt;    &lt;chr&gt;          &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;</span></span>
+<span id="cb45-14"><a href="#cb45-14"></a><span class="co">#&gt;  1 Period 1       LRRd  -0.822  0.198  -1.21    -0.435 </span></span>
+<span id="cb45-15"><a href="#cb45-15"></a><span class="co">#&gt;  2 Period 1       LRRi   0.822  0.198   0.435    1.21  </span></span>
+<span id="cb45-16"><a href="#cb45-16"></a><span class="co">#&gt;  3 Period 1       LOR   NA     NA      NA       NA     </span></span>
+<span id="cb45-17"><a href="#cb45-17"></a><span class="co">#&gt;  4 Period 1       SMD    4.82   2.58   -0.229    9.87  </span></span>
+<span id="cb45-18"><a href="#cb45-18"></a><span class="co">#&gt;  5 Period 1       LRM    0.850  0.304   0.254    1.45  </span></span>
+<span id="cb45-19"><a href="#cb45-19"></a><span class="co">#&gt;  6 Period 2       LRRd  -0.650  0.349  -1.33     0.0328</span></span>
+<span id="cb45-20"><a href="#cb45-20"></a><span class="co">#&gt;  7 Period 2       LRRi   0.650  0.349  -0.0328   1.33  </span></span>
+<span id="cb45-21"><a href="#cb45-21"></a><span class="co">#&gt;  8 Period 2       LOR   NA     NA      NA       NA     </span></span>
+<span id="cb45-22"><a href="#cb45-22"></a><span class="co">#&gt;  9 Period 2       SMD    1.51   0.874  -0.199    3.23  </span></span>
+<span id="cb45-23"><a href="#cb45-23"></a><span class="co">#&gt; 10 Period 2       LRM    0.717  1.35   -1.94     3.37  </span></span>
+<span id="cb45-24"><a href="#cb45-24"></a><span class="co">#&gt; 11 Period 3       LRRd  -0.807  0.353  -1.50    -0.114 </span></span>
+<span id="cb45-25"><a href="#cb45-25"></a><span class="co">#&gt; 12 Period 3       LRRi   0.807  0.353   0.114    1.50  </span></span>
+<span id="cb45-26"><a href="#cb45-26"></a><span class="co">#&gt; 13 Period 3       LOR   NA     NA      NA       NA     </span></span>
+<span id="cb45-27"><a href="#cb45-27"></a><span class="co">#&gt; 14 Period 3       SMD    3.19   1.25    0.751    5.64  </span></span>
+<span id="cb45-28"><a href="#cb45-28"></a><span class="co">#&gt; 15 Period 3       LRM    0.910  0.589  -0.244    2.06</span></span></code></pre></div>
+<p>The <code>bias_correct</code> argument cannot be specified differently for different effect size functions. If you wanted bias corrected values for the LRRd effect size and not for the SMD effect size, you would need to call <code>batch_calc_ES()</code> separately for the two different effect sizes.</p>
+</div>
+<div id="order-of-observations" class="section level3">
+<h3><span class="header-section-number">3.6.4</span> Order of observations</h3>
+<p>The <code>session_number</code> argument orders the data within each series by the specified variable. This argument is only important if baseline-corrected Tau or Tau-U is being calculated, because these effect sizes involve adjustments for trend in the baseline and so the ordering of the baseline phase is important. This argument is irrelevant for all of the other effect sizes.</p>
+</div>
+<div id="specifying-a-baseline-phase" class="section level3">
+<h3><span class="header-section-number">3.6.5</span> Specifying a baseline phase</h3>
+<p>The <code>baseline_phase</code> argument works in a similar way the <code>calc_ES()</code> argument. If nothing is specified, the first phase in each series will be treated as the baseline phase. However, if the baseline phase is not always the first phase in each series, such as an SCD with four cases that use a cross-over treatment reversal design, where two of the cases follow an ABAB design and the other two cases follow a BABA design, you will have to specify the <code>baseline_phase</code> in the same way as the <code>calc_ES()</code> function.</p>
+</div>
+<div id="confidence-levels" class="section level3">
+<h3><span class="header-section-number">3.6.6</span> Confidence levels</h3>
+<p>The <code>confidence</code> argument controls the confidence intervals in the same way as all the other functions. To skip calculating confidence intervals, specify <code>confidence = NULL</code>:</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a><span class="kw">batch_calc_ES</span>(<span class="dt">dat =</span> McKissick, </span>
+<span id="cb46-2"><a href="#cb46-2"></a>              <span class="dt">grouping =</span> Case_pseudonym, </span>
+<span id="cb46-3"><a href="#cb46-3"></a>              <span class="dt">condition =</span> Condition,</span>
+<span id="cb46-4"><a href="#cb46-4"></a>              <span class="dt">outcome =</span> Outcome, </span>
+<span id="cb46-5"><a href="#cb46-5"></a>              <span class="dt">ES =</span> <span class="st">&quot;parametric&quot;</span>, </span>
+<span id="cb46-6"><a href="#cb46-6"></a>              <span class="dt">improvement =</span> <span class="st">&quot;decrease&quot;</span>,</span>
+<span id="cb46-7"><a href="#cb46-7"></a>              <span class="dt">scale =</span> Procedure, </span>
+<span id="cb46-8"><a href="#cb46-8"></a>              <span class="dt">observation_length =</span> Session_length,</span>
+<span id="cb46-9"><a href="#cb46-9"></a>              <span class="dt">confidence =</span> <span class="ot">NULL</span>,</span>
+<span id="cb46-10"><a href="#cb46-10"></a>              <span class="dt">warn =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb46-11"><a href="#cb46-11"></a><span class="co">#&gt; # A tibble: 15 x 4</span></span>
+<span id="cb46-12"><a href="#cb46-12"></a><span class="co">#&gt;    Case_pseudonym ES       Est     SE</span></span>
+<span id="cb46-13"><a href="#cb46-13"></a><span class="co">#&gt;    &lt;chr&gt;          &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt;</span></span>
+<span id="cb46-14"><a href="#cb46-14"></a><span class="co">#&gt;  1 Period 1       LRRd  -0.807  0.198</span></span>
+<span id="cb46-15"><a href="#cb46-15"></a><span class="co">#&gt;  2 Period 1       LRRi   0.807  0.198</span></span>
+<span id="cb46-16"><a href="#cb46-16"></a><span class="co">#&gt;  3 Period 1       LOR   NA     NA    </span></span>
+<span id="cb46-17"><a href="#cb46-17"></a><span class="co">#&gt;  4 Period 1       SMD    2.75   0.943</span></span>
+<span id="cb46-18"><a href="#cb46-18"></a><span class="co">#&gt;  5 Period 1       LRM    0.850  0.304</span></span>
+<span id="cb46-19"><a href="#cb46-19"></a><span class="co">#&gt;  6 Period 2       LRRd  -0.610  0.349</span></span>
+<span id="cb46-20"><a href="#cb46-20"></a><span class="co">#&gt;  7 Period 2       LRRi   0.610  0.349</span></span>
+<span id="cb46-21"><a href="#cb46-21"></a><span class="co">#&gt;  8 Period 2       LOR   NA     NA    </span></span>
+<span id="cb46-22"><a href="#cb46-22"></a><span class="co">#&gt;  9 Period 2       SMD    1.21   0.650</span></span>
+<span id="cb46-23"><a href="#cb46-23"></a><span class="co">#&gt; 10 Period 2       LRM    0.717  1.35 </span></span>
+<span id="cb46-24"><a href="#cb46-24"></a><span class="co">#&gt; 11 Period 3       LRRd  -0.748  0.353</span></span>
+<span id="cb46-25"><a href="#cb46-25"></a><span class="co">#&gt; 12 Period 3       LRRi   0.748  0.353</span></span>
+<span id="cb46-26"><a href="#cb46-26"></a><span class="co">#&gt; 13 Period 3       LOR   NA     NA    </span></span>
+<span id="cb46-27"><a href="#cb46-27"></a><span class="co">#&gt; 14 Period 3       SMD    2.89   1.08 </span></span>
+<span id="cb46-28"><a href="#cb46-28"></a><span class="co">#&gt; 15 Period 3       LRM    0.910  0.589</span></span></code></pre></div>
 </div>
 </div>
 </div>
@@ -3867,7 +4627,7 @@ Period 3
 <p>Parker, R. I., &amp; Vannest, K. (2009). An improved effect size for single-case research: Nonoverlap of all pairs. <em>Behavior Therapy</em>, <em>40</em>(4), 357–367.</p>
 </div>
 <div id="ref-pustejovsky2015measurement">
-<p>Pustejovsky, J. E. (2015). Measurement-comparable effect sizes for single-case studies of free-operant behavior. <em>Psychological Methods</em>, <em>20</em>(3), 342.</p>
+<p>Pustejovsky, J. E. (2015). Measurement-comparable effect sizes for single-case studies of free-operant behavior. <em>Psychological Methods</em>, <em>20</em>(3), 342–359.</p>
 </div>
 <div id="ref-pustejovsky2018using">
 <p>Pustejovsky, J. E. (2018). Using response ratios for meta-analyzing single-case designs with behavioral outcomes. <em>Journal of School Psychology</em>, <em>68</em>, 99–112.</p>

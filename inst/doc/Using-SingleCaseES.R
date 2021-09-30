@@ -67,6 +67,8 @@ NAP(A_data = A, B_data = B, confidence = NULL)
 ## -----------------------------------------------------------------------------
 Tau(A_data = A, B_data = B)
 
+Tau_BC(A_data = A, B_data = B)
+
 PND(A_data = A, B_data = B)
 
 PEM(A_data = A, B_data = B)
@@ -208,12 +210,46 @@ schmidt_ES <- batch_calc_ES(dat = Schmidt2007,
               condition = Condition,
               outcome = Outcome, 
               improvement = direction,
-              ES = c("NAP", "PND"))
+              ES = c("NAP", "LRRi"))
 
 ## ---- echo = F----------------------------------------------------------------
 kable(schmidt_ES) %>%
-   kable_styling() %>%
-  scroll_box(width = "100%", height = "800px")
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "800px", 
+             fixed_thead = list(enabled = TRUE, background = "green"))
+
+## -----------------------------------------------------------------------------
+schmidt_ES_agg <- 
+  batch_calc_ES(
+    dat = Schmidt2007,
+    grouping = c(Case_pseudonym, Behavior_type),
+    aggregate = Phase_num,
+    condition = Condition,
+    outcome = Outcome, 
+    improvement = direction,
+    ES = "NAP"
+  )
+
+## ---- echo = F----------------------------------------------------------------
+kable(schmidt_ES_agg) %>%
+  kable_styling()
+
+## -----------------------------------------------------------------------------
+schmidt_ES_agg <- 
+  batch_calc_ES(
+    dat = Schmidt2007,
+    grouping = c(Case_pseudonym, Behavior_type),
+    aggregate = Phase_num,
+    weighting = "equal",
+    condition = Condition,
+    outcome = Outcome, 
+    improvement = direction,
+    ES = "NAP"
+  )
+
+## ---- echo = F----------------------------------------------------------------
+kable(schmidt_ES_agg) %>%
+  kable_styling()
 
 ## -----------------------------------------------------------------------------
 mckissick_ES <- batch_calc_ES(dat = McKissick,
@@ -241,17 +277,21 @@ schmidt_ES <- batch_calc_ES(dat = Schmidt2007,
 
 ## -----------------------------------------------------------------------------
 kable(schmidt_ES) %>%
-   kable_styling() %>%
-  scroll_box(width = "100%", height = "800px")
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "800px", 
+             fixed_thead = list(enabled = TRUE, background = "green"))
 
 ## -----------------------------------------------------------------------------
-mckissick_wide_ES <- batch_calc_ES(dat = McKissick,
-              grouping = Case_pseudonym, 
-              condition = Condition,
-              outcome = Outcome, 
-              improvement = "decrease",
-              ES = c("NAP", "PND"),
-              format = "wide")
+mckissick_wide_ES <- 
+  batch_calc_ES(
+    dat = McKissick,
+    grouping = Case_pseudonym, 
+    condition = Condition,
+    outcome = Outcome, 
+    improvement = "decrease",
+    ES = c("NAP", "PND"),
+    format = "wide"
+  )
 
 ## ---- echo = F----------------------------------------------------------------
 kable(mckissick_wide_ES)

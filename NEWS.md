@@ -1,3 +1,15 @@
+# SingleCaseES 0.5.0
+
+* batch_calc_ES() gains an argument aggregate, for post-processing effect size estimates by averaging across the levels of a variable.
+* Added functions for calculating two new effect sizes: 
+    * log ratio of medians
+    * baseline-corrected Tau
+* Updates to SCD_effect_sizes() shiny app.
+    * Added aggregate feature.
+    * Added log ratio of medians and baseline-corrected Tau effect size measures.
+    * Allowed use of .xlsx files.
+    * R code for replicating the batch calculation.
+
 # SingleCaseES 0.4.4
 
 * Modified LOR, LRRd, and LRRi functions to use truncated sample variances. This ensures that the standard error of the effect size estimate is strictly greater than zero.

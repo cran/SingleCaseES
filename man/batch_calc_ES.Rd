@@ -9,6 +9,8 @@ batch_calc_ES(
   grouping,
   condition,
   outcome,
+  aggregate = NULL,
+  weighting = "1/V",
   session_number = NULL,
   baseline_phase = NULL,
   intervention_phase = NULL,
@@ -27,15 +29,26 @@ batch_calc_ES(
 \item{dat}{data frame containing SCD series for which effect sizes will be
 calculated.}
 
-\item{grouping}{A variable name or list of (unquoted) variable names that uniquely identify each data series.}
+\item{grouping}{A variable name or list of (unquoted) variable names that
+uniquely identify each data series.}
 
-\item{condition}{A variable name that identifies the
-treatment condition for each observation in the series.}
+\item{condition}{A variable name that identifies the treatment condition for
+each observation in the series.}
 
-\item{outcome}{A variable name for the outcome data.}
+\item{outcome}{A variable name for the outcome data. Default is}
 
-\item{session_number}{A variable name used to
-order the data within each series.}
+\item{aggregate}{A variable name of list of (unquoted) variable names that
+identify additional grouping variables. Effect sizes will be calculated
+separately for each unique value of these variables, after which the effect
+size estimates will be averaged across values of these variables (but not
+across the values of the \code{grouping} variables).}
+
+\item{weighting}{character string specifying the weighting scheme for use
+when variables are specified in \code{aggregate}. Either \code{"1/V"} (the
+default) or \code{"equal"}.}
+
+\item{session_number}{A variable name used to order the data within each
+series.}
 
 \item{baseline_phase}{character string specifying which value of
 \code{condition} corresponds to the baseline phase. If \code{NULL} (the
@@ -49,12 +62,12 @@ will be used.}
 
 \item{ES}{character string or character vector specifying which effect size
 index or indices to calculate. Available effect sizes are \code{"LRRd"},
-\code{"LRRi"}, \code{"LOR"}, \code{"SMD"}, \code{"NAP"}, \code{"IRD"},
-\code{"PND"}, \code{"PEM"}, \code{"PAND"}, \code{"Tau"}, and
-\code{"Tau-U"}. Set to \code{"all"} for all available effect sizes. Set to
-\code{"parametric"} for all parametric effect sizes. Set to \code{"NOM"}
-for all non-overlap measures. Defaults to calculating the LRRd, LRRi, SMD,
-and Tau indices.}
+\code{"LRRi"}, \code{"LRM"}, \code{"LOR"}, \code{"SMD"}, \code{"NAP"},
+\code{"IRD"}, \code{"PND"}, \code{"PEM"}, \code{"PAND"}, \code{"Tau"},
+\code{"Tau-U"}, and \code{"Tau-BC"}. Set to \code{"all"} for all available
+effect sizes. Set to \code{"parametric"} for all parametric effect sizes.
+Set to \code{"NOM"} for all non-overlap measures. Defaults to calculating
+the LRRd, LRRi, SMD, and Tau indices.}
 
 \item{improvement}{character string either indicating the direction of
 uniform improvement ("increase" or "decrease") or the variable name of a
@@ -98,8 +111,8 @@ is \code{TRUE}.}
 indices.}
 }
 \value{
-A tibble containing the estimate, standard error, and/or
-  confidence interval for each specified effect size.
+A tibble containing the estimate, standard error, and/or confidence
+  interval for each specified effect size.
 }
 \description{
 Calculates one or more effect size estimates, along with
@@ -122,8 +135,8 @@ batch_calc_ES(McKissick,
               scale = "count",
               observation_length = 20,
               format = "long")
-              
-data(Schmidt2007)               
+
+data(Schmidt2007)
 batch_calc_ES(dat = Schmidt2007,
               grouping = c(Behavior_type, Case_pseudonym, Phase_num),
               condition = Condition,
@@ -134,5 +147,19 @@ batch_calc_ES(dat = Schmidt2007,
               bias_correct = TRUE,
               confidence = NULL,
               format = "wide")
+
+# Aggregate across phase-pairs
+batch_calc_ES(dat = Schmidt2007,
+              grouping = c(Behavior_type, Case_pseudonym),
+              aggregate = Phase_num,
+              weighting = "1/V",
+              condition = Condition,
+              outcome = Outcome,
+              ES = c("LRRi", "LRRd", "SMD", "Tau"),
+              improvement = direction,
+              scale = "count",
+              bias_correct = TRUE,
+              confidence = NULL,
+              format = "long")
 
 }
