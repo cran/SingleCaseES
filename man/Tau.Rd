@@ -9,10 +9,12 @@ Tau(
   B_data,
   condition,
   outcome,
-  baseline_phase = unique(condition)[1],
+  baseline_phase = NULL,
+  intervention_phase = NULL,
   improvement = "increase",
   SE = "unbiased",
-  confidence = 0.95
+  confidence = 0.95,
+  trunc_const = FALSE
 )
 }
 \arguments{
@@ -29,6 +31,10 @@ observation in the series.}
 \code{condition} corresponds to the baseline phase. Defaults to first
 observed value of \code{condition}.}
 
+\item{intervention_phase}{character string specifying which value of
+\code{condition} corresponds to the intervention phase. Defaults to second
+unique value of \code{condition}.}
+
 \item{improvement}{character string indicating direction of improvement.
 Default is "increase".}
 
@@ -41,6 +47,9 @@ to "unbiased".}
 
 \item{confidence}{confidence level for the reported interval estimate. Set to
 \code{NULL} to omit confidence interval calculations.}
+
+\item{trunc_const}{logical value indicating whether to return the truncation
+constant used to calculate the standard error.}
 }
 \value{
 A list containing the estimate, standard error, and/or confidence 

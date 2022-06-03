@@ -1,7 +1,7 @@
 Package: SingleCaseES
 Type: Package
 Title: A Calculator for Single-Case Effect Sizes
-Version: 0.5.0
+Version: 0.6.0
 Authors@R: c(
   person(c("James","E."), "Pustejovsky", email = "jepusto@gmail.com", role = c("aut", "cre")),
   person("Man", "Chen", email = "manchen9005@gmail.com", role = "aut"),
@@ -19,19 +19,19 @@ URL: https://jepusto.github.io/SingleCaseES/
 BugReports: https://github.com/jepusto/SingleCaseES/issues
 License: GPL-3
 Imports: stats, purrr, magrittr, dplyr, tidyr, rlang, tidyselect, utils
-Suggests: spelling, shiny, ggplot2, purrrlyr, testthat, markdown,
-        knitr, rmarkdown, prettydoc, Kendall, kableExtra, covr, readxl,
-        glue, janitor, rclipboard
+Suggests: spelling, shiny, shinytest, stringr, rvest, xml2, ggplot2,
+        purrrlyr, testthat, markdown, knitr, rmarkdown, prettydoc,
+        Kendall, kableExtra, covr, readxl, glue, janitor, rclipboard
 LazyData: TRUE
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Encoding: UTF-8
 Language: en-US
 VignetteBuilder: knitr, rmarkdown, prettydoc
 NeedsCompilation: no
-Packaged: 2021-09-30 03:36:42 UTC; jepus
+Packaged: 2022-06-02 17:15:38 UTC; James
 Author: James E. Pustejovsky [aut, cre],
   Man Chen [aut],
   Daniel M. Swan [aut]
 Maintainer: James E. Pustejovsky <jepusto@gmail.com>
 Repository: CRAN
-Date/Publication: 2021-09-30 10:00:02 UTC
+Date/Publication: 2022-06-03 08:50:24 UTC

@@ -9,8 +9,11 @@
 #'   estimator, \code{"null"} for the (known) variance under the null hypothesis
 #'   of no effect, or \code{"none"} to not calculate a standard error. Defaults
 #'   to "unbiased".
+#' @param trunc_const logical value indicating whether to return the truncation
+#'   constant used to calculate the standard error.
+#'   
 #' @inheritParams calc_ES
-#' 
+#'
 #'
 #' @details NAP is calculated as the proportion of all pairs of one observation
 #'   from each phase in which the measurement from the B phase improves upon the
@@ -22,8 +25,8 @@
 #'   The Hanley estimator was proposed by Hanley and McNeil (1982). The null
 #'   variance is a known function of sample size, equal to the exact sampling
 #'   variance when the null hypothesis of no effect holds. When the null
-#'   hypothesis does not hold, the null variance will tend to over-estimate 
-#'   the true sampling variance of NAP.
+#'   hypothesis does not hold, the null variance will tend to over-estimate the
+#'   true sampling variance of NAP.
 #'
 #'   The confidence interval for NAP is calculated based on the symmetrized
 #'   score-inversion method (Method 5) proposed by Newcombe (2006).
@@ -32,8 +35,7 @@
 #'
 #' Hanley, J. A., & McNeil, B. J. (1982). The meaning and use of the area under
 #' a receiver operating characteristic (ROC) curve. \emph{Radiology, 143},
-#' 29--36.
-#' doi:\doi{10.1148/radiology.143.1.7063747}
+#' 29--36. doi:\doi{10.1148/radiology.143.1.7063747}
 #'
 #' Mee, W. (1990). Confidence intervals for probabilities and tolerance regions
 #' based on a generalization of the Mann-Whitney statistic. \emph{Journal of the
@@ -42,13 +44,11 @@
 #'
 #' Newcombe, R. G. (2006). Confidence intervals for an effect size measure based
 #' on the Mann-Whitney statistic. Part 2: Asymptotic methods and evaluation.
-#' \emph{Statistics in Medicine, 25}(4), 559--573.
-#' doi:\doi{10.1002/sim.2324}
+#' \emph{Statistics in Medicine, 25}(4), 559--573. doi:\doi{10.1002/sim.2324}
 #'
 #' Parker, R. I., & Vannest, K. J. (2009). An improved effect size for
 #' single-case research: Nonoverlap of all pairs. \emph{Behavior Therapy,
-#' 40}(4), 357--67.
-#' doi:\doi{10.1016/j.beth.2008.10.006}
+#' 40}(4), 357--67. doi:\doi{10.1016/j.beth.2008.10.006}
 #'
 #' Sen, P. K. (1967). A note on asymptotically distribution-free confidence
 #' bounds for P{X<Y}, based on two independent samples. \emph{The Annals of
@@ -72,20 +72,22 @@
 #' 
 
 NAP <- function(A_data, B_data, condition, outcome, 
-                baseline_phase = unique(condition)[1],
+                baseline_phase = NULL,
+                intervention_phase = NULL,
                 improvement = "increase", 
-                SE = "unbiased", confidence = .95) {
+                SE = "unbiased", confidence = .95, trunc_const = FALSE) {
   
   calc_ES(A_data = A_data, B_data = B_data, 
           condition = condition, outcome = outcome, 
           baseline_phase = baseline_phase,
+          intervention_phase = intervention_phase,
           ES = "NAP", improvement = improvement, SE = SE, 
-          confidence = confidence)
+          confidence = confidence, trunc_const = trunc_const)
 }
   
 calc_NAP <- function(A_data, B_data, 
                      improvement = "increase", 
-                     SE = "unbiased", confidence = .95, ...) {
+                     SE = "unbiased", confidence = .95, trunc_const = FALSE, ...) {
   
   if (improvement=="decrease") {
     A_data <- -1 * A_data
@@ -119,6 +121,7 @@ calc_NAP <- function(A_data, B_data,
     }
     
     res$SE <- sqrt(V)  
+    if (trunc_const) res$trunc <- trunc
   } 
   
   if (!is.null(confidence)) {
@@ -165,30 +168,35 @@ calc_NAP <- function(A_data, B_data,
 #' 
 
 Tau <- function(A_data, B_data, condition, outcome, 
-                baseline_phase = unique(condition)[1],
+                baseline_phase = NULL,
+                intervention_phase = NULL,
                 improvement = "increase", 
-                SE = "unbiased", confidence = .95) {
+                SE = "unbiased", confidence = .95, trunc_const = FALSE) {
   
   calc_ES(A_data = A_data, B_data = B_data, 
           condition = condition, outcome = outcome, 
           baseline_phase = baseline_phase,
+          intervention_phase = intervention_phase,
           ES = "Tau", improvement = improvement, SE = SE, 
-          confidence = confidence)
+          confidence = confidence, trunc_const = trunc_const)
   
 }
 
 calc_Tau <- function(A_data, B_data, 
                      improvement = "increase", 
                      SE = "unbiased", CI = TRUE, 
-                     confidence = .95, ...) {
+                     confidence = .95, trunc_const = FALSE, ...) {
   
   nap <- calc_NAP(A_data = A_data, B_data = B_data, 
                   improvement = improvement, 
-                  SE = SE, CI = CI, confidence = confidence)
+                  SE = SE, CI = CI, confidence = confidence, trunc_const = trunc_const)
   
   res <- data.frame(ES = "Tau", Est = 2 * nap$Est - 1, stringsAsFactors = FALSE)
   
-  if (SE != "none") res$SE <- 2 * nap$SE
+  if (SE != "none") {
+    res$SE <- 2 * nap$SE
+    if (trunc_const) res$trunc <- 2 * nap$trunc
+  }
   
   if (!is.null(confidence)) {
     res$CI_lower <- 2 * nap$CI_lower - 1
@@ -232,12 +240,14 @@ calc_Tau <- function(A_data, B_data,
 #' 
 
 Tau_U <- function(A_data, B_data, condition, outcome, 
-                  baseline_phase = unique(condition)[1],
+                  baseline_phase = NULL,
+                  intervention_phase = NULL,
                   improvement = "increase") {
   
   calc_ES(A_data = A_data, B_data = B_data, 
           condition = condition, outcome = outcome, 
           baseline_phase = baseline_phase,
+          intervention_phase = intervention_phase,
           ES = "Tau_U", improvement = improvement)
 }
   
@@ -274,6 +284,12 @@ calc_Tau_U <- function(A_data, B_data, improvement = "increase", ...) {
 #'   \code{\link{Tau}}, but not necessarily unbiased for \code{\link{Tau_BC}}.
 #'   None of the standard error formulas account for the additional uncertainty
 #'   due to use of the baseline trend correction.
+#' @param Kendall logical value indicating whether to use Kendall's rank
+#'   correlation to calculate the Tau effect size measure. If \code{TRUE}, the
+#'   Kendall's rank correlation (with adjustment for ties) is calculated between
+#'   the data and a dummy coded phase variable, which is consistent with the
+#'   method used in Tarlow (2017). Default is \code{FALSE}, which calculates
+#'   \code{\link{Tau}} (non-overlap) index (without adjustment for ties).
 #' @param pretest_trend significance level for the initial baseline trend test.
 #'   The raw data are corrected and \code{\link{Tau_BC}} is calculated only if
 #'   the baseline trend is statistically significant. Otherwise,
@@ -281,6 +297,8 @@ calc_Tau_U <- function(A_data, B_data, improvement = "increase", ...) {
 #'   \code{FALSE}, which always adjusts for the baseline trend.
 #' @param report_correction logical value indicating whether to report the
 #'   baseline corrected slope and intercept values. Default is \code{FALSE}.
+#' @param warn logical value indicating whether to print a message regarding the
+#'   outcome of the baseline trend test. Default is \code{TRUE}.
 #' @inheritParams NAP
 #'
 #' @details Tau-BC is an elaboration of the \code{\link{Tau}} that includes a
@@ -290,24 +308,31 @@ calc_Tau_U <- function(A_data, B_data, improvement = "increase", ...) {
 #'   If \code{pretest_trend = FALSE} (the default), the first step involves
 #'   adjusting the outcomes for baseline trend estimated using Theil-Sen
 #'   regression. In the second step, the residuals from Theil-Sen regression are
-#'   used to calculate the \code{\link{Tau}} (non-overlap) index.
+#'   used to calculate the \code{Tau} (using either Kendall's rank correlation,
+#'   with adjustment for ties, or computing Tau directly, without adjustment for
+#'   ties).
 #'
 #'   Alternately, \code{pretest_trend} can be set equal to a significance level
-#'   between 0 and 1 (e.g. \code{pretest_trend = .05}, as suggested by Tarlow,
-#'   2017). In this case, the first step involves a significance test for the
+#'   between 0 and 1 (e.g. \code{pretest_trend = .05}, as suggested by Tarlow
+#'   (2017). In this case, the first step involves a significance test for the
 #'   slope of the baseline trend based on Kendall's rank correlation. If the
 #'   slope is not significantly different from zero, then no baseline trend
-#'   adjustment is made and Tau-BC is set equal to \code{\link{Tau}}. If the
+#'   adjustment is made and Tau-BC is set equal to \code{Tau} index. If the
 #'   slope is significantly different from zero, then in the second step, the
-#'   outcomes are adjusted for baseline trend using Theil-Sen regression and, in
-#'   the third step, the residuals from Theil-Sen regression are used to
-#'   calculate the \code{\link{Tau}} (non-overlap) index.
+#'   outcomes are adjusted for baseline trend using Theil-Sen regression. Then,
+#'   in the third step, the residuals from Theil-Sen regression are used to
+#'   calculate the \code{Tau} index. If \code{Kendall = FALSE} (the default),
+#'   then \code{\link{Tau}} (non-overlap) index is calculated. If \code{Kendall
+#'   = TRUE}, then Kendall's rank correlation is calculated, including
+#'   adjustment for ties, as in Tarlow (2017).
 #'
 #'   Note that the standard error formulas are based on the standard errors for
 #'   \code{\link{Tau}} (non-overlap) and they do not account for the additional
 #'   uncertainty due to use of the baseline trend correction (nor to the
 #'   pre-test for statistical significance of baseline trend, if used).
 #'
+#' @seealso \code{\link{Tau}}, \code{\link{Tau_U}}
+#' 
 #' @references Tarlow, K. R. (2017). An improved rank correlation effect size
 #'   statistic for single-case designs: Baseline corrected Tau. \emph{Behavior
 #'   modification, 41}(4), 427-467. doi:\doi{10.1177/0145445516676750}
@@ -325,27 +350,39 @@ calc_Tau_U <- function(A_data, B_data, improvement = "increase", ...) {
 #' @importFrom utils combn
 #'   
 
-Tau_BC <- function(A_data, B_data, condition, outcome, 
-                  baseline_phase = unique(condition)[1],
+Tau_BC <- function(A_data, B_data, condition, outcome,
+                  baseline_phase = NULL,
+                  intervention_phase = NULL,
                   improvement = "increase", 
                   SE = "unbiased", confidence = .95,
+                  trunc_const = FALSE,
+                  Kendall = FALSE,
                   pretest_trend = FALSE,
-                  report_correction = FALSE) {
+                  report_correction = FALSE,
+                  warn = TRUE
+                  ) {
   
   calc_ES(A_data = A_data, B_data = B_data, 
           condition = condition, outcome = outcome, 
           baseline_phase = baseline_phase,
+          intervention_phase = intervention_phase,
           ES = "Tau_BC", improvement = improvement,
-          SE = SE, confidence = confidence,
+          SE = SE, confidence = confidence, trunc_const = trunc_const,
+          Kendall = Kendall,
           pretest_trend = pretest_trend,
-          report_correction = report_correction)
+          report_correction = report_correction,
+          warn = warn
+          )
 }
 
 calc_Tau_BC <- function(A_data, B_data, 
                         improvement = "increase", 
                         SE = "unbiased", CI = TRUE,
-                        confidence = .95, pretest_trend = FALSE,
+                        confidence = .95, trunc_const = FALSE,
+                        Kendall = FALSE,
+                        pretest_trend = FALSE,
                         report_correction = FALSE, 
+                        warn = TRUE,
                         ...) {
   
   m <- length(A_data)
@@ -363,35 +400,71 @@ calc_Tau_BC <- function(A_data, B_data,
     
     if (pval_slope_A > pretest_trend) {
       
-      message("The baseline trend is not statistically significant. Tau is calculated without trend correction.")
+      if (warn) message("The baseline trend is not statistically significant. Tau is calculated without trend correction.")
+      adjust <- FALSE
       
-      res <- calc_Tau(A_data = A_data, B_data = B_data, 
-                      improvement = improvement, SE = SE, 
-                      CI = CI, confidence = confidence)
-      res$ES <- "Tau"
-      if (report_correction) res$pval_slope_A <- pval_slope_A
-      return(res)
+    } else {
+      adjust <- TRUE
     }
     
   } else if (pretest_trend != FALSE) {
     
     stop("The pretest_trend argument must be FALSE or a number between 0 and 1.")
     
-  } 
-    
+  } else {
+    adjust <- TRUE
+  }
+
+  # Calculate baseline trend coefficients  
   slopes <- apply(combn(m, 2), 2, function(x) diff(A_data[x]) / diff(session_A[x]))
   slope <- median(slopes)
   intercept <- median(A_data - session_A * slope)
+  
+  # Adjust if necessary
+  if (adjust) {
+    A_data <- A_data - intercept - slope * session_A
+    B_data <- B_data - intercept - slope * session_B
     
-  A_data_corrected <- A_data - intercept - slope * session_A
-  B_data_corrected <- B_data - intercept - slope * session_B
+  }
+  
+  if (Kendall) {
     
-  # Use calc_Tau()
-  res <- calc_Tau(A_data = A_data_corrected, B_data = B_data_corrected,
-                  improvement = improvement, SE = SE, 
-                  CI = CI, confidence = confidence)
-  res$ES <- "Tau-BC"
+    if (improvement == "decrease") {
+      A_data <- -1 * A_data
+      B_data <- -1 * B_data
+    }
     
+    # Tarlow (2017) approach to calculating Tau
+    
+    if (sd(c(A_data, B_data)) == 0) {
+      tau <- 0
+    } else {
+      res_Kendall <- Kendall::Kendall(c(A_data, B_data), 
+                                      c(rep(0L, m), rep(1L, n)))
+      
+      tau <- as.numeric(res_Kendall$tau)
+    }
+    
+    res <- data.frame(ES = "Tau-BC", Est = tau, stringsAsFactors = FALSE)
+    res$SE <- sqrt((2/(m+n)) * (1-(tau^2)))
+    
+    if (!is.null(confidence)) {
+      CI <- tau + c(-1, 1) * qnorm(1 - (1 - confidence) / 2) * res$SE
+      res$CI_lower <- CI[1]
+      res$CI_upper <- CI[2]
+    } 
+    
+  } else {
+    
+    # Calculate basic Tau (no adjustment for ties)
+    
+    res <- calc_Tau(A_data = A_data, B_data = B_data,
+                    improvement = improvement, SE = SE, 
+                    CI = CI, confidence = confidence, trunc_const = trunc_const)
+    res$ES <- "Tau-BC"
+    
+  } 
+  
   if (report_correction) {
     res$slope <- slope
     res$intercept <- intercept
@@ -432,12 +505,15 @@ calc_Tau_BC <- function(A_data, B_data,
 #' PND(A_data = A, B_data = B)
 #' 
 
-PND <- function(A_data, B_data, condition, outcome, 
-                baseline_phase = unique(condition)[1],
+PND <- function(A_data, B_data, condition, outcome,
+                baseline_phase = NULL,
+                intervention_phase = NULL,
                 improvement = "increase") {
   
   calc_ES(A_data = A_data, B_data = B_data, 
-          condition = condition, outcome = outcome, baseline_phase = baseline_phase,
+          condition = condition, outcome = outcome, 
+          baseline_phase = baseline_phase,
+          intervention_phase = intervention_phase,
           ES = "PND", improvement = improvement)
   
 }
@@ -485,12 +561,15 @@ calc_PND <- function(A_data, B_data, improvement = "increase", ...) {
 #' PEM(A_data = A, B_data = B)
 #' 
 
-PEM <- function(A_data, B_data, condition, outcome, 
-                baseline_phase = unique(condition)[1],
+PEM <- function(A_data, B_data, condition, outcome,
+                baseline_phase = NULL,
+                intervention_phase = NULL,
                 improvement = "increase") {
   
   calc_ES(A_data = A_data, B_data = B_data, 
-          condition = condition, outcome = outcome, baseline_phase = baseline_phase,
+          condition = condition, outcome = outcome, 
+          baseline_phase = baseline_phase,
+          intervention_phase = intervention_phase,
           ES = "PEM", improvement = improvement)
   
 }
@@ -550,12 +629,15 @@ calc_PEM <- function(A_data, B_data, improvement = "increase", ...) {
 #' PAND(A_data = A, B_data = B)
 #' 
 
-PAND <- function(A_data, B_data, condition, outcome, 
-                 baseline_phase = unique(condition)[1],
+PAND <- function(A_data, B_data, condition, outcome,
+                 baseline_phase = NULL,
+                 intervention_phase = NULL,
                  improvement = "increase") {
   
   calc_ES(A_data = A_data, B_data = B_data, 
-          condition = condition, outcome = outcome, baseline_phase = baseline_phase,
+          condition = condition, outcome = outcome, 
+          baseline_phase = baseline_phase,
+          intervention_phase = intervention_phase,
           ES = "PAND", improvement = improvement)
   
 }
@@ -606,12 +688,15 @@ calc_PAND <- function(A_data, B_data, improvement = "increase", ...) {
 #' IRD(A_data = A, B_data = B)
 #' 
 
-IRD <- function(A_data, B_data, condition, outcome, 
-                baseline_phase = unique(condition)[1],
+IRD <- function(A_data, B_data, condition, outcome,
+                baseline_phase = NULL,
+                intervention_phase = NULL,
                 improvement = "increase") {
   
   calc_ES(A_data = A_data, B_data = B_data, 
-          condition = condition, outcome = outcome, baseline_phase = baseline_phase,
+          condition = condition, outcome = outcome, 
+          baseline_phase = baseline_phase,
+          intervention_phase = intervention_phase,
           ES = "IRD", improvement = improvement)
   
 }

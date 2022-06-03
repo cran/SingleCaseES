@@ -1,3 +1,22 @@
+# SingleCaseES 0.6.0
+
+* Changes to batch_calc_ES()
+    * batch_calc_ES() now provides several additional options for weights to use when aggregating effect sizes, including weighting by nA (the number of baseline phase observations), nB (the number of treatment phase observations), nA * nB, or 1 / nA + 1 / nB.
+    * For aggregating effect sizes, batch_calc_ES() now defaults to equal-weighting (rather than inverse-variance weighting)
+    * For aggregating effect sizes, batch_calc_ES() now provides more informative error messages for effect sizes that do not have standard errors (and therefore cannot be aggregated with inverse-variance weights).
+    * Corrected a cosmetic bug in a warning message of batch_calc_ES() when scale argument is specified as a variable and ES includes "LOR".
+* Changes to functions for specific effect sizes
+    * Added intervention_phase argument to NAP(), SMD(), and other user-facing effect size calculation functions. 
+    * The SMD() function now reports the SD (baseline SD or pooled SD) used in the denominator of the standardized mean difference.
+    * The SMD() function now returns a warning instead of an error when the standard deviation is zero.
+    * Added option for Kendall's rank correlation in the Tau_BC() function.
+    * Added warn argument to Tau_BC() function, to control printing of messages regarding baseline trend test.
+* Changes to the SCD_effect_sizes shiny app
+    * The batch entry calculator now includes an interface for visualizing data series.
+    * The batch entry calculator now includes an interface for taking a subset of observations.
+    * Miscellaneous aesthetic and layout fixes.
+    * Added unit tests of shiny app results.
+
 # SingleCaseES 0.5.0
 
 * batch_calc_ES() gains an argument aggregate, for post-processing effect size estimates by averaging across the levels of a variable.
