@@ -1,5 +1,6 @@
 ## ----setup, include = FALSE---------------------------------------------------
-library(kableExtra)
+if (requireNamespace("kableExtra", quietly = TRUE)) library(kableExtra)
+
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -23,8 +24,11 @@ NAP(A_data = A, B_data = B)
 phase <- c(rep("A", 6), rep("B", 7))
 phase
 
+## -----------------------------------------------------------------------------
 outcome_dat <- c(A, B)
-outcome_dat 
+outcome_dat
+
+## -----------------------------------------------------------------------------
 NAP(condition = phase, outcome = outcome_dat)
 
 ## -----------------------------------------------------------------------------
@@ -39,6 +43,7 @@ NAP(condition = phase_rev, outcome = outcome_rev, baseline_phase = "A")
 ## -----------------------------------------------------------------------------
 NAP(condition = phase2, outcome = outcome_dat, 
     baseline_phase = "A", intervention_phase = "C")
+
 NAP(condition = phase2, outcome = outcome_dat, 
     baseline_phase = "B", intervention_phase = "C")
 
@@ -61,28 +66,18 @@ NAP(A_data = A, B_data = B, confidence = .99)
 
 NAP(A_data = A, B_data = B, confidence = .90)
 
-## -----------------------------------------------------------------------------
 NAP(A_data = A, B_data = B, confidence = NULL)    
 
 ## -----------------------------------------------------------------------------
 Tau(A_data = A, B_data = B)
-
 Tau_BC(A_data = A, B_data = B)
-
 PND(A_data = A, B_data = B)
-
 PEM(A_data = A, B_data = B)
-
 PAND(A_data = A, B_data = B)
-
 IRD(A_data = A, B_data = B)
-
 Tau_U(A_data = A, B_data = B)
 
 ## -----------------------------------------------------------------------------
-A <- c(20, 20, 26, 25, 22, 23)
-B <- c(28, 25, 24, 27, 30, 30, 29)
-
 SMD(A_data = A, B_data = B, improvement = "increase")
 
 SMD(A_data = A, B_data = B, improvement = "decrease")
@@ -94,6 +89,7 @@ SMD(A_data = A, B_data = B, std_dev = "pool")
 ## -----------------------------------------------------------------------------
 A <- c(20, 20, 26, 25, 22, 23)
 B <- c(28, 25, 24, 27, 30, 30, 29)
+
 LRRi(A_data = A, B_data = B, scale = "percentage")
 
 LRRi(A_data = A, B_data = B, improvement = "decrease", scale = "percentage")
@@ -101,6 +97,7 @@ LRRi(A_data = A, B_data = B, improvement = "decrease", scale = "percentage")
 ## -----------------------------------------------------------------------------
 A <- c(20, 20, 26, 25, 22, 23)
 B <- c(28, 25, 24, 27, 30, 30, 29)
+
 LRRi(A_data = A, B_data = B, scale = "count")
 LRRi(A_data = A, B_data = B, scale = "count", improvement = "decrease")
 
@@ -125,7 +122,6 @@ LOR(A_data = A_pct/100, B_data = B_pct/100, scale = "proportion")
 LOR(A_data = A_pct, B_data = B_pct, scale = "count")
 
 LOR(A_data = A_pct, B_data = B_pct, scale = "proportion")
-
 
 ## -----------------------------------------------------------------------------
 LOR(A_data = A_pct, B_data = B_pct,
@@ -152,6 +148,12 @@ calc_ES(condition = phase, outcome = outcome, baseline_phase = "A",
         ES = c("NAP","PND","Tau-U"))
 
 ## -----------------------------------------------------------------------------
+calc_ES(A_data = A, B_data = B, ES = "SMD")
+
+## -----------------------------------------------------------------------------
+calc_ES(A_data = A, B_data = B, ES = c("NAP", "PND", "Tau-U"))
+
+## -----------------------------------------------------------------------------
 calc_ES(A_data = A, B_data = B, ES = "all")
 
 ## -----------------------------------------------------------------------------
@@ -161,15 +163,13 @@ calc_ES(A_data = A, B_data = B, ES = "NOM")
 calc_ES(A_data = A, B_data = B, ES = "parametric")
 
 ## -----------------------------------------------------------------------------
-calc_ES(A_data = A, B_data = B, ES = "NOM", improvement = "decrease")
+calc_ES(A_data = A, B_data = B)
 
+## -----------------------------------------------------------------------------
+calc_ES(A_data = A, B_data = B, ES = "NOM", improvement = "decrease")
 
 ## -----------------------------------------------------------------------------
 calc_ES(A_data = A, B_data = B, ES = "NOM", improvement = "decrease", confidence = NULL)
-
-
-## -----------------------------------------------------------------------------
-calc_ES(A_data = A, B_data = B, ES = "parametric", scale = "count")
 
 ## -----------------------------------------------------------------------------
 calc_ES(A_data = A, B_data = B, ES = c("NAP","PND","SMD"))
@@ -185,10 +185,17 @@ knitr::kable(head(McKissick, n = 10))
 ## -----------------------------------------------------------------------------
 data(Schmidt2007)
 
-## ---- echo = F----------------------------------------------------------------
-knitr::kable(head(Schmidt2007[,c("Case_pseudonym", "Behavior_type", "Session_number", "Outcome", "Condition", "Phase_num", "Metric", "Session_length", "direction", "n_Intervals")], n = 10), longtable = TRUE) %>%
+## ---- echo = FALSE------------------------------------------------------------
+Schmidt_kable <- 
+  knitr::kable(head(subset(Schmidt2007,select = c(Case_pseudonym, Behavior_type, Session_number, Outcome, Condition, Phase_num, Metric, Session_length, direction, n_Intervals)), n = 10), longtable = TRUE)
+
+if (requireNamespace("kableExtra", quietly = TRUE)) {
+  Schmidt_kable %>%
   kable_styling() %>%
   scroll_box(width = "100%")
+} else {
+  Schmidt_kable
+}
 
 ## -----------------------------------------------------------------------------
 args(batch_calc_ES)
@@ -201,22 +208,30 @@ mckissick_ES <- batch_calc_ES(dat = McKissick,
               improvement = "decrease",
               ES = c("NAP", "PND"))
 
-## ---- echo = F----------------------------------------------------------------
+## ---- echo = FALSE------------------------------------------------------------
 kable(mckissick_ES) 
 
 ## -----------------------------------------------------------------------------
-schmidt_ES <- batch_calc_ES(dat = Schmidt2007,
-              grouping = c(Case_pseudonym, Behavior_type, Phase_num), 
-              condition = Condition,
-              outcome = Outcome, 
-              improvement = direction,
-              ES = c("NAP", "LRRi"))
+schmidt_ES <- batch_calc_ES(
+  dat = Schmidt2007,
+  grouping = c(Case_pseudonym, Behavior_type, Phase_num), 
+  condition = Condition,
+  outcome = Outcome, 
+  improvement = direction,
+  ES = c("NAP", "LRRi")
+)
 
-## ---- echo = F----------------------------------------------------------------
-kable(schmidt_ES) %>%
-  kable_styling() %>%
-  scroll_box(width = "100%", height = "800px", 
-             fixed_thead = list(enabled = TRUE, background = "green"))
+## ---- echo = FALSE------------------------------------------------------------
+if (requireNamespace("kableExtra", quietly = TRUE)) {
+  kable(schmidt_ES, digits = 3) %>%
+    kable_styling() %>%
+    scroll_box(
+      width = "100%", height = "800px", 
+      fixed_thead = list(enabled = TRUE, background = "green")
+    )
+} else {
+  knitr::kable(schmidt_ES, digits = 3)
+}
 
 ## -----------------------------------------------------------------------------
 schmidt_ES_agg <- 
@@ -230,7 +245,7 @@ schmidt_ES_agg <-
     ES = "NAP"
   )
 
-## ---- echo = F----------------------------------------------------------------
+## ---- echo = FALSE------------------------------------------------------------
 kable(schmidt_ES_agg) %>%
   kable_styling()
 
@@ -247,9 +262,14 @@ schmidt_ES_agg <-
     ES = "NAP"
   )
 
-## ---- echo = F----------------------------------------------------------------
-kable(schmidt_ES_agg) %>%
-  kable_styling()
+
+## ---- echo = FALSE------------------------------------------------------------
+if (requireNamespace("kableExtra", quietly = TRUE)) {
+  kable(schmidt_ES_agg, digits = 3) %>%
+    kable_styling()
+} else {
+  knitr::kable(schmidt_ES_agg, digits = 3)
+}
 
 ## -----------------------------------------------------------------------------
 mckissick_ES <- batch_calc_ES(dat = McKissick,
@@ -261,8 +281,8 @@ mckissick_ES <- batch_calc_ES(dat = McKissick,
               observation_length = 20,
               ES = "parametric")
 
-## ---- echo = F----------------------------------------------------------------
-kable(mckissick_ES)
+## ---- echo = FALSE------------------------------------------------------------
+knitr::kable(mckissick_ES, digits = 3)
 
 ## -----------------------------------------------------------------------------
 schmidt_ES <- batch_calc_ES(dat = Schmidt2007,
@@ -275,11 +295,17 @@ schmidt_ES <- batch_calc_ES(dat = Schmidt2007,
               intervals = n_Intervals,
               ES = c("parametric"))
 
-## -----------------------------------------------------------------------------
-kable(schmidt_ES) %>%
-  kable_styling() %>%
-  scroll_box(width = "100%", height = "800px", 
-             fixed_thead = list(enabled = TRUE, background = "green"))
+## ---- echo = FALSE------------------------------------------------------------
+if (requireNamespace("kableExtra", quietly = TRUE)) {
+  kable(schmidt_ES, digits = 3) %>%
+    kable_styling() %>%
+    scroll_box(
+      width = "100%", height = "800px", 
+      fixed_thead = list(enabled = TRUE, background = "green")
+    )
+} else {
+  knitr::kable(schmidt_ES, digits = 3)
+}
 
 ## -----------------------------------------------------------------------------
 mckissick_wide_ES <- 
@@ -293,8 +319,8 @@ mckissick_wide_ES <-
     format = "wide"
   )
 
-## ---- echo = F----------------------------------------------------------------
-kable(mckissick_wide_ES)
+## ---- echo = FALSE------------------------------------------------------------
+knitr::kable(mckissick_wide_ES)
 
 ## -----------------------------------------------------------------------------
 batch_calc_ES(dat = McKissick,

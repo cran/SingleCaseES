@@ -9,14 +9,14 @@ ui <- navbarPage(title = "Single-case effect size calculator",
                                                 includeMarkdown("markdown/About.md")),
                                        tabPanel("Accessing the calculator", 
                                                 includeMarkdown("markdown/Accessing.md")),
-                                       tabPanel("Using the single-entry calculator", 
-                                                includeMarkdown("markdown/using_single.md")),
-                                       tabPanel("Using the batch-entry calculator", 
-                                                includeMarkdown("markdown/using_batch.md")),
+                                       tabPanel("Using the single-series calculator", 
+                                                includeMarkdown("markdown/using_single_series.md")),
+                                       tabPanel("Using the multiple-series calculator", 
+                                                includeMarkdown("markdown/using_multiple_series.md")),
                                        tabPanel("Example data", 
                                                 includeMarkdown("markdown/example-data.md"))
                           )),
-                 tabPanel("Calculator",
+                 tabPanel("Single-Series Calculator",
                           fluidRow(column(12,
                                           h3("Data input"),
                                           h5("Enter data values, separated by commas, spaces, or tabs.")
@@ -156,7 +156,7 @@ ui <- navbarPage(title = "Single-case effect size calculator",
                             
                           )
                  ),
-                 tabPanel("Batch Entry",
+                 tabPanel("Multiple-Series Calculator",
                           tabsetPanel(
                             id = "BatchEntryTabs",
                             tabPanel("Data",
@@ -191,6 +191,8 @@ ui <- navbarPage(title = "Single-case effect size calculator",
                                      sidebarLayout(
                                        sidebarPanel(
                                          style = "max-height: 800px; overflow-y: auto",
+                                         conditionalPanel(condition = "input.dat_type == 'dat' | input.dat_type == 'xlsx'",
+                                                          checkboxInput("calcPhasePair", "Calculate phase pair numbers for ABAB designs.", value = FALSE)),
                                          uiOutput("clusterPhase"),
                                          uiOutput("baseDefine"),
                                          uiOutput("treatDefine"),
@@ -216,7 +218,6 @@ ui <- navbarPage(title = "Single-case effect size calculator",
                                          br()
                                        ),
                                        mainPanel(plotOutput('batchPlot', height = "auto"))
-                                       # mainPanel(tableOutput("datview3"))
                                      )
                                      
                             ),
@@ -257,6 +258,9 @@ ui <- navbarPage(title = "Single-case effect size calculator",
                                                                        choices = c("equal", "1/V", "nA", "nB", "nA*nB", "1/nA + 1/nB"))
                                                           ),
                                          numericInput("bconfidence", label = "Confidence level (for any effect size with standard errors)", value = 95, min = 0, max = 100),
+                                         numericInput("bdigits","Digits",
+                                                      value = 2, min = 1, 
+                                                      max = 16, step = 1),
                                          radioButtons("resultsformat", "Long or wide format?", c("Long" = "long", "Wide" = "wide"), inline = TRUE),
                                          conditionalPanel(condition = "input.bESpar.length > 0 || input.bESno.length > 0", 
                                                           actionButton("batchest", "Estimate"))

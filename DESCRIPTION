@@ -1,11 +1,12 @@
 Package: SingleCaseES
 Type: Package
 Title: A Calculator for Single-Case Effect Sizes
-Version: 0.6.0
+Version: 0.6.1
 Authors@R: c(
   person(c("James","E."), "Pustejovsky", email = "jepusto@gmail.com", role = c("aut", "cre")),
   person("Man", "Chen", email = "manchen9005@gmail.com", role = "aut"),
-  person(c("Daniel","M."), "Swan", email = "dms031000@gmail.com", role = "aut")
+  person(c("Daniel","M."), "Swan", email = "dms031000@gmail.com", role = "aut"),
+  person("Paulina", "Grekov", email = "grekov.paulina@gmail.com", role = "ctb")
   )
 Description: 
   Provides R functions for calculating basic effect size indices for 
@@ -20,18 +21,19 @@ BugReports: https://github.com/jepusto/SingleCaseES/issues
 License: GPL-3
 Imports: stats, purrr, magrittr, dplyr, tidyr, rlang, tidyselect, utils
 Suggests: spelling, shiny, shinytest, stringr, rvest, xml2, ggplot2,
-        purrrlyr, testthat, markdown, knitr, rmarkdown, prettydoc,
+        purrrlyr, testthat, markdown, knitr, rmarkdown, cleanrmd,
         Kendall, kableExtra, covr, readxl, glue, janitor, rclipboard
 LazyData: TRUE
 RoxygenNote: 7.1.2
 Encoding: UTF-8
 Language: en-US
-VignetteBuilder: knitr, rmarkdown, prettydoc
+VignetteBuilder: knitr, rmarkdown, cleanrmd
 NeedsCompilation: no
-Packaged: 2022-06-02 17:15:38 UTC; James
+Packaged: 2022-07-06 19:28:19 UTC; James
 Author: James E. Pustejovsky [aut, cre],
   Man Chen [aut],
-  Daniel M. Swan [aut]
+  Daniel M. Swan [aut],
+  Paulina Grekov [ctb]
 Maintainer: James E. Pustejovsky <jepusto@gmail.com>
 Repository: CRAN
-Date/Publication: 2022-06-03 08:50:24 UTC
+Date/Publication: 2022-07-06 23:10:05 UTC
