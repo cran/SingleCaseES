@@ -1,3 +1,16 @@
+# SingleCaseES 0.7.1
+
+* Fixed a bug in the SCD_effect_sizes app (multiple-series calculator) which led to an error when calculating `PoGO` from an uploaded .xlsx file.
+* Added several example datasets to the package.
+
+# SingleCaseES 0.7.0
+
+* Fixed a bug in the SCD_effect_sizes app (multiple-series calculator), which led to incorrect R syntax when `phase_pair_calculated` is included as a grouping variable.
+* Added function for calculating Percent of Goal Obtained effect size estimate.
+* Updates to SCD_effect_sizes() shiny app.
+    * Added Percent of Goal Obtained effect size measure to single-series calculator and multiple-series calculator.
+* Changes to internal functions because of syntax changes in dplyr 1.1.0.
+
 # SingleCaseES 0.6.1
 
 * Revised in-app documentation for the SCD_effect_sizes web app. Added links to video demonstrations.

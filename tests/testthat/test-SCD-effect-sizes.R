@@ -44,10 +44,9 @@ test_that("Title and tabs are correct", {
 
 
 
-check_single <- function(app, ES, ES_family, A_data, B_data, Kendall = FALSE) {
+check_single <- function(app, ES, ES_family, A_data, B_data, Kendall = FALSE, goal = NULL) {
   
   improvement <- ifelse(ES == "LRRd", "decrease", "increase")
-  
   
   app$setInputs(
     SCD_es_calculator = "Single-Series Calculator",
@@ -66,6 +65,9 @@ check_single <- function(app, ES, ES_family, A_data, B_data, Kendall = FALSE) {
     }
   } else if (ES_family == "Parametric") {
     app$setInputs(parametric_ES = ES, wait_=FALSE, values_=FALSE)
+    if (ES == "PoGO") {
+      app$setInputs(goal_level = goal, wait_=FALSE, values_=FALSE)
+    }
   }
   
   app$setInputs(improvement = improvement, digits = 5, wait_=FALSE, values_=FALSE)
@@ -96,17 +98,19 @@ test_that("Single-entry calculator works properly", {
                      LRRd = "Log Response Ratio (decreasing)",
                      LRRi = "Log Response Ratio (increasing)",
                      LRM = "Log Ratio of Medians",
+                     PoGO = "Percent of Goal Obtained",
                      SMD = "Standardized Mean Difference (within-case)")
 
   A_dat <- c(20, 20, 26, 25, 22, 23)
   B_dat <- c(28, 25, 24, 27, 30, 30, 29)
+  goal <- 40
   
   # app
   NOMs_name <- c("PND", "PAND", "PEM", "IRD", "Tau_U", "NAP", "Tau", "Tau_BC")
   NOMs_app <- map_dfr(NOMs_name, ~ check_single(app, .x, ES_family = "Non-overlap", A_data = A_dat, B_data = B_dat))
   
-  Parametric_name <- c("LOR", "LRRi", "LRRd", "LRM", "SMD")
-  Parametric_app <- map_dfr(Parametric_name, ~ check_single(app, .x, ES_family = "Parametric", A_data = A_dat, B_data = B_dat))
+  Parametric_name <- c("LOR", "LRRi", "LRRd", "LRM", "PoGO","SMD")
+  Parametric_app <- map_dfr(Parametric_name, ~ check_single(app, .x, ES_family = "Parametric", A_data = A_dat, B_data = B_dat, goal = goal))
   
   output_app <- 
     bind_rows(NOMs_app, Parametric_app) %>% 
@@ -124,7 +128,7 @@ test_that("Single-entry calculator works properly", {
   # package
   NOMs_pkg <- calc_ES(A_data = A_dat, B_data = B_dat, improvement = "increase", ES = NOMs_name)
   
-  Parametric_pkg <- calc_ES(A_data = A_dat, B_data = B_dat, improvement = "increase", ES = setdiff(Parametric_name, "LRRd"))
+  Parametric_pkg <- calc_ES(A_data = A_dat, B_data = B_dat, improvement = "increase", goal = goal, ES = setdiff(Parametric_name, "LRRd"))
   Parametric_pkg_LRRd <- calc_ES(A_data = A_dat, B_data = B_dat, improvement = "decrease", ES = "LRRd")
   
   output_pkg <- 
@@ -132,7 +136,8 @@ test_that("Single-entry calculator works properly", {
     mutate(
       ES = ifelse(ES %in% c("Tau-U", "Tau-BC"), ES, full_names[ES]),
       ES = as.character(ES),
-      across(-ES, ~ round(.x, 5)),
+      across(c(Est, SE, baseline_SD), ~ round(.x, 5)),
+      across(starts_with("CI_"), ~ formatC(.x, digits = 5, format = "f")),
       CI = paste("[", CI_lower, ", ", CI_upper, "]", sep = ""),
       CI = ifelse(is.na(SE), NA, CI),
     ) %>%
@@ -172,9 +177,9 @@ test_that("Single-entry calculator works properly", {
 
 
 
-check_batch <- function(app, example_dat, ES, digits = 4, Kendall = FALSE) {
+check_batch <- function(app, example_dat, ES, digits = 4, goal = NULL, Kendall = FALSE) {
   NOMs <- c("IRD", "NAP", "PAND", "PEM", "PND", "Tau", "Tau_BC", "Tau_U")
-  Parametrics <- c("LOR", "LRRd", "LRRi", "LRM", "SMD")
+  Parametrics <- c("LOR", "LRRd", "LRRi", "LRM", "PoGO","SMD")
   
   bESno <- ES[ES %in% NOMs]
   bESpar <- ES[ES %in% Parametrics]
@@ -211,6 +216,8 @@ check_batch <- function(app, example_dat, ES, digits = 4, Kendall = FALSE) {
     app$setInputs(btau_calculation = "Nlap", wait_=FALSE, values_=FALSE)
   }
   
+  app$setInputs(bcomgoal = goal, wait_=FALSE, values_=FALSE)
+  
   app$setInputs(batchest = "click")
   
   Sys.sleep(2)
@@ -235,17 +242,23 @@ test_that("Batch calculator is correct", {
   app <- ShinyDriver$new(appDir, loadTimeout = 6e+05)
 
   all_names <- c("IRD", "NAP", "PAND", "PEM", "PND", "Tau", "Tau_BC", "Tau_U",
-                 "LOR", "LRRd", "LRRi", "LRM", "SMD")
+                 "LOR", "LRRd", "LRRi", "LRM", "PoGO", "SMD")
+  
+  expect_error(check_batch(app, example_dat = "McKissick", ES = all_names, Kendall = FALSE))
   
   # Shiny app
   McKissick_app <- 
-    check_batch(app, example_dat = "McKissick", ES = all_names, Kendall = FALSE) %>% 
+    check_batch(app, example_dat = "McKissick", ES = all_names, Kendall = FALSE, goal = 1) %>% 
     select(-baseline_SD)
   
-  Schmidt_app <- check_batch(app, example_dat = "Schmidt2007", ES = all_names, Kendall = FALSE) 
+  Schmidt_app <- check_batch(app, example_dat = "Schmidt2007", ES = all_names, Kendall = FALSE, goal = 50) 
   
   Wright_app <- 
-    check_batch(app, example_dat = "Wright2012", ES = all_names, Kendall = FALSE) %>% 
+    check_batch(app, example_dat = "Wright2012", ES = all_names, Kendall = FALSE, goal = 0) %>% 
+    select(-baseline_SD)
+  
+  Olszewski_app <- 
+    check_batch(app, example_dat = "Olszewski2017", ES = all_names, Kendall = FALSE, goal = 20) %>%
     select(-baseline_SD)
 
   # Package
@@ -264,6 +277,7 @@ test_that("Batch calculator is correct", {
                   scale = "count",
                   std_dev = "baseline",
                   confidence = 0.95,
+                  goal = 1,
                   Kendall = FALSE,
                   pretest_trend = FALSE,
                   format = "long",
@@ -289,6 +303,7 @@ test_that("Batch calculator is correct", {
                     scale = Metric,
                     std_dev = "baseline",
                     confidence = 0.95,
+                    goal = 50,
                     Kendall = FALSE,
                     pretest_trend = FALSE,
                     format = "long",
@@ -311,6 +326,7 @@ test_that("Batch calculator is correct", {
                     scale = "count",
                     std_dev = "baseline",
                     confidence = 0.95,
+                    goal = 0,
                     Kendall = FALSE,
                     pretest_trend = FALSE,
                     format = "long",
@@ -319,10 +335,34 @@ test_that("Batch calculator is correct", {
     mutate(across(Est:CI_upper, ~ round(., 4L))) %>% 
     mutate(Participant = as.character(Participant)) %>% 
     select(-baseline_SD)
+  
+  data("Olszewski2017")
+  Olszewski_pkg <-
+    batch_calc_ES(dat = Olszewski2017,
+                  condition = "phase",
+                  outcome = "score",
+                  grouping = "behavior",
+                  phase_vals = c("A", "B"),
+                  direction = "increase",
+                  session_num = "session",
+                  scale = "count",
+                  intervals = NA,
+                  observation_length = NA,
+                  ES = all_names,
+                  std_dev = "baseline",
+                  confidence = 0.95,
+                  goal = 20,
+                  Kendall = FALSE,
+                  pretest_trend = FALSE,
+                  format = "long",
+                  warn = FALSE) %>%
+    select(-baseline_SD) %>%
+    mutate(across(Est:CI_upper, ~ round(., 4L)))
 
   expect_equal(McKissick_pkg, McKissick_app, check.attributes = FALSE)
   expect_equal(Schmidt_pkg, Schmidt_app, check.attributes = FALSE)
   expect_equal(Wright_pkg, Wright_app, check.attributes = FALSE)
+  expect_equal(Olszewski_pkg, Olszewski_app, check.attributes = FALSE)
   
   
   # Kendall == TRUE
@@ -330,6 +370,7 @@ test_that("Batch calculator is correct", {
   McKissick_app_Kendall <- check_batch(app, "McKissick", ES = "Tau_BC", Kendall = TRUE)
   Schmidt_app_Kendall <- check_batch(app, "Schmidt2007", ES = "Tau_BC", Kendall = TRUE)
   Wright_app_Kendall <- check_batch(app, "Wright2012", ES = "Tau_BC", Kendall = TRUE)
+  Olszewski_app_Kendall <- check_batch(app, "Olszewski2017", ES = "Tau_BC", Kendall = TRUE)
   
   # Package
   McKissick_pkg_Kendall <-
@@ -376,7 +417,6 @@ test_that("Batch calculator is correct", {
     ) %>%
     mutate(across(Est:CI_upper, ~ round(., 4L)))
   
-  data(Wright2012)
   Wright_pkg_Kendall <-
     batch_calc_ES(dat = Wright2012,
                   grouping = c(Participant),
@@ -399,9 +439,29 @@ test_that("Batch calculator is correct", {
     mutate(across(Est:CI_upper, ~ round(., 4L))) %>% 
     mutate(Participant = as.character(Participant))
   
+  Olszewski_pkg_Kendall <-
+    batch_calc_ES(dat = Olszewski2017,
+                  condition = "phase",
+                  outcome = "score",
+                  grouping = "behavior",
+                  phase_vals = c("A", "B"),
+                  direction = "increase",
+                  session_num = "session",
+                  scale = "count",
+                  intervals = NA,
+                  observation_length = NA,
+                  ES = "Tau-BC",
+                  confidence = 0.95,
+                  Kendall = TRUE,
+                  pretest_trend = FALSE,
+                  format = "long",
+                  warn = FALSE) %>%
+    mutate(across(Est:CI_upper, ~ round(., 4L)))
+  
   expect_equal(McKissick_pkg_Kendall, McKissick_app_Kendall, check.attributes = FALSE)
   expect_equal(Schmidt_pkg_Kendall, Schmidt_app_Kendall, check.attributes = FALSE)
   expect_equal(Wright_pkg_Kendall, Wright_app_Kendall, check.attributes = FALSE)
+  expect_equal(Olszewski_pkg_Kendall, Olszewski_app_Kendall, check.attributes = FALSE)
 
 })
 
@@ -562,7 +622,7 @@ test_that("calcPhasePair works in the app.", {
     bimprovement = "series"
   )
   
-  app$setInputs(bseldir = "Direction")
+  app$setInputs(bseldir = "Direction", wait_=FALSE, values_=FALSE)
   
   app$setInputs(
     BatchEntryTabs = "Estimate",
@@ -723,3 +783,132 @@ test_that("The bintervals and bobslength options work in the app.", {
   expect_equal(out_app_2, out_pkg_2, check.attributes = FALSE)
   
 })
+
+
+check_PoGO <- function(file) {
+  
+  app <- ShinyDriver$new(appDir, loadTimeout = 6e+05)
+  data_path <- file.path("..", "testdata", file)
+  
+  app$setInputs(SCD_es_calculator = "Multiple-Series Calculator")
+  
+  if (str_detect(file, "csv")) {
+    app$setInputs(dat_type = "dat", wait_ = FALSE, values_ = FALSE)
+    app$uploadFile(dat = data_path)
+  } else if (str_detect(file, "xlsx")) {
+    app$setInputs(dat_type = "xlsx", wait_ = FALSE, values_ = FALSE)
+    app$uploadFile(xlsx = data_path)
+  }
+  
+  app$setInputs(BatchEntryTabs = "Variables")
+  app$setInputs(calcPhasePair = TRUE)
+  app$setInputs(b_clusters = c("Study_ID", "Study_Case_ID"))
+  app$setInputs(b_aggregate = "phase_pair_calculated")
+  app$setInputs(b_phase = "Condition")
+  app$setInputs(session_number = "Session_number")
+  app$setInputs(b_out = "Outcome")
+  app$setInputs(BatchEntryTabs = "Plot")
+  app$setInputs(BatchEntryTabs = "Estimate")
+  app$setInputs(bESpar = c("PoGO"))
+  app$setInputs(bgoalLevel = c("goals"))
+  app$setInputs(bgoalvar = c("Goal_Level"))
+  app$setInputs(bdigits = 4)
+  app$setInputs(batchest = "click")
+  
+  Sys.sleep(2)
+  
+  output_app <- app$getValue(name = "batchTable")
+  
+  output_app_table <-
+    read_html(output_app) %>% 
+    html_table(fill = TRUE) %>%
+    as.data.frame() %>%
+    mutate(across(Est:CI_upper, ~ ifelse(. == "-", NA, .))) %>%
+    mutate(across(Est:CI_upper, as.numeric))
+  
+  return(output_app_table)
+  
+}
+
+test_that("The multiple series calculator works for PoGO.", {
+  
+  skip_on_cran()
+  
+  out_app_csv <- 
+    check_PoGO(file = "CSESdata.csv") %>%
+    mutate(Study_ID = as.character(Study_ID))
+  
+  out_app_xlsx <- 
+    check_PoGO(file = "CSESdata.xlsx") %>%
+    mutate(Study_ID = as.character(Study_ID))
+  
+  data <- read.csv("../testdata/CSESdata.csv") %>%
+    janitor::clean_names(case = "parsed")
+
+  xlsx_data <- readxl::read_excel("../testdata/CSESdata.xlsx") %>%
+    janitor::clean_names(case = "parsed")
+  
+  out_pkg_csv <-
+    data %>% 
+    mutate(Study_ID = as.character(Study_ID)) %>% 
+    group_by(Study_ID, Study_Case_ID) %>% 
+    mutate(
+      phase_pair_calculated = calc_phase_pairs(Condition, session = Session_number)
+    ) %>% 
+    ungroup() %>%
+    batch_calc_ES(
+      grouping = c(Study_ID, Study_Case_ID),
+      condition = Condition,
+      outcome = Outcome,
+      aggregate = phase_pair_calculated,
+      session_number = Session_number,
+      baseline_phase = "A",
+      intervention_phase = "B",
+      ES = c("PoGO"),
+      improvement = "increase",
+      pct_change = FALSE,
+      scale = Procedure,
+      goal = Goal_Level,
+      format = "long"
+    ) %>%
+    mutate(
+      across(Est:CI_upper, ~ round(., 4L))
+    ) %>%
+    as.data.frame()
+  
+  out_pkg_xlsx <-
+    xlsx_data %>% 
+    mutate(Study_ID = as.character(Study_ID)) %>% 
+    group_by(Study_ID, Study_Case_ID) %>% 
+    mutate(
+      phase_pair_calculated = calc_phase_pairs(Condition, session = Session_number)
+    ) %>% 
+    ungroup() %>%
+    batch_calc_ES(
+      grouping = c(Study_ID, Study_Case_ID),
+      condition = Condition,
+      outcome = Outcome,
+      aggregate = phase_pair_calculated,
+      session_number = Session_number,
+      baseline_phase = "A",
+      intervention_phase = "B",
+      ES = c("PoGO"),
+      improvement = "increase",
+      pct_change = FALSE,
+      scale = Procedure,
+      goal = Goal_Level,
+      format = "long"
+    ) %>%
+    mutate(
+      across(Est:CI_upper, ~ round(., 4L))
+    ) %>%
+    as.data.frame()
+
+  expect_equal(out_pkg_csv, out_pkg_xlsx, check.attributes = FALSE)
+  expect_equal(out_app_csv, out_app_xlsx, check.attributes = FALSE)
+  expect_equal(out_app_csv, out_pkg_csv, check.attributes = FALSE)
+  expect_equal(out_app_xlsx, out_pkg_xlsx, check.attributes = FALSE)
+  
+  
+})
+

@@ -1,7 +1,7 @@
 Package: SingleCaseES
 Type: Package
 Title: A Calculator for Single-Case Effect Sizes
-Version: 0.6.1
+Version: 0.7.1
 Authors@R: c(
   person(c("James","E."), "Pustejovsky", email = "jepusto@gmail.com", role = c("aut", "cre")),
   person("Man", "Chen", email = "manchen9005@gmail.com", role = "aut"),
@@ -24,16 +24,16 @@ Suggests: spelling, shiny, shinytest, stringr, rvest, xml2, ggplot2,
         purrrlyr, testthat, markdown, knitr, rmarkdown, cleanrmd,
         Kendall, kableExtra, covr, readxl, glue, janitor, rclipboard
 LazyData: TRUE
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 Encoding: UTF-8
 Language: en-US
 VignetteBuilder: knitr, rmarkdown, cleanrmd
 NeedsCompilation: no
-Packaged: 2022-07-06 19:28:19 UTC; James
+Packaged: 2023-03-05 00:40:05 UTC; jepusto
 Author: James E. Pustejovsky [aut, cre],
   Man Chen [aut],
   Daniel M. Swan [aut],
   Paulina Grekov [ctb]
 Maintainer: James E. Pustejovsky <jepusto@gmail.com>
 Repository: CRAN
-Date/Publication: 2022-07-06 23:10:05 UTC
+Date/Publication: 2023-03-05 06:40:02 UTC

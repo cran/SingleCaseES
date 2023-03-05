@@ -67,7 +67,7 @@ NULL
 #' @source McKissick, C., Hawkins, R. O., Lentz, F. E., Hailley, J., & McGuire, S. (2010). 
 #' Randomizing multiple contingency components to decrease disruptive behaviors and increase 
 #' student engagement in an urban second-grade classroom. \emph{Psychology in the Schools, 47}(9), 
-#' 944–959. https://doi.org/10.1002/pits.20516
+#' 944-959. https://doi.org/10.1002/pits.20516
 NULL
 
 #' @title Shogren et al. (2004)
@@ -97,11 +97,11 @@ NULL
 #' @name Shogren
 #' @source Shogren, K. A., Faggella-Luby, M. N., Bae, S. J., & Wehmeyer, M. L. (2004). 
 #' The effect of choice-making as an intervention for problem behavior. \emph{Journal 
-#' of Positive Behavior Interventions, 6}(4), 228–237. 
+#' of Positive Behavior Interventions, 6}(4), 228-237. 
 #'
 #' @references Pustejovsky, J.E. (2015). Measurement-comparable effect 
 #' sizes for single-case studies of free-operant behavior. 
-#' \emph{Psychological Methods, 20}(3), 342–359.
+#' \emph{Psychological Methods, 20}(3), 342-359.
 #' 
 
 NULL
@@ -184,4 +184,288 @@ NULL
 #' Utilizing social stories to increase prosocial behavior and reduce 
 #' problem behavior in young children with autism. 
 #' \emph{Child Development Research}, 2012, 1-13. doi:10.1155/2012/357291
+NULL
+
+#' @title Crozier and Tincani (2015)
+#' 
+#' @description Data from an ABAB design that evaluated a social story intervention 
+#' on the disruptive behavior of a preschool child with autism. The dependent variable, 
+#' number of disruptions, was measured using frequency counting for a thirty minute observation
+#' session. The variables are as follows:
+#' 
+#' \itemize{
+#' \item \code{session}. Within-series session-number.
+#' \item \code{phase}. Lable for each unique phase (e.g., A1 is the first baseline phase, B2 is the second treatment phase).
+#' \item \code{score}. Value for the outcome.
+#' }
+#' 
+#' @docType data
+#' @keywords datasets
+#' @format A data frame with 24 rows and 3 variables
+#' @name Crozier2005
+#' @source Crozier, S., & Tincani, M. J. (2005). Using a modified social story to decrease disruptive behavior of a child with autism. 
+#' Focus on Autism and Other Developmental Disabilities, 20(3), 150-157.
+NULL
+
+#' @title Olszewski, et al. (2017)
+#'
+#' @description Data from a multiple baseline design across behavior looking at
+#'   four fluency measures (blends, segmenting, first part ID, first sound ID).
+#'   The dependent variable is a score on a subtest, with a maximum score of 20.
+#'   The variables are as follows:
+#'
+#' \itemize{
+#'   \item \code{behavior}. Outcome measure description (blends, segmenting, first part ID, or first sound ID)
+#'   \item \code{session}. Within-series session-number
+#'   \item \code{phase}. Label for each unique phase (A for baseline, B for treatment)
+#'   \item \code{score}. Value for the outcome.
+#'   \item \code{Include}. Value for inclusion in POGO calculation (0 if included in article, 1 if not included)
+#' }
+#'
+#' @docType data
+#' @keywords datasets
+#' @format A data frame with 72 rows and 4 variables
+#' @name Olszewski2017
+#' @source Olszewski, A., Soto, X., & Goldstein, H. (2017). Modeling alphabet
+#'   skills as instructive feedback within a phonological awareness
+#'   intervention. American Journal of Speech-Language Pathology, 26(3),
+#'   769-790. doi:10.1044/2017_AJSLP-16-0042
+NULL
+
+#' @title English, et al. (1997)
+#'
+#' @description Data from a multiple baseline design across participants
+#'   conducted by English, et al. (1997), which evaluated the effects of
+#'   peer-training on interaction skills. This dependent variable, number of
+#'   communicative acts directed by the participant to their peers, was measured
+#'   using frequency counting for a 10-minute observation session. The variables
+#'   are as follows:
+#'
+#' \itemize{
+#'   \item \code{case}. Participant pseudonym given by author
+#'   \item \code{session}. Within-series session-number
+#'   \item \code{phase}. Label for each unique phase (A for baseline, B for treatment)
+#'   \item \code{score}. Value for the outcome.
+#' }
+#'
+#' @docType data
+#' @keywords datasets
+#' @format A data frame with 59 rows and 4 variables
+#' @name English1997
+#' @source English, K., Goldstein, H., Shafer, K., & Kaczmarek, L. (1997).
+#'   Promoting interactions among preschoolers with and without disabilities:
+#'   Effects of a buddy skills-training program. Exceptional Children, 63(2),
+#'   229-243.
+NULL
+
+#' @title Facon, et al. (2008)
+#'
+#' @description Data from a changing criterion design conducted by Facon, et al.
+#'   (2008), which evaluated two operant learning procedures, shaping and
+#'   fading, for treating selective mutism. The dependent variable, average
+#'   speech loudness in dB, was measured during 15-minute observation sessions.
+#'   The variables are as follows:
+#'
+#' \itemize{
+#'   \item \code{session}. Within-series session-number
+#'   \item \code{phase}. Label for each unique phase (A for baseline, each following for a change in criteria.
+#'   \item \code{score}. Value for the outcome.
+#'   \item \code{criterion}. The fixed criterion value for each of the phases. The student moved to the next criterion when 80% of their utterances are equal or greater than the current criterion during at least 3 consecutive sessions. The first criterion was set at 43 dB with each following criterion equal to the mean score for the five best trials in the previous phase.
+#' }
+#'
+#' @docType data
+#' @keywords datasets
+#' @format A data frame with 49 rows and 4 variables
+#' @name Facon2008
+#' @source Facon, B., Sahiri, S., & Riviere, V. (2008). A controlled single-case
+#'   treatment of severe long-term selective mutism in a child with mental
+#'   retardation. Behavior Therapy, 39, 313-321
+NULL
+
+#' @title Spencer et al. (2012)
+#' 
+#' @description Data from a repeated acquisition single-case experimental design 
+#' evaluating vocabulary knowledge using an expressive definition task.
+#' The variables are as follows:
+#' 
+#' \itemize{
+#' \item \code{Observation}. Participant number.
+#' \item \code{Book}. Book used for evaluation.
+#' \item \code{Pre}. Pre-intervention score on the expressive definition task.
+#' \item \code{Post}. Post-intervention score on the expressive definition task.
+#' }
+#' 
+#' @docType data
+#' @keywords datasets
+#' @format A data frame with 81 rows and 4 variables
+#' @name Spencer2012
+#' @source Spencer, E., Goldstein, H., Sherman, A., Noe, S., Tabbah, R., Ziolkowski, R., & Schneider, N. (2012). 
+#' Effects of an automated vocabulary and comprehension intervention: An early efficacy study. Journal of Early Intervention, 
+#' 34, 195-221. doi:10.1177/1053815112471990
+NULL
+
+#' @title Kelley et al. (2015)
+#'
+#' @description Data from a randomized control trial with embedded repeated
+#'   acquisition single- case experimental design evaluating vocabulary
+#'   knowledge using an expressive definition task. The variables are as
+#'   follows:
+#'
+#' \itemize{
+#' \item \code{condition}. Indicates whether control or treatment group.
+#' \item \code{observation}. Identifier for participant
+#' \item \code{unit}. Classroom unit.
+#' \item \code{Pre}. Pre-intervention score on the expressive definition task.
+#' \item \code{Post}. Post-intervention score on the expressive definition task.
+#' }
+#'
+#' @docType data
+#' @keywords datasets
+#' @format A data frame with 54 rows and 5 variables
+#' @name Kelley2015
+#' @source Kelley, E. S., Goldstein, H., Spencer, T., & Sherman, A. (2015).
+#'   Effects of automated Tier 2 storybook intervention on vocabulary and
+#'   comprehension learning in preschool children with limited oral language
+#'   skills. Early Childhood Research Quarterly, 31, 47-61.
+#'   doi:10.1016/j.ecresq.2014.12.004
+NULL
+
+#' @title Peters-Sanders et al. (2020)
+#'
+#' @description Data from a Repeated acquisition single-case experimental design
+#'   evaluating vocabulary knowledge using an expressive definition task. The
+#'   variables are as follows:
+#'
+#' \itemize{
+#'   \item \code{observation}. Identifier for participant
+#'   \item \code{Book}.Book used for evaluation.
+#'   \item \code{Pre}. Pre-intervention score on the expressive definition task.
+#'   \item \code{Post}. Post-intervention score on the expressive definition task.
+#' }
+#'
+#' @docType data
+#' @keywords datasets
+#' @format A data frame with 153 rows and 4 variables
+#' @name Peters2020
+#' @source Peters-Sanders, L., Kelley, E., Haring, C., Madsen, K., Soto, X.,
+#'   Seven, Y., Hull, K., & Goldstein, H. (2020). Moving forward four words at a
+#'   time: Effects of a supplemental preschool vocabulary. Language, Speech, and
+#'   Hearing Services in Schools, 51, 165-175. doi:10.1044/2019_LSHSS-19-00029
+NULL
+
+#' @title Dennis & Whalon, (2021)
+#'
+#' @description Data from a Repeated acquisition single-case experimental design
+#'   evaluating vocabulary knowledge using an expressive definition task. The
+#'   variables are as follows:
+#'
+#' \itemize{
+#'   \item \code{Participant}. Participant identifier.
+#'   \item \code{Condition}. Indicates condition, application (App) or teacher (TCH).
+#'   \item \code{Observation}. Within-series session-number
+#'   \item \code{Pre}. Pre-intervention score on the expressive definition task.
+#'   \item \code{Post}. Post-intervention score on the expressive definition task.
+#' }
+#'
+#' @docType data
+#' @keywords datasets
+#' @format A data frame with 90 rows and 5 variables
+#' @name Dennis2021
+#' @source Dennis, L. R., & Whalon, K. J. (2021). Effects of teacher-versus
+#'   application-delivered instruction on the expressive vocabulary of at-risk
+#'   preschool children. Remedial and Special Education, 42(4), 195-206.
+#'   doi:10.1177/0741932519900991
+NULL
+
+#' @title Byiers et al., (2014)
+#'
+#' @description Data from an ABAB design that evaluated the effectiveness of
+#'   functional assessment and functional communication training on the Rett
+#'   syndrome (RTT) of three individuals with RTT novel communicative behaviors.
+#'   The dependent variable, communicative behavior, was measured using
+#'   frequency counting for a five minute observation session. A single outcome
+#'   (percent of switch activated responses) was calculated with appropriate
+#'   responses per minute divided by inappropriate responses per minute,
+#'   multiplied by 100. The variables are as follows:
+#'
+#' \itemize{
+#'   \item \code{StudyID}. Study identifier.
+#'   \item \code{StudyID_CaseID}. Participant identifier.
+#'   \item \code{Session_number}. Within-series session-number.
+#'   \item \code{Condition}. Indicates condition, (A for baseline, B for treatment).
+#'   \item \code{Outcome}. Value for the percent of switch activated responses.
+#'   \item \code{Session_length}. Length of the session.
+#'   \item \code{Procedure}. Scale of the outcome variable.
+#'   \item \code{Goal_level}. Indicates the goal level for each series.
+#'   \item \code{phase_pair_calculated}. Indicates the unique phase number of each
+#'   sequential occurrence of a phase for each participant of ABAB design.
+#' }
+#'
+#' @docType data
+#' @keywords datasets
+#' @format A data frame with 54 rows and 9 variables
+#' @name Byiers2014
+#' @source Byiers, B. J., Dimian, A., & Symons, F. J. (2014). Functional
+#'   communication training in Rett syndrome: A preliminary study. \emph{American
+#'   Journal on Intellectual and Developmental Disabilities, 119}(4), 340-350.
+#'   doi:10.1352/1944-7558-119.4.340
+NULL
+
+#' @title Casey (1978)
+#'
+#' @description Data from a multiple baseline design across participant that
+#'   evaluated the effectiveness of use of manual signs with verbalizations in
+#'   improving appropriate communicative behavior and reducing inappropriate
+#'   behavior. The study aimed to increase positive communicative behavior to 1
+#'   and reduce the proportion of intervals engaged in problem behavior to 0.
+#'   These two outcomes were combined to create the dependent variable:
+#'   proportion of communicative opportunities with a signed request. The
+#'   variables are as follows:
+#'
+#' \itemize{
+#'   \item \code{StudyID}. Study identifier.
+#'   \item \code{StudyID_CaseID}. Participant identifier.
+#'   \item \code{Session_number}. Within-series session-number.
+#'   \item \code{Condition}. Indicates condition, (A for baseline, B for treatment).
+#'   \item \code{Outcome}. Value for the outcome variable.
+#'   \item \code{Session_length}. Length of the session.
+#'   \item \code{Procedure}. Scale of the outcome variable.
+#'   \item \code{Goal_level}. Indicates the goal level for each series.
+#' }
+#'
+#' @docType data
+#' @keywords datasets
+#' @format A data frame with 100 rows and 8 variables
+#' @name Casey1978
+#' @source Casey, L. O. (1978). Development of communicative behavior in
+#'   autistic children: A parent program using manual signs. \emph{Journal of Autism
+#'   and Childhood Schizophrenia, 8}(1), 45-59. https://doi.org/10.1007/BF01550277
+NULL
+
+#' @title Strasberger & Ferreri (2014)
+#'
+#' @description Data from a multiple baseline design across participant that
+#'   evaluated the effectiveness of an iPod-based speech generating device and a
+#'   peer mediated intervention on improving sophisticated communication skills
+#'   of children with autism. The variables are as follows:
+#'
+#' \itemize{
+#'   \item \code{StudyID}. Study identifier.
+#'   \item \code{StudyID_CaseID}. Participant identifier.
+#'   \item \code{Session_number}. Within-series session-number.
+#'   \item \code{Condition}. Indicates condition, (A for baseline, B for intervention).
+#'   \item \code{Outcome}. The number of independent 2-step mands.
+#'   \item \code{Session_length}. Length of the session.
+#'   \item \code{Procedure}. Scale of the outcome variable.
+#'   \item \code{Goal_level}. Indicates the goal level for each series.
+#' }
+#'
+#' @docType data
+#' @keywords datasets
+#' @format A data frame with 47 rows and 8 variables
+#' @name Strasberger2014
+#' @source Strasberger, S. K., & Ferreri, S. J. (2014). The effects of peer
+#'   assisted communication application training on the communicative and social
+#'   behaviors of children with autism. \emph{Journal of Developmental and Physical
+#'   Disabilities, 26}, 513-526. https://doi.org/10.1007/s10882-013-9358-9
 NULL
