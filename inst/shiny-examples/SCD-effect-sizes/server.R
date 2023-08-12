@@ -107,13 +107,13 @@ shinyServer(function(input, output, session) {
       )
     }
     
-    if (input$ES_family == "Parametric" & input$parametric_ES %in% c("LOR", "LRRi", "LRRd", "PoGO") & input$outScale == "percentage") {
+    if (input$ES_family == "Parametric" & input$parametric_ES %in% c("LOR", "LRRi", "LRRd") & input$outScale == "percentage") {
       validate(
         need(all(c(dat()$A, dat()$B) >= 0) & all(c(dat()$A, dat()$B) <= 100), message =  "For percentage scale, values must be between 0 and 100.")
       )
     }
     
-    if (input$ES_family == "Parametric" & input$parametric_ES %in% c("LOR", "LRRi", "LRRd", "PoGO") & input$outScale == "proportion") {
+    if (input$ES_family == "Parametric" & input$parametric_ES %in% c("LOR", "LRRi", "LRRd") & input$outScale == "proportion") {
       validate(
         need(all(c(dat()$A, dat()$B) >= 0) & all(c(dat()$A, dat()$B) <= 1), message = "For proportion scale, values must be between 0 and 1.")
       )
@@ -495,7 +495,59 @@ shinyServer(function(input, output, session) {
   
   output$datview2 <- renderTable(datClean2())
   
+  # warning message for outcome scale types
+  
+  output$outcomeScale <- renderUI({
+    
+    req(input$boutScale)
+    
+    if (input$boutScale == "series") {
+      scales <- c("count", "rate", "proportion", "percentage", "other")
+      scale_type <- tolower(unique(datClean2()[[input$bscalevar]]))
+      wrong_scale_type <- setdiff(scale_type, scales)
+      
+      if (length(wrong_scale_type) > 0) {
+        warning <- paste0("The scale variable contains non-acceptable types: ", paste(wrong_scale_type, collapse = ", "), 
+                          ". The acceptable scale types are: count, rate, proportion, percentage, or other.")
+        list(
+          strong(style="color:red", warning),
+          br("")
+        )
+      } else {
+        NULL
+      }
+    }
+    
+  })
+  
+  # warning message for improvement direction
+  
+  output$improvementDir <- renderUI({
+    
+    req(input$bimprovement)
+    req(input$bseldir)
+    
+    if (input$bimprovement == "series") {
+      valence_allowed <- c("increase", "decrease")
+      valence_input <- tolower(unique(datClean2()[[input$bseldir]]))
+      wrong_valence <- setdiff(valence_input, valence_allowed)
+      
+      if (length(wrong_valence) > 0) {
+        warning <- paste0("The improvement direction variable contains non-acceptable types: ", paste(wrong_valence, collapse = ", "), 
+                          ". The acceptable improvement directions are: increase or decrease.")
+        list(
+          strong(style="color:red", warning),
+          br("")
+        )
+      } else {
+        NULL
+      }
+    }
+    
+  })
+  
   # Plot
+  
   output$facetSelector <- renderUI({
     grouping_vars <- input$b_clusters
     aggregating_vars <- input$b_aggregate

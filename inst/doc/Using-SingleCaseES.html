@@ -5,7 +5,7 @@
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <meta name="author" content="Daniel M. Swan, James E. Pustejovsky, and Paulina Grekov" />
-  <meta name="dcterms.date" content="2023-03-04" />
+  <meta name="dcterms.date" content="2023-08-11" />
   <title>Basic effect sizes calculations using SingleCaseES</title>
 
   
@@ -365,7 +365,7 @@ pre code, pre code:not([class]) { white-space: unset; }
 <header>
 <h1 id="title" class="toc-ignore">Basic effect sizes calculations using
 SingleCaseES</h1>
-<p id="date">2023-03-04</p>
+<p id="date">2023-08-11</p>
 <p id="author">Daniel M. Swan, James E. Pustejovsky, and Paulina
 Grekov</p>
 
@@ -420,7 +420,7 @@ size measures, and for estimating the gradual effects model <span class="citatio
 for the subset of effect sizes indices with known sampling
 distributions.</p>
 <p>The package also includes two graphical user interfaces for
-interactive use (designed using <a href="https://shiny.rstudio.com/">Shiny</a>), both of which are also
+interactive use (designed using <a href="https://shiny.posit.co/">Shiny</a>), both of which are also
 available as web apps hosted through <a href="https://www.shinyapps.io/">shinyapps.io</a>:</p>
 <ul>
 <li><code>SCD_effect_sizes()</code> opens an interactive calculator for
@@ -844,7 +844,10 @@ proportion or percentage scales:</p>
 <span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 LOR  NA NA       NA       NA</span></span>
 <span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a><span class="fu">LOR</span>(<span class="at">A_data =</span> A_pct, <span class="at">B_data =</span> B_pct, <span class="at">scale =</span> <span class="st">&quot;proportion&quot;</span>)</span>
-<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in calc_LOR(A_data = c(20, 20, 25, 25, 20, 25), B_data = c(30, 25, : Proportions must be between 0 and 1!</span></span></code></pre></div>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in `map()`:</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ℹ In index: 1.</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Caused by error in `calc_LOR()`:</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ! Proportions must be between 0 and 1!</span></span></code></pre></div>
 <p>As with the LRR functions, <code>LOR()</code> includes an argument to
 specify the direction of therapeutic improvement, with the default
 assumption being that a therapeutic improvement is an increase in the
@@ -927,7 +930,10 @@ sizes to the <code>ES</code> argument.</p>
 <p>Setting <code>ES = &quot;all&quot;</code> will return all available effect
 sizes:</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">calc_ES</span>(<span class="at">A_data =</span> A, <span class="at">B_data =</span> B, <span class="at">ES =</span> <span class="st">&quot;all&quot;</span>)</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in calc_PoGO(A_data = c(20, 20, 26, 25, 22, 23), B_data = c(28, : argument &quot;goal&quot; is missing, with no default</span></span></code></pre></div>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in `map()`:</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ℹ In index: 11.</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Caused by error in `calc_PoGO()`:</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ! argument &quot;goal&quot; is missing, with no default</span></span></code></pre></div>
 <p>Setting <code>ES = &quot;NOM&quot;</code> will return all of the non-overlap
 measures.</p>
 <div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">calc_ES</span>(<span class="at">A_data =</span> A, <span class="at">B_data =</span> B, <span class="at">ES =</span> <span class="st">&quot;NOM&quot;</span>)</span>
@@ -943,7 +949,10 @@ measures.</p>
 <p>Setting <code>ES = &quot;parametric&quot;</code> will return all of the
 parametric effect sizes:</p>
 <div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">calc_ES</span>(<span class="at">A_data =</span> A, <span class="at">B_data =</span> B, <span class="at">ES =</span> <span class="st">&quot;parametric&quot;</span>)</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in calc_PoGO(A_data = c(20, 20, 26, 25, 22, 23), B_data = c(28, : argument &quot;goal&quot; is missing, with no default</span></span></code></pre></div>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in `map()`:</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ℹ In index: 6.</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Caused by error in `calc_PoGO()`:</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ! argument &quot;goal&quot; is missing, with no default</span></span></code></pre></div>
 <p>If the <code>ES</code> argument is omitted, <code>calc_ES()</code>
 will return LRRd, LRRi, SMD, and Tau by default.</p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">calc_ES</span>(<span class="at">A_data =</span> A, <span class="at">B_data =</span> B)</span>
@@ -4077,41 +4086,41 @@ calculating confidence intervals, specify
 <span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>              <span class="at">warn =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in batch_calc_ES(dat = McKissick, grouping = Case_pseudonym, condition = Condition, : You must provide the goal level of the behavior to calculate the PoGO effect size.</span></span></code></pre></div>
 <h1 class="unnumbered" id="references">References</h1>
-<div id="refs" class="references csl-bib-body hanging-indent" data-line-spacing="2" role="doc-bibliography">
-<div id="ref-McKissick2010randomizing" class="csl-entry" role="doc-biblioentry">
+<div id="refs" class="references csl-bib-body hanging-indent" data-line-spacing="2" role="list">
+<div id="ref-McKissick2010randomizing" class="csl-entry" role="listitem">
 McKissick, C., Hawkins, R. O., Lentz, F. E., Hailley, J., &amp; McGuire,
 S. (2010). <span class="nocase">Randomizing multiple contingency
 components to decrease disruptive behaviors and increase student
 engagement in an urban second-grade classroom</span>. <em>Psychology in
 the Schools</em>, <em>47</em>(9), 944–959. <a href="https://doi.org/10.1002/pits.20516">https://doi.org/10.1002/pits.20516</a>
 </div>
-<div id="ref-parker2009improved" class="csl-entry" role="doc-biblioentry">
+<div id="ref-parker2009improved" class="csl-entry" role="listitem">
 Parker, R. I., &amp; Vannest, K. (2009). An improved effect size for
 single-case research: Nonoverlap of all pairs. <em>Behavior
 Therapy</em>, <em>40</em>(4), 357–367.
 </div>
-<div id="ref-pustejovsky2015measurement" class="csl-entry" role="doc-biblioentry">
+<div id="ref-pustejovsky2015measurement" class="csl-entry" role="listitem">
 Pustejovsky, J. E. (2015). Measurement-comparable effect sizes for
 single-case studies of free-operant behavior. <em>Psychological
 Methods</em>, <em>20</em>(3), 342–359.
 </div>
-<div id="ref-pustejovsky2018using" class="csl-entry" role="doc-biblioentry">
+<div id="ref-pustejovsky2018using" class="csl-entry" role="listitem">
 Pustejovsky, J. E. (2018). Using response ratios for meta-analyzing
 single-case designs with behavioral outcomes. <em>Journal of School
 Psychology</em>, <em>68</em>, 99–112.
 </div>
-<div id="ref-Schmidt2007effects" class="csl-entry" role="doc-biblioentry">
+<div id="ref-Schmidt2007effects" class="csl-entry" role="listitem">
 Schmidt, A. C. (2007). <em><span class="nocase">The effects of a group
 contingency on group and individual behavior in an urban first-grade
 classroom</span></em> (Doctoral dissertation). University of Kansas.
 </div>
-<div id="ref-scruggs1987quantitative" class="csl-entry" role="doc-biblioentry">
+<div id="ref-scruggs1987quantitative" class="csl-entry" role="listitem">
 Scruggs, T. E., Mastropieri, M. A., &amp; Casto, G. (1987). The
 quantitative synthesis of single-subject research: Methodology and
 validation. <em>Remedial and Special Education</em>, <em>8</em>(2),
 24–33.
 </div>
-<div id="ref-Swan2018gradual" class="csl-entry" role="doc-biblioentry">
+<div id="ref-Swan2018gradual" class="csl-entry" role="listitem">
 Swan, D. M., &amp; Pustejovsky, J. E. (2018). <span class="nocase">A
 Gradual Effects Model for Single-Case Designs</span>. <em>Multivariate
 Behavioral Research</em>. <a href="https://doi.org/10.1080/00273171.2018.1466681">https://doi.org/10.1080/00273171.2018.1466681</a>

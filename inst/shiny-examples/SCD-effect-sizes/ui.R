@@ -30,10 +30,10 @@ ui <- navbarPage(title = "Single-case effect size calculator",
                                    textInput("B_dat", label = "Phase B", value = "")
                             ),
                             column(4,
-                                   checkboxInput("plot","Show graph", value = FALSE)
+                                   checkboxInput("toggleSinglePlot","Show graph", value = FALSE)
                             )
                           ),
-                          conditionalPanel(condition = "input.plot",
+                          conditionalPanel(condition = "input.toggleSinglePlot",
                             fluidRow(
                               column(12,
                                      plotOutput('SCDplot', height = "300px")
@@ -195,7 +195,7 @@ ui <- navbarPage(title = "Single-case effect size calculator",
                             tabPanel("Variables",
                                      sidebarLayout(
                                        sidebarPanel(
-                                         style = "max-height: 800px; overflow-y: auto",
+                                         style = "max-height: 1200px; overflow-y: auto",
                                          conditionalPanel(condition = "input.dat_type == 'dat' | input.dat_type == 'xlsx'",
                                                           checkboxInput("calcPhasePair", "Calculate phase pair numbers for ABAB designs.", value = FALSE)),
                                          uiOutput("clusterPhase"),
@@ -204,6 +204,8 @@ ui <- navbarPage(title = "Single-case effect size calculator",
                                          uiOutput("outOrderImp"),
                                          conditionalPanel(condition = "input.bimprovement == 'series'",
                                                           uiOutput("improvementVar")),
+                                         conditionalPanel(condition = "input.bimprovement == 'series'",
+                                                          uiOutput("improvementDir")),
                                          br(),
                                          br(),
                                          br()
@@ -251,10 +253,13 @@ ui <- navbarPage(title = "Single-case effect size calculator",
                                          conditionalPanel(condition = "input.bESpar.includes('LRRi') | input.bESpar.includes('LRRd') | input.bESpar.includes('LOR')",
                                                           checkboxInput("b_pct_change", "Convert LRR to % change")),
                                          conditionalPanel(condition = "input.bESpar.includes('LOR')", 
-                                                          HTML("<font color=\"#FF0000\">LOR will only be calculated for outcomes measured as percentages or proportions.</font>")),
+                                                          strong(style="color:orange","LOR will only be calculated for outcomes measured as percentages or proportions."),
+                                                          br("")),
                                          conditionalPanel(condition = "input.bESpar.includes('SMD')", 
                                                           radioButtons("bSMD_denom", label = "Standardize SMD ", 
                                                                        choices = c("baseline SD" = "baseline", "pooled SD" = "pool"), inline = TRUE)),
+                                         conditionalPanel(condition = "input.bESpar.includes('LRRi') | input.bESpar.includes('LRRd') | input.bESpar.includes('LOR')",
+                                                          uiOutput("outcomeScale")),
                                          conditionalPanel(condition = "input.bESpar.includes('LRRi') | input.bESpar.includes('LRRd') | input.bESpar.includes('LOR')",
                                                           uiOutput("measurementProc")),
                                          conditionalPanel(condition = "input.bESpar.includes('PoGO')", uiOutput("goalLevel")),
