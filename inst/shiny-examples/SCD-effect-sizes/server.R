@@ -43,7 +43,7 @@ shinyServer(function(input, output, session) {
   
   output$SCDplot <- renderPlot({
     
-    if (input$plot & dat()$compute) {
+    if (input$toggleSinglePlot & dat()$compute) {
       A_dat <- dat()$A
       B_dat <- dat()$B
       m <- length(A_dat)
@@ -56,6 +56,10 @@ shinyServer(function(input, output, session) {
         geom_vline(xintercept = m + 0.5, linetype = "dashed") + 
         scale_color_brewer(type = "qual", palette = 2) + 
         theme_minimal() + theme(legend.position = "bottom")
+    } else {
+      ggplot() + 
+        geom_text(aes(x = 0, y = 0, label = single_series_min_data_points_msg), size = 6) + 
+        theme_void()
     }
   })
   
@@ -197,6 +201,8 @@ shinyServer(function(input, output, session) {
         Est_txt <- paste("Effect size estimate:", fmt(est$Est))
         HTML(Est_txt)
       }
+    } else {
+      HTML(single_series_min_data_points_msg)
     }
   })
   
@@ -230,7 +236,7 @@ shinyServer(function(input, output, session) {
 
       read.table(inFile$datapath, header=input$header,
                  sep=input$sep, quote=input$quote,
-                 stringsAsFactors = FALSE, check.names = FALSE) %>%
+                 stringsAsFactors = FALSE, check.names = FALSE) |>
         janitor::clean_names(case = "parsed")
 
     } else if (input$dat_type == "xlsx") {
@@ -239,8 +245,8 @@ shinyServer(function(input, output, session) {
 
       if (is.null(inFile) || is.null(input$inSelect) || nchar(input$inSelect) == 0) return(NULL)
 
-      readxl::read_xlsx(inFile$datapath, col_names = input$col_names, sheet = input$inSelect) %>%
-        janitor::clean_names(case = "parsed") %>%
+      readxl::read_xlsx(inFile$datapath, col_names = input$col_names, sheet = input$inSelect) |>
+        janitor::clean_names(case = "parsed") |>
         as.data.frame()
       
     }
@@ -480,12 +486,12 @@ shinyServer(function(input, output, session) {
       phase_var <- input$b_phase
       
       dat <- 
-        dat %>% 
-        dplyr::group_by(!!!rlang::syms(grouping_vars)) %>% 
+        dat |> 
+        dplyr::group_by(!!!rlang::syms(grouping_vars)) |> 
         dplyr::mutate(
           phase_pair_calculated = calc_phase_pairs(!!rlang::sym(phase_var), session = !!rlang::sym(session_var))
-        ) %>% 
-        dplyr::ungroup() %>% 
+        ) |> 
+        dplyr::ungroup() |> 
         as.data.frame() 
     }
     
@@ -556,19 +562,21 @@ shinyServer(function(input, output, session) {
                    choices = facet_vars, selected = NULL, multiple = FALSE)
   })
   
+  grouping_vars <- reactive({
+    setdiff(c(input$b_clusters, input$b_aggregate), input$bfacetSelector)
+  })
+  
   output$graph_filters <- renderUI({
     
-    grouping_vars <- setdiff(c(input$b_clusters, input$b_aggregate), input$bfacetSelector)
-    
-    if (length(grouping_vars) > 0) {
+    if (length(grouping_vars()) > 0) {
       
-      grouping_vals <- lapply(grouping_vars, function(x) levels(as.factor(datClean2()[,x])))
-      names(grouping_vals) <- grouping_vars
+      grouping_vals <- lapply(grouping_vars(), function(x) sort(unique(datClean2()[[x]])))
+      names(grouping_vals) <- grouping_vars()
       
       header <- strong("Select a value for each grouping variable.")
       
-      grouping_selects <- lapply(grouping_vars, function(x) 
-        selectizeInput(paste0("grouping_",x), label = x, choices = grouping_vals[[x]], 
+      grouping_selects <- lapply(grouping_vars(), function(x) 
+        selectizeInput(paste("grouping",x, sep = "_"), label = x, choices = grouping_vals[[x]], 
                        selected = grouping_vals[[x]][1], multiple = FALSE))
       
       grouping_selects <- list(header, column(12, br()), grouping_selects)
@@ -579,16 +587,41 @@ shinyServer(function(input, output, session) {
     
   })
   
+  # vector of selected filter variables
+  grouping_selected <- reactive({
+    if (length(grouping_vars()) > 0) {
+      lapply(grouping_vars(), \(x) input[[paste("grouping", x, sep = "_")]])
+    }
+  })
+  
+  # update the filter variable inputs
+  observeEvent(grouping_selected(), {
+    n_grouping <- length(grouping_vars())
+    if (n_grouping > 0) {
+      dat <- datClean2()
+      for (i in 1:n_grouping) {
+        grp_var <- grouping_vars()[i]
+        inputId <- paste("grouping", grp_var, sep = "_")
+        grp_val <- grouping_selected()[[i]]
+        grouping_vals <- sort(unique(dat[[grp_var]]))
+        selected_val <- if (!is.null(grp_val) && grp_val %in% grouping_vals) grp_val else grouping_vals[1]
+        subset_vals <- dat[[grp_var]] == selected_val
+        dat <- dat[subset_vals,]
+        if (inputId %in% names(input)) {
+          updateSelectizeInput(session, inputId = inputId, choices = grouping_vals, selected = selected_val)
+        }
+      }
+    }
+  })
+  
   datGraph <- reactive({
     
     dat <- datClean2()
     
     if (!is.null(input$b_clusters) | !is.null(input$b_aggregate)) {
 
-      grouping_vars <- setdiff(c(input$b_clusters, input$b_aggregate), input$bfacetSelector)
-      
-      if (length(grouping_vars) > 0) {
-        subset_vals <- sapply(grouping_vars, function(x) datClean2()[[x]] %in% input[[paste0("grouping_",x)]])
+      if (length(grouping_vars()) > 0) {
+        subset_vals <- sapply(grouping_vars(), function(x) datClean2()[[x]] %in% input[[paste0("grouping_",x)]])
         dat <- dat[apply(subset_vals, 1, all),]
       } 
       
@@ -618,14 +651,14 @@ shinyServer(function(input, output, session) {
     if (is.null(input$bfacetSelector) || input$bfacetSelector == "None"){
       
       dat_graph <-
-        data.frame(session = session_dat, outcome = outcome_dat, phase = as.factor(phase_dat)) %>%
+        data.frame(session = session_dat, outcome = outcome_dat, phase = as.factor(phase_dat)) |>
         dplyr::filter(phase %in% c(input$b_base, input$b_treat))
       
       phase_change <-
-        dat_graph %>%
-        dplyr::filter(phase == phase_code[2]) %>%
-        dplyr::mutate(treat_change = suppressWarnings(min(session)) - 0.5) %>%
-        dplyr::select(treat_change) %>%
+        dat_graph |>
+        dplyr::filter(phase == phase_code[2]) |>
+        dplyr::mutate(treat_change = suppressWarnings(min(session)) - 0.5) |>
+        dplyr::select(treat_change) |>
         unique()
       
     } else {
@@ -633,15 +666,15 @@ shinyServer(function(input, output, session) {
       facet_dat <- dat[[input$bfacetSelector]]
       
       dat_graph <-
-        data.frame(facet = facet_dat, session = session_dat, outcome = outcome_dat, phase = as.factor(phase_dat)) %>%
+        data.frame(facet = facet_dat, session = session_dat, outcome = outcome_dat, phase = as.factor(phase_dat)) |>
         dplyr::filter(phase %in% c(input$b_base, input$b_treat))
       
       phase_change <-
-        dat_graph %>%
-        group_by(facet) %>%
-        dplyr::filter(phase == phase_code[2]) %>%
-        dplyr::mutate(treat_change = suppressWarnings(min(session)) - 0.5) %>%
-        dplyr::select(facet, treat_change) %>%
+        dat_graph |>
+        group_by(facet) |>
+        dplyr::filter(phase == phase_code[2]) |>
+        dplyr::mutate(treat_change = suppressWarnings(min(session)) - 0.5) |>
+        dplyr::select(facet, treat_change) |>
         unique()
       
     }
@@ -845,14 +878,14 @@ shinyServer(function(input, output, session) {
     if (any(input$bESpar %in% c("LRRi", "LRRd", "LOR"))) {
       
       scale_val <- switch(input$boutScale,
-        "series" = paste0("\n         scale = ", as.symbol(input$bscalevar), ","),
-        "percentage" = '\n            scale = "percentage",',
-        "proportion" = '\n            scale = "proportion",',
-        "count" = '\n                 scale = "count",',
-        "rate" = '\n                  scale = "rate",',
-        "other" = '\n                 scale = "other",',
+        "series" = paste0("\n  scale = ", as.symbol(input$bscalevar), ","),
+        "percentage" = '\n  scale = "percentage",',
+        "proportion" = '\n  scale = "proportion",',
+        "count" = '\n  scale = "count",',
+        "rate" = '\n  scale = "rate",',
+        "other" = '\n  scale = "other",',
         c()
-      )
+      )  
       
       intervals <- if (input$bintervals == "NA") NA else input$bintervals
       obslength <- if (input$bobslength == "NA") NA else input$bobslength
@@ -860,7 +893,7 @@ shinyServer(function(input, output, session) {
       
     } else {
       # scale_val <- "other"
-      scale_val <- '\n                scale = "other",'
+      scale_val <- '\n  scale = "other",'
       intervals <- obslength <- D_const <- NA
     }
     
@@ -882,9 +915,9 @@ shinyServer(function(input, output, session) {
     
     
     improvement <- switch(input$bimprovement,
-                          "series" = paste0("\n                     improvement = ", as.symbol(input$bseldir), ","),
-                          "increase" = '\n                     improvement = "increase",',
-                          "decrease" = '\n                     improvement = "decrease",',
+                          "series" = paste0("\n  improvement = ", as.symbol(input$bseldir), ","),
+                          "increase" = '\n  improvement = "increase",',
+                          "decrease" = '\n  improvement = "decrease",',
                           c()
     )
     
@@ -981,7 +1014,8 @@ shinyServer(function(input, output, session) {
   })
 
   output$clip <- renderUI({
-    rclipboard::rclipButton("clipbtn", "Copy", batch_syntax(), modal = FALSE, icon("clipboard"))
+    rclipboard::rclipButton("clipbtn", "Copy", batch_syntax(), modal = FALSE, icon = icon("clipboard"),
+                            tooltip = "Click me to copy the code to your clipboard!",)
   })
 
   session$onSessionEnded(function() {
