@@ -179,13 +179,13 @@ calc_ES(A_data = A, B_data = B, ES = c("NAP","PND","SMD"), format = "wide")
 ## -----------------------------------------------------------------------------
 data(McKissick)
 
-## ---- echo = FALSE------------------------------------------------------------
+## ----echo = FALSE-------------------------------------------------------------
 knitr::kable(head(McKissick, n = 10))
 
 ## -----------------------------------------------------------------------------
 data(Schmidt2007)
 
-## ---- echo = FALSE------------------------------------------------------------
+## ----echo = FALSE-------------------------------------------------------------
 Schmidt_kable <- 
   knitr::kable(head(subset(Schmidt2007,select = c(Case_pseudonym, Behavior_type, Session_number, Outcome, Condition, Phase_num, Metric, Session_length, direction, n_Intervals)), n = 10), longtable = TRUE)
 
@@ -208,7 +208,7 @@ mckissick_ES <- batch_calc_ES(dat = McKissick,
               improvement = "decrease",
               ES = c("NAP", "PND"))
 
-## ---- echo = FALSE------------------------------------------------------------
+## ----echo = FALSE-------------------------------------------------------------
 kable(mckissick_ES) 
 
 ## -----------------------------------------------------------------------------
@@ -221,7 +221,7 @@ schmidt_ES <- batch_calc_ES(
   ES = c("NAP", "LRRi")
 )
 
-## ---- echo = FALSE------------------------------------------------------------
+## ----echo = FALSE-------------------------------------------------------------
 if (requireNamespace("kableExtra", quietly = TRUE)) {
   kable(schmidt_ES, digits = 3) %>%
     kable_styling() %>%
@@ -245,7 +245,7 @@ schmidt_ES_agg <-
     ES = "NAP"
   )
 
-## ---- echo = FALSE------------------------------------------------------------
+## ----echo = FALSE-------------------------------------------------------------
 kable(schmidt_ES_agg) %>%
   kable_styling()
 
@@ -263,7 +263,7 @@ schmidt_ES_agg <-
   )
 
 
-## ---- echo = FALSE------------------------------------------------------------
+## ----echo = FALSE-------------------------------------------------------------
 if (requireNamespace("kableExtra", quietly = TRUE)) {
   kable(schmidt_ES_agg, digits = 3) %>%
     kable_styling()
@@ -281,7 +281,7 @@ mckissick_ES <- batch_calc_ES(dat = McKissick,
               observation_length = 20,
               ES = "parametric")
 
-## ---- echo = FALSE------------------------------------------------------------
+## ----echo = FALSE-------------------------------------------------------------
 knitr::kable(mckissick_ES, digits = 3)
 
 ## -----------------------------------------------------------------------------
@@ -295,7 +295,7 @@ schmidt_ES <- batch_calc_ES(dat = Schmidt2007,
               intervals = n_Intervals,
               ES = c("parametric"))
 
-## ---- echo = FALSE------------------------------------------------------------
+## ----echo = FALSE-------------------------------------------------------------
 if (requireNamespace("kableExtra", quietly = TRUE)) {
   kable(schmidt_ES, digits = 3) %>%
     kable_styling() %>%
@@ -319,7 +319,7 @@ mckissick_wide_ES <-
     format = "wide"
   )
 
-## ---- echo = FALSE------------------------------------------------------------
+## ----echo = FALSE-------------------------------------------------------------
 knitr::kable(mckissick_wide_ES)
 
 ## -----------------------------------------------------------------------------
